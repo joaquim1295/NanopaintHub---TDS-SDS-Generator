@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NanopaintHub.WinUIClient (Unpackaged)": {
+      "commandName": "Project"
+    },
+    "NanopaintHub.WinUIClient (Package)": {
+      "commandName": "MsixPackage"
+    }
+  }
+}

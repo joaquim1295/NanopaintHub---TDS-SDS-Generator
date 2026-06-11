@@ -1,0 +1,36 @@
+## Build / IDE
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.idea/
+
+## NuGet
+*.nupkg
+**/packages/
+
+## OS
+Thumbs.db
+Desktop.ini
+
+## Logs / temp
+*.log
+*.tmp
+*.cache
+
+## Local SQLite (dev)
+nanopaint.db
+nanopaint.db-*
+
+## WinUI / MSIX
+AppPackages/
+BundleArtifacts/
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle

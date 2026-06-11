@@ -1,0 +1,6 @@
+<Project>
+  <!-- Evita NU1900 quando a rede bloqueia apenas o endpoint de auditoria de vulnerabilidades. -->
+  <PropertyGroup>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <title>SDS {{Name}}</title>
+  <style>
+    :root { color-scheme: light; --ink:#0f172a; --muted:#64748b; --brand:#dc2626; --line:#e2e8f0; --card:#f8fafc; }
+    * { box-sizing:border-box; }
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 28px; color:var(--ink); background:#fff; }
+    .header { border-left:6px solid var(--brand); padding-left:12px; margin-bottom:16px; }
+    .muted { color:var(--muted); font-size:12px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:12px; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border: 1px solid var(--line); padding: 7px; text-align:left; vertical-align: top; }
+    th { background:#fee2e2; }
+    code { font-family: Consolas, monospace; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1 style="margin:0">Ficha de Segurança (SDS)</h1>
+    <div class="muted">{{Name}} · {{Code}} · Revisão {{RevisionDate}} · v{{Version}}</div>
+  </header>
+
+  <section class="card">
+    <h2 style="margin-top:0">Identificação</h2>
+    <p>{{Description}}</p>
+    {{#if Assets.Logo}}<img src="{{Assets.Logo}}" alt="Logo" style="max-height:58px" />{{/if}}
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0">Composição e componentes</h2>
+    <table>
+      <thead>
+      <tr><th>Fornecedor</th><th>Componente</th><th>CAS</th><th>Propriedades SDS</th></tr>
+      </thead>
+      <tbody>
+      {{#each Components}}
+        <tr>
+          <td>{{SupplierName}}</td>
+          <td>{{ComponentName}}</td>
+          <td>{{CasNumber}}</td>
+          <td><code>{{SdsPropertiesJson}}</code></td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0">Campos custom</h2>
+    <table><tbody>{{#each Placeholders}}<tr><th>{{@key}}</th><td>{{this}}</td></tr>{{/each}}</tbody></table>
+    <p class="muted">Insira placeholders adicionais pelo builder visual (dropdown/textbox).</p>
+  </section>
+</body>
+</html>

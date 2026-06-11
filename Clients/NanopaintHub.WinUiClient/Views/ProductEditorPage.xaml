@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="NanopaintHub_WinUIClient.Views.ProductEditorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+
+        <!-- Form -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16" MaxWidth="600" HorizontalAlignment="Left">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                
+                <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+                    <StackPanel Spacing="16">
+                        <TextBox Header="Nome do Produto" Text="{x:Bind ViewModel.Product.Name, Mode=TwoWay}" />
+                        <TextBox Header="Código" Text="{x:Bind ViewModel.Product.Code, Mode=TwoWay}" />
+                        <TextBox Header="TDS Sensor Specs (JSON)" Text="{x:Bind ViewModel.Product.TdsSensorSpecsJson, Mode=TwoWay}" AcceptsReturn="True" Height="100" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+            <Button Content="Salvar" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+            <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+        </StackPanel>
+    </Grid>
+</Page>

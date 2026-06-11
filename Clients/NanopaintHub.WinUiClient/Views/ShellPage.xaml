@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="NanopaintHub_WinUIClient.Views.ShellPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <NavigationView
+            x:Name="NavView"
+            IsBackButtonVisible="Collapsed"
+            IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
+            BackRequested="NavView_BackRequested"
+            ItemInvoked="NavView_ItemInvoked"
+            SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}"
+            PaneDisplayMode="LeftCompact"
+            Header="{x:Bind ((NavigationViewItem)NavView.SelectedItem).Content, Mode=OneWay}">
+            
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Name="ProductsItem" Content="Produtos" Tag="Products" Icon="Library" />
+                <NavigationViewItem x:Name="TemplatesItem" Content="Templates" Tag="Templates" Icon="Document" />
+                <NavigationViewItem x:Name="PdfGeneratorItem" Content="Gerar PDF" Tag="GeneratePdf" Icon="Print" />
+            </NavigationView.MenuItems>
+            
+            <Grid>
+                <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="24" />
+            </Grid>
+        </NavigationView>
+    </Grid>
+</Page>

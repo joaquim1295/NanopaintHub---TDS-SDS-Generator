@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor de Template — Word</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f3f4f6;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    #chromium-toolbar {
+      display: none;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #1f2937;
+      color: #fff;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    #chromium-toolbar.visible {
+      display: flex;
+    }
+    #chromium-toolbar .title {
+      flex: 1;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    #chromium-toolbar button {
+      font: inherit;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+    #btn-apply {
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+    }
+    #btn-cancel {
+      background: #374151;
+      color: #fff;
+    }
+    #editor-shell {
+      height: calc(100% - 42px);
+      background: #fff;
+    }
+    body.chromium-mode #editor-shell {
+      height: calc(100% - 90px);
+    }
+    #status {
+      font-size: 12px;
+      color: #666;
+      padding: 6px 10px;
+      border-top: 1px solid #ddd;
+      background: #fff;
+    }
+    .tox-tinymce {
+      border: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="chromium-toolbar">
+    <span class="title">NanopaintHub — Editor visual (Word)</span>
+    <button type="button" id="btn-apply">Aplicar na NanopaintHub</button>
+    <button type="button" id="btn-cancel">Cancelar</button>
+  </div>
+  <div id="editor-shell">
+    <textarea id="tinymce-editor"></textarea>
+  </div>
+  <div id="status">A iniciar editor...</div>
+
+  <script>
+    const urlParams = new URLSearchParams(location.search);
+    const chromiumMode = urlParams.get("mode") === "chromium";
+    const sessionId = urlParams.get("session") || "";
+
+    /** Preserva placeholders e blocos Handlebars durante a edição. */
+    const HANDLEBARS_PROTECT = [
+      /\{\{\{[\s\S]*?\}\}\}/g,
+      /\{\{#[^}]+\}\}[\s\S]*?\{\{\/[^}]+\}\}/g,
+      /\{\{[#/][^}]+\}\}/g,
+      /\{\{[^}]+\}\}/g
+    ];
+
+    let editorInstance = null;
+
+    if (chromiumMode) {
+      document.body.classList.add("chromium-mode");
+      document.getElementById("chromium-toolbar").classList.add("visible");
+    }
+
+    function setStatus(message) {
+      const el = document.getElementById("status");
+      if (el) {
+        el.textContent = message;
+      }
+    }
+
+    function reportError(message) {
+      setStatus("Erro: " + message);
+      console.error("[WysiwygHost] " + message);
+    }
+
+    async function postHostMessage(payload) {
+      if (chromiumMode && sessionId) {
+        try {
+          await fetch("/api/event", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(Object.assign({ session: sessionId }, payload))
+          });
+        } catch (err) {
+          console.warn("[WysiwygHost] event POST falhou", err);
+        }
+      }
+    }
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector('script[src="' + src + '"]')) {
+          resolve();
+          return;
+        }
+        const script = document.createElement("script");
+        script.src = src;
+        script.referrerPolicy = "origin";
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Falha JS: " + src));
+        document.head.appendChild(script);
+      });
+    }
+
+    const TINYMCE_CDN = "https://cdn.jsdelivr.net/npm/tinymce@6.8.5";
+    const TINYMCE_LOCAL = "./tinymce";
+
+    async function ensureTinyMceLoaded() {
+      if (window.tinymce) {
+        return window.__tinymceSource || "ready";
+      }
+
+      try {
+        setStatus("A carregar TinyMCE (CDN)...");
+        await loadScript(TINYMCE_CDN + "/tinymce.min.js");
+        window.__tinymceSource = "cdn";
+        setStatus("TinyMCE carregado (CDN).");
+        return "cdn";
+      } catch (cdnError) {
+        console.warn("[WysiwygHost] CDN indisponível, fallback local.", cdnError);
+        setStatus("CDN indisponível; a carregar TinyMCE local...");
+        await loadScript(TINYMCE_LOCAL + "/tinymce.min.js");
+        window.__tinymceSource = "local";
+        setStatus("TinyMCE carregado (local).");
+        return "local";
+      }
+    }
+
+    async function loadInitialHtmlFromServer() {
+      if (!chromiumMode || !sessionId) {
+        return "";
+      }
+      const res = await fetch("/api/html?session=" + encodeURIComponent(sessionId));
+      if (!res.ok) {
+        throw new Error("API /api/html respondeu " + res.status);
+      }
+      const data = await res.json();
+      return data.html || "";
+    }
+
+    async function initializeEditor() {
+      if (editorInstance) {
+        return editorInstance;
+      }
+
+      await ensureTinyMceLoaded();
+      const initialHtml = await loadInitialHtmlFromServer();
+
+      await tinymce.init({
+        selector: "#tinymce-editor",
+        height: "100%",
+        menubar: "file edit view insert format table tools help",
+        license_key: "gpl",
+        promotion: false,
+        branding: false,
+        base_url: (window.__tinymceSource === "local" ? TINYMCE_LOCAL : TINYMCE_CDN) + "/",
+        skin_url: (window.__tinymceSource === "local" ? TINYMCE_LOCAL : TINYMCE_CDN) + "/skins/ui/oxide",
+        content_css: (window.__tinymceSource === "local" ? TINYMCE_LOCAL : TINYMCE_CDN) + "/skins/content/default/content.min.css",
+        plugins: [
+          "advlist", "autolink", "lists", "link", "image", "charmap", "preview",
+          "anchor", "searchreplace", "visualblocks", "code", "fullscreen",
+          "insertdatetime", "media", "table", "help", "wordcount"
+        ].join(" "),
+        toolbar:
+          "undo redo | blocks fontsize | bold italic underline strikethrough | " +
+          "forecolor backcolor | alignleft aligncenter alignright alignjustify | " +
+          "bullist numlist outdent indent | table link image | removeformat code fullscreen",
+        verify_html: false,
+        valid_elements: "*[*]",
+        extended_valid_elements: "*[*]",
+        entity_encoding: "raw",
+        protect: HANDLEBARS_PROTECT,
+        content_style: "body { font-family: Segoe UI, Arial, sans-serif; font-size: 11pt; }",
+        setup: (editor) => {
+          editorInstance = editor;
+          editor.on("init", () => {
+            if (initialHtml) {
+              editor.setContent(initialHtml, { format: "raw" });
+            }
+          });
+        }
+      });
+
+      editorInstance = tinymce.get("tinymce-editor");
+      setStatus("Editor Word-like pronto. Edite o documento e clique «Aplicar na NanopaintHub».");
+      postHostMessage({ type: "editor-ready" });
+      return editorInstance;
+    }
+
+    async function getTemplateHtml() {
+      const editor = await initializeEditor();
+      return editor.getContent({ format: "raw" });
+    }
+
+    async function applyToApp() {
+      const html = await getTemplateHtml();
+      const res = await fetch("/api/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session: sessionId, html: html })
+      });
+      if (!res.ok) {
+        throw new Error("Falha ao aplicar (" + res.status + ")");
+      }
+      setStatus("Conteúdo enviado para a NanopaintHub. A fechar...");
+      window.close();
+    }
+
+    async function cancelEdit() {
+      await fetch("/api/cancel", { method: "POST" });
+      window.close();
+    }
+
+    document.getElementById("btn-apply")?.addEventListener("click", () => {
+      applyToApp().catch(err => reportError(String(err)));
+    });
+    document.getElementById("btn-cancel")?.addEventListener("click", () => {
+      cancelEdit().catch(err => reportError(String(err)));
+    });
+
+    window.addEventListener("error", (e) => {
+      reportError("Erro JavaScript: " + (e.message || "desconhecido"));
+    });
+
+    initializeEditor().catch(err => reportError(String(err)));
+  </script>
+</body>
+</html>
