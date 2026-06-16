@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="NanopaintHub_WinUIClient.Views.TinyMceEditorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    Title="Editor Visual (TinyMCE)">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <controls:WebView2 x:Name="EditorWebView" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Button Content="Salvar" Style="{ThemeResource AccentButtonStyle}" Click="SaveButton_Click" />
+            <Button Content="Cancelar" Click="CancelButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

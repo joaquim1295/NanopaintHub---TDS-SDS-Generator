@@ -6,7 +6,7 @@ using NanopaintHub.Application.Exceptions;
 using NanopaintHub.Domain.Entities;
 
 // 1. O PEDIDO (Query)
-public record GenerateTdsQuery(Guid ProductId, Guid TemplateId, Guid? TestBatchId = null, bool UseLatestBatchWhenUnspecified = true);
+public record GenerateTdsQuery(Guid ProductId, Guid TemplateId, Guid? TestBatchId = null, bool UseLatestBatchWhenUnspecified = true, PdfGenerationSettings? Settings = null);
 
 // 2. O MAESTRO (UseCase)
 public class GenerateTdsUseCase
@@ -66,6 +66,6 @@ public class GenerateTdsUseCase
             batch = await _testBatches.GetLatestByProductIdAsync(product.Id);
         }
 
-        return await _documentService.GenerateTdsAsync(product, template, batch);
+        return await _documentService.GenerateTdsAsync(product, template, batch, query.Settings);
     }
 } 

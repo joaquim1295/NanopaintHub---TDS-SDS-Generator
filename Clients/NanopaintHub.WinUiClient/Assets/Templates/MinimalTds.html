@@ -16,6 +16,9 @@
     }
 
     * { box-sizing: border-box; }
+    
+    img[src=""], img[src="{{{Assets.Logo}}}"], img:not([src]) { display: none; }
+    p:empty, div:empty, span:empty { display: none; }
 
     body {
       margin: 0;
@@ -62,7 +65,7 @@
     }
 
     .logo-wrap img.logo-image {
-      max-height: 70px;
+      max-height: 34px;
       width: auto;
       object-fit: contain;
       display: block;
@@ -309,27 +312,21 @@
     <header class="header-banner">
       <div class="header-top-row">
         <div class="logo-wrap">
-          {{#if Assets.Logo}}
-          <img class="logo-image" src="{{Assets.Logo}}" alt="NanoPaint logo" />
-          {{else}}
-          <span class="logo-fallback">nanopaint</span>
-          {{/if}}
+          <img class="logo-image" src="{{{Assets.Logo}}}" alt="Nanopaint Logo" />
         </div>
         <div class="doc-meta">
           <strong>Functional Inks</strong>
           Technical Data Sheet<br />
-          Revised: {{RevisionDate}}{{#if Version}} · Version {{Version}}{{/if}}
+          Revised: {{RevisionDate}} · Version {{Version}}
         </div>
       </div>
       <h1 class="product-title">Piezoresistive Ink</h1>
-      <p class="product-subtitle">{{Name}}{{#if Code}} · {{Code}}{{/if}}</p>
+      <p class="product-subtitle">{{Name}} · {{Code}}</p>
       <p class="product-description">{{Description}}</p>
     </header>
 
     <main class="main-content">
-      {{#if HasBatch}}
-      <p class="batch-note">Batch data applied: <strong>{{BatchNumber}}</strong> (merged with product specifications where applicable).</p>
-      {{/if}}
+      <p class="batch-note" data-batch="{{BatchNumber}}">Batch data applied: <strong>{{BatchNumber}}</strong> (merged with product specifications where applicable).</p>
 
       <div class="meta-bar">
         <span>NanoPaint, Lda. · Universidade do Minho · Braga, Portugal</span>
@@ -343,14 +340,6 @@
             {{#each Features}}
             <div class="feature-item"><span class="feature-check">✓</span><span>{{this}}</span></div>
             {{/each}}
-            {{#unless Features}}
-            <div class="feature-item"><span class="feature-check">✓</span><span>Carbon-based</span></div>
-            <div class="feature-item"><span class="feature-check">✓</span><span>Piezoresistive</span></div>
-            <div class="feature-item"><span class="feature-check">✓</span><span>Face-to-face printing</span></div>
-            <div class="feature-item"><span class="feature-check">✓</span><span>Flexible</span></div>
-            <div class="feature-item"><span class="feature-check">✓</span><span>Strong variation of electrical resistance</span></div>
-            <div class="feature-item"><span class="feature-check">✓</span><span>Stretchable</span></div>
-            {{/unless}}
           </div>
         </section>
 
@@ -358,13 +347,9 @@
           <h2 class="section-title">Ink properties</h2>
           <table class="data-table">
             <tbody>
-              {{#each LiquidProperties}}
+              <!-- {{#each LiquidProperties}} -->
               <tr><th>{{@key}}</th><td>{{this}}</td></tr>
-              {{/each}}
-              {{#unless LiquidProperties}}
-              <tr><th>Appearance</th><td>—</td></tr>
-              <tr><th>Physical form</th><td>—</td></tr>
-              {{/unless}}
+              <!-- {{/each}} -->
             </tbody>
           </table>
         </section>
@@ -373,71 +358,45 @@
           <h2 class="section-title">Handling guidelines</h2>
           <table class="data-table">
             <tbody>
-              {{#each MechanicalProperties}}
+              <!-- {{#each MechanicalProperties}} -->
               <tr><th>{{@key}}</th><td>{{this}}</td></tr>
-              {{/each}}
-              {{#each FunctionalProperties}}
-              <tr><th>{{@key}}</th><td>{{this}}</td></tr>
-              {{/each}}
+              <!-- {{/each}} -->
             </tbody>
           </table>
         </section>
 
-        {{#if Sensor.HasSpecs}}
         <section class="section full-width">
           <h2 class="section-title">Sensor specifications</h2>
           <table class="data-table">
             <tbody>
-              <tr><th>Sensitivity</th><td>{{Sensor.SensitivityVolts}} V / {{Sensor.SensitivityPerUnit}} {{Sensor.SensitivityLabel}}</td></tr>
-              <tr><th>Response time</th><td>{{Sensor.ResponseTimeSec}} s</td></tr>
-              <tr><th>Recovery time</th><td>{{Sensor.RecoveryTimeSec}} s</td></tr>
-              {{#if Sensor.HasRepeatability}}
-              <tr><th>Repeatability</th><td>{{Sensor.RepeatabilityPercent}} %</td></tr>
-              {{/if}}
-              <tr><th>Rest resistance</th><td>{{Sensor.RestResistanceOhms}} Ω</td></tr>
-              <tr><th>Operating temperature</th><td>{{Sensor.OperatingTempMinC}} °C to {{Sensor.OperatingTempMaxC}} °C ({{Sensor.OperatingTempMinF}} °F to {{Sensor.OperatingTempMaxF}} °F)</td></tr>
-              <tr><th>Range</th><td>{{Sensor.RangeMin}} – {{Sensor.RangeMax}} {{Sensor.ForceUnit}}</td></tr>
-              {{#if Sensor.HasHysteresisScalar}}
-              <tr><th>Hysteresis</th><td>{{Sensor.HysteresisPercent}} %</td></tr>
-              {{/if}}
-              {{#if Sensor.HasDrift}}
-              <tr><th>Drift intervals</th><td>{{#each Sensor.DriftIntervals}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</td></tr>
-              {{/if}}
-              {{#each ExtraSpecs}}
-              <tr><th>{{@key}}</th><td>{{this}}</td></tr>
-              {{/each}}
+              <tr><th>Sensitivity (Volts)</th><td>{{Tds.SensitivityVolts}} V</td></tr>
+              <tr><th>Sensitivity (Per Unit)</th><td>{{Tds.SensitivityPerUnit}} {{Tds.SensitivityLabel}}</td></tr>
+              <tr><th>Response time</th><td>{{Tds.ResponseTimeSec}} s</td></tr>
+              <tr><th>Recovery time</th><td>{{Tds.RecoveryTimeSec}} s</td></tr>
+              <tr><th>Repeatability</th><td>{{Tds.RepeatabilityPercent}} %</td></tr>
+              <tr><th>Rest resistance</th><td>{{Tds.RestResistanceOhms}} Ω</td></tr>
+              <tr><th>Operating temperature</th><td>{{Tds.OperatingTempMinC}} °C to {{Tds.OperatingTempMaxC}} °C ({{Tds.OperatingTempMinF}} °F to {{Tds.OperatingTempMaxF}} °F)</td></tr>
+              <tr><th>Range</th><td>{{Tds.RangeMin}} – {{Tds.RangeMax}} {{Tds.ForceUnit}}</td></tr>
+              <tr><th>Hysteresis</th><td>{{Tds.HysteresisPercent}} %</td></tr>
             </tbody>
           </table>
         </section>
-        {{/if}}
 
         <section class="section full-width">
           <h2 class="section-title">Performance charts</h2>
           <div class="chart-grid">
-            {{#if Charts.HasLinearity}}
             <div class="chart-block">
               <h4>Linearity</h4>
               {{{Charts.LinearitySvg}}}
             </div>
-            {{/if}}
-            {{#if Charts.HasResistance}}
             <div class="chart-block">
-              <h4>Resistance vs force / Ω</h4>
+              <h4>Resistance vs Force</h4>
               {{{Charts.ResistanceSvg}}}
             </div>
-            {{/if}}
-            {{#if Charts.HasHysteresis}}
             <div class="chart-block">
               <h4>Hysteresis</h4>
               {{{Charts.HysteresisSvg}}}
             </div>
-            {{/if}}
-            {{#if Assets.ChartCustom}}
-            <div class="chart-block">
-              <h4>Additional chart</h4>
-              <img src="{{Assets.ChartCustom}}" alt="Chart" />
-            </div>
-            {{/if}}
           </div>
         </section>
       </div>
@@ -455,8 +414,8 @@
         <span>info@nanopaint-tech.com</span>
       </div>
       <p class="footer-legal">
-        © 2016 NanoPaint Lda. All rights reserved. This Technical Data Sheet is generated from product records in NanopaintHub.
-        Values shown reflect stored product data{{#if HasBatch}} with optional batch overlay{{/if}}.
+        © 2026 NanoPaint Lda. All rights reserved. This Technical Data Sheet is generated from product records in NanopaintHub.
+        Values shown reflect stored product data with optional batch overlay.
       </p>
     </footer>
   </div>

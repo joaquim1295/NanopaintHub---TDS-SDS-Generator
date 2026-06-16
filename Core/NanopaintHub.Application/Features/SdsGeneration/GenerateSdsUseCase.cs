@@ -6,7 +6,7 @@ using NanopaintHub.Application.Exceptions;
 using NanopaintHub.Domain.Entities;
 
 // 1. O PEDIDO (Query)
-public record GenerateSdsQuery(Guid ProductId, Guid TemplateId);
+public record GenerateSdsQuery(Guid ProductId, Guid TemplateId, PdfGenerationSettings? Settings = null);
 
 // 2. O EXECUTOR (UseCase)
 public class GenerateSdsUseCase
@@ -48,7 +48,7 @@ public class GenerateSdsUseCase
         }
 
         // Passo 3: Emitir os bytes do documento focado na segurança química
-        byte[] sdsBytes = await _documentService.GenerateSdsAsync(product, template);
+        byte[] sdsBytes = await _documentService.GenerateSdsAsync(product, template, query.Settings);
 
         return sdsBytes;
     }

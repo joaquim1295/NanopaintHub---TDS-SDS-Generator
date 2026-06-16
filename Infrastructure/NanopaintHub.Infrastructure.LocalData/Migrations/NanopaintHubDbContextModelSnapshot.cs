@@ -15,7 +15,7 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.27");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.28");
 
             modelBuilder.Entity("NanopaintHub.Domain.Entities.DocumentTemplate", b =>
                 {
@@ -26,7 +26,15 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                     b.Property<int>("BottomMargin")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("BuilderJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CssStructure")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DocumentType")
@@ -89,12 +97,6 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                         .HasColumnType("TEXT")
                         .HasDefaultValue("{}");
 
-                    b.Property<string>("TdsSensorSpecsJson")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("{}");
-
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("TEXT");
 
@@ -116,6 +118,12 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
 
                     b.Property<DateTime>("RevisionDate")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("TdsSensorSpecsJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("{}");
 
                     b.HasKey("Id");
 

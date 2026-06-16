@@ -11,7 +11,7 @@ public static class NanopaintHubDocumentsServiceCollectionExtensions
     {
         services.AddSingleton<IPdfGenerationProgressNotifier, PdfGenerationProgressNotifier>();
         services.AddSingleton<IHtmlPreviewService, HtmlPreviewService>();
-        services.AddSingleton<IChromiumQuillEditorService, ChromiumQuillEditorService>();
+        services.AddSingleton<IChromiumTinyMceEditorService, ChromiumTinyMceEditorService>();
         services.AddSingleton<TdsDataMergeService>();
         services.AddSingleton<ITdsChartRenderer, TdsChartSvgBuilder>();
         services.AddScoped<IDocumentGeneratorService, DocumentGeneratorService>();

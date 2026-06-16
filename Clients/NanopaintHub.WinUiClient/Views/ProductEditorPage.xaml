@@ -5,33 +5,118 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:NanopaintHub_WinUIClient.ViewModels"
     mc:Ignorable="d"
     Background="Transparent">
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="0">
-        <!-- Header -->
-        <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0" Margin="0,0,0,24">
+            <!-- Header -->
+            <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
 
-        <!-- Form -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16" MaxWidth="600" HorizontalAlignment="Left">
+            <!-- Form -->
+            <StackPanel Grid.Row="1" Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
                               Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                 
                 <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
                     <StackPanel Spacing="16">
-                        <TextBox Header="Nome do Produto" Text="{x:Bind ViewModel.Product.Name, Mode=TwoWay}" />
-                        <TextBox Header="Código" Text="{x:Bind ViewModel.Product.Code, Mode=TwoWay}" />
-                        <TextBox Header="TDS Sensor Specs (JSON)" Text="{x:Bind ViewModel.Product.TdsSensorSpecsJson, Mode=TwoWay}" AcceptsReturn="True" Height="100" />
+                        
+                        <Expander Header="Informação Geral" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="12" Margin="0,12,0,0">
+                                <TextBox Grid.Row="0" Grid.Column="0" Header="Nome do Produto" Text="{x:Bind ViewModel.Product.Name, Mode=TwoWay}" />
+                                <TextBox Grid.Row="0" Grid.Column="1" Header="Código" Text="{x:Bind ViewModel.Product.Code, Mode=TwoWay}" />
+                                <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Header="Descrição" Text="{x:Bind ViewModel.Product.Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" />
+                            </Grid>
+                        </Expander>
+
+                        <Expander Header="Características (Ink Features)" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <StackPanel Spacing="12" Margin="0,12,0,0">
+                                <Button Content="Adicionar Característica" Command="{x:Bind ViewModel.AddFeatureCommand}" />
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.Features}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="viewmodels:StringItem">
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                                <TextBox Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Ex: RoHS compliant" />
+                                                <Button Grid.Column="1" Margin="8,0,0,0" Content="Remover" 
+                                                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveFeatureCommand}" 
+                                                        CommandParameter="{x:Bind}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander Header="Propriedades da Tinta (Liquid Properties)" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <StackPanel Spacing="12" Margin="0,12,0,0">
+                                <Button Content="Adicionar Propriedade" Command="{x:Bind ViewModel.AddLiquidPropertyCommand}" />
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.LiquidProperties}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                            <Grid ColumnDefinitions="*,*,Auto" Margin="0,0,0,8">
+                                                <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay}" PlaceholderText="Propriedade (ex: Viscosity)" Margin="0,0,8,0" />
+                                                <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Valor (ex: 25–35 Pa·s)" />
+                                                <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
+                                                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveLiquidPropertyCommand}" 
+                                                        CommandParameter="{x:Bind}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander Header="Handling Guidelines (Mechanical Properties)" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <StackPanel Spacing="12" Margin="0,12,0,0">
+                                <Button Content="Adicionar Guideline" Command="{x:Bind ViewModel.AddMechanicalPropertyCommand}" />
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.MechanicalProperties}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                            <Grid ColumnDefinitions="*,*,Auto" Margin="0,0,0,8">
+                                                <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay}" PlaceholderText="Propriedade (ex: Curing)" Margin="0,0,8,0" />
+                                                <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Valor (ex: 120 °C / 15 min)" />
+                                                <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
+                                                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveMechanicalPropertyCommand}" 
+                                                        CommandParameter="{x:Bind}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander Header="Especificações do Sensor" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12" Margin="0,12,0,0">
+                                <TextBox Grid.Row="0" Grid.Column="0" Header="Unidade de Força (Force Unit)" Text="{x:Bind ViewModel.SensorSpecs.ForceUnit, Mode=TwoWay}" PlaceholderText="N ou Pa" />
+                                <TextBox Grid.Row="0" Grid.Column="1" Header="Sensibilidade (Volts)" Text="{x:Bind ViewModel.SensorSpecs.SensitivityVolts, Mode=TwoWay}" PlaceholderText="Ex: 0.87" />
+                                
+                                <TextBox Grid.Row="1" Grid.Column="0" Header="Sensibilidade (Por Unidade)" Text="{x:Bind ViewModel.SensorSpecs.SensitivityPerUnit, Mode=TwoWay}" PlaceholderText="Ex: 0.082" />
+                                <TextBox Grid.Row="1" Grid.Column="1" Header="Tempo de Resposta (seg)" Text="{x:Bind ViewModel.SensorSpecs.ResponseTimeSec, Mode=TwoWay}" PlaceholderText="Ex: 0.018" />
+                                
+                                <TextBox Grid.Row="2" Grid.Column="0" Header="Tempo de Recuperação (seg)" Text="{x:Bind ViewModel.SensorSpecs.RecoveryTimeSec, Mode=TwoWay}" PlaceholderText="Ex: 0.025" />
+                                <TextBox Grid.Row="2" Grid.Column="1" Header="Repetibilidade (%)" Text="{x:Bind ViewModel.SensorSpecs.RepeatabilityPercent, Mode=TwoWay}" PlaceholderText="Ex: 2.1" />
+                                
+                                <TextBox Grid.Row="3" Grid.Column="0" Header="Resistência em Repouso (Ohms)" Text="{x:Bind ViewModel.SensorSpecs.RestResistanceOhms, Mode=TwoWay}" PlaceholderText="Ex: 118000" />
+                                <TextBox Grid.Row="3" Grid.Column="1" Header="Histerese (%)" Text="{x:Bind ViewModel.SensorSpecs.HysteresisPercent, Mode=TwoWay}" PlaceholderText="Ex: 4.2" />
+                                
+                                <TextBox Grid.Row="4" Grid.Column="0" Header="Temp Operação Min (°C)" Text="{x:Bind ViewModel.SensorSpecs.OperatingTempMinC, Mode=TwoWay}" PlaceholderText="Ex: -10" />
+                                <TextBox Grid.Row="4" Grid.Column="1" Header="Temp Operação Max (°C)" Text="{x:Bind ViewModel.SensorSpecs.OperatingTempMaxC, Mode=TwoWay}" PlaceholderText="Ex: 85" />
+                                
+                                <TextBox Grid.Row="5" Grid.Column="0" Header="Range Min" Text="{x:Bind ViewModel.SensorSpecs.RangeMin, Mode=TwoWay}" PlaceholderText="Ex: 0" />
+                                <TextBox Grid.Row="5" Grid.Column="1" Header="Range Max" Text="{x:Bind ViewModel.SensorSpecs.RangeMax, Mode=TwoWay}" PlaceholderText="Ex: 50" />
+                            </Grid>
+                        </Expander>
+                        
                     </StackPanel>
                 </Grid>
             </StackPanel>
-        </ScrollViewer>
 
-        <!-- Actions -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
-            <Button Content="Salvar" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
-            <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
-        </StackPanel>
-    </Grid>
+            <!-- Actions -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+                <Button Content="Salvar Produto" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+                <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>

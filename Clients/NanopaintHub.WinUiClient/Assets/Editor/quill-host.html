@@ -86,17 +86,6 @@
         window.chrome.webview.postMessage(payload);
         return;
       }
-      if (chromiumMode && sessionId) {
-        try {
-          await fetch("/api/event", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(Object.assign({ session: sessionId }, payload))
-          });
-        } catch (err) {
-          console.warn("[QuillHost] event POST falhou", err);
-        }
-      }
     }
 
     function reportStatus(message, progress) {
@@ -179,34 +168,25 @@
     }
 
     async function loadInitialHtmlFromServer() {
-      if (!chromiumMode || !sessionId) {
+      if (!chromiumMode || !window.getInitialData) {
         return;
       }
-      const res = await fetch("/api/html?session=" + encodeURIComponent(sessionId));
-      if (!res.ok) {
-        throw new Error("API /api/html respondeu " + res.status);
-      }
-      const data = await res.json();
+      const data = await window.getInitialData();
       await window.setTemplateHtml(data.html || "");
     }
 
     async function applyToApp() {
       const html = await window.getTemplateHtml();
-      const res = await fetch("/api/apply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session: sessionId, html: html })
-      });
-      if (!res.ok) {
-        throw new Error("Falha ao aplicar (" + res.status + ")");
+      if (window.applyChanges) {
+        await window.applyChanges(html);
       }
       setStatus("Conteúdo enviado para a NanopaintHub. A fechar...");
-      window.close();
     }
 
     async function cancelEdit() {
-      await fetch("/api/cancel", { method: "POST" });
-      window.close();
+      if (window.cancelEdit) {
+        await window.cancelEdit();
+      }
     }
 
     function setupChromiumToolbar() {

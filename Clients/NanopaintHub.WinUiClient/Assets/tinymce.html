@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TinyMCE Editor</title>
+  <!-- Carregar o TinyMCE do CDN -->
+  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #fff; }
+    #editor-container { height: 100%; width: 100%; }
+  </style>
+</head>
+<body>
+  <textarea id="editor-container"></textarea>
+
+  <script>
+    let isReady = false;
+    let pendingContent = null;
+
+    tinymce.init({
+      selector: '#editor-container',
+      height: '100%',
+      resize: false,
+      menubar: false,
+      plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
+      toolbar: 'undo redo | blocks | ' +
+      'bold italic backcolor | alignleft aligncenter ' +
+      'alignright alignjustify | bullist numlist outdent indent | ' +
+      'removeformat | help',
+      content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+      setup: function (editor) {
+        editor.on('init', function (e) {
+          isReady = true;
+          // Se recebemos conteudo antes do editor iniciar, aplica-o agora
+          if (pendingContent !== null) {
+            editor.setContent(pendingContent);
+            pendingContent = null;
+          }
+          // Avisar C# que estamos prontos
+          if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.postMessage({ type: "READY" });
+          }
+        });
+      }
+    });
+
+    // Funções chamadas do C# via ExecuteScriptAsync
+    function setHtmlContent(html) {
+      if (isReady && tinymce.activeEditor) {
+        tinymce.activeEditor.setContent(html);
+      } else {
+        pendingContent = html;
+      }
+    }
+
+    function getHtmlContent() {
+      if (isReady && tinymce.activeEditor) {
+        return tinymce.activeEditor.getContent();
+      }
+      return "";
+    }
+  </script>
+</body>
+</html>

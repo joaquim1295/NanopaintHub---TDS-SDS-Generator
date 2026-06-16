@@ -21,4 +21,20 @@ public sealed partial class GeneratePdfPage : Page
         base.OnNavigatedTo(e);
         _ = ViewModel.InitializeAsync();
     }
+
+    private async void OpenPdf_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (!string.IsNullOrWhiteSpace(ViewModel.SavedFilePath))
+        {
+            try
+            {
+                var file = await Windows.Storage.StorageFile.GetFileFromPathAsync(ViewModel.SavedFilePath);
+                await Windows.System.Launcher.LaunchFileAsync(file);
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error launching PDF: {ex}");
+            }
+        }
+    }
 }

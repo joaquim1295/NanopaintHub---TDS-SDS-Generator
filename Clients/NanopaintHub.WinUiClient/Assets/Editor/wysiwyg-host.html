@@ -1,16 +1,19 @@
 <!doctype html>
 <html lang="pt">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Editor de Template — Word</title>
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       height: 100%;
       background: #f3f4f6;
       font-family: "Segoe UI", Arial, sans-serif;
     }
+
     #chromium-toolbar {
       display: none;
       gap: 8px;
@@ -20,14 +23,17 @@
       align-items: center;
       flex-wrap: wrap;
     }
+
     #chromium-toolbar.visible {
       display: flex;
     }
+
     #chromium-toolbar .title {
       flex: 1;
       font-weight: 600;
       font-size: 14px;
     }
+
     #chromium-toolbar button {
       font: inherit;
       border: none;
@@ -35,22 +41,27 @@
       padding: 8px 14px;
       cursor: pointer;
     }
+
     #btn-apply {
       background: #2563eb;
       color: #fff;
       font-weight: 600;
     }
+
     #btn-cancel {
       background: #374151;
       color: #fff;
     }
+
     #editor-shell {
       height: calc(100% - 42px);
       background: #fff;
     }
+
     body.chromium-mode #editor-shell {
       height: calc(100% - 90px);
     }
+
     #status {
       font-size: 12px;
       color: #666;
@@ -58,11 +69,13 @@
       border-top: 1px solid #ddd;
       background: #fff;
     }
+
     .tox-tinymce {
       border: none !important;
     }
   </style>
 </head>
+
 <body>
   <div id="chromium-toolbar">
     <span class="title">NanopaintHub — Editor visual (Word)</span>
@@ -258,4 +271,5 @@
     initializeEditor().catch(err => reportError(String(err)));
   </script>
 </body>
+
 </html>

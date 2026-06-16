@@ -5,12 +5,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:NanopaintHub_WinUIClient.Models"
     mc:Ignorable="d"
     Background="Transparent">
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="0">
         <!-- Header -->
-        <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24">
+            <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" />
+            <Button Content="Editor Visual Global" Click="GlobalTinyMce_Click" VerticalAlignment="Center" />
+        </StackPanel>
 
         <!-- Form -->
         <Grid Grid.Row="1">
@@ -32,13 +36,82 @@
                     </ComboBox>
                 </StackPanel>
                 
-                <TextBox Grid.Row="1" Header="Conteúdo HTML (Avançado)" 
-                         Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
-                         AcceptsReturn="True" 
-                         TextWrapping="Wrap" 
-                         FontFamily="Consolas" 
-                         HorizontalAlignment="Stretch" 
-                         VerticalAlignment="Stretch" />
+                <Pivot Grid.Row="1" SelectionChanged="Pivot_SelectionChanged">
+                    <PivotItem Header="Visual Builder">
+                        <ScrollViewer>
+                            <StackPanel Spacing="24" MaxWidth="800" HorizontalAlignment="Left" Margin="0,16,0,16">
+                                <!-- Cabeçalho -->
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="Cabeçalho" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    <Grid ColumnDefinitions="*,*,Auto,Auto" ColumnSpacing="8">
+                                        <TextBox Grid.Column="0" Header="URL do Logotipo" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay}" />
+                                        <TextBox Grid.Column="1" Header="Altura (px)" Text="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" />
+                                        <Button Grid.Column="2" Content="..." Click="PickLogo_Click" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                        <CheckBox Grid.Column="3" Content="Mostrar Logo" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                    </Grid>
+                                    <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" SelectionChanged="HeaderRepeatStyle_SelectionChanged" HorizontalAlignment="Stretch" />
+                                </StackPanel>
+
+                                <!-- Tema -->
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="Tema Global" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                        <TextBox Grid.Column="0" Header="Cor Primária (Hex)" Text="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay}" />
+                                        <TextBox Grid.Column="1" Header="Cor Secundária (Hex)" Text="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay}" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Secções -->
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="Secções" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}">
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="models:TemplateSection">
+                                                <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16" Margin="0,0,0,8" CornerRadius="8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0" Spacing="8">
+                                                        <TextBox Header="Título da Secção" Text="{x:Bind Title, Mode=TwoWay}" />
+                                                        <ComboBox Header="Tipo de Secção" SelectedValue="{x:Bind Type, Mode=TwoWay}" SelectedValuePath="Content">
+                                                            <ComboBoxItem Content="RichText" />
+                                                            <ComboBoxItem Content="Text" />
+                                                            <ComboBoxItem Content="Table" />
+                                                            <ComboBoxItem Content="BulletPoints" />
+                                                        </ComboBox>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="1" Content="Editar Conteúdo" VerticalAlignment="Center" Margin="16,0,0,0" Click="EditRichText_Click" Visibility="{x:Bind Type, Converter={StaticResource StringEqualityToVisibilityConverter}, ConverterParameter='RichText', Mode=OneWay}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </StackPanel>
+
+                                <!-- Rodapé -->
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="Rodapé" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                        <TextBox Grid.Column="0" Header="Rodapé Coluna 1" Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" />
+                                        <TextBox Grid.Column="1" Header="Rodapé Coluna 2" Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" />
+                                    </Grid>
+                                    <TextBox Header="Texto Legal" Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" />
+                                    <ComboBox Header="Rodapé em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" SelectionChanged="FooterRepeatStyle_SelectionChanged" HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </PivotItem>
+                    
+                    <PivotItem Header="HTML Avançado">
+                        <TextBox Header="Conteúdo HTML" 
+                                 Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+                                 AcceptsReturn="True" 
+                                 TextWrapping="Wrap" 
+                                 FontFamily="Consolas" 
+                                 HorizontalAlignment="Stretch" 
+                                 VerticalAlignment="Stretch" />
+                    </PivotItem>
+                </Pivot>
             </Grid>
         </Grid>
 

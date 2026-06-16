@@ -10,7 +10,7 @@ public sealed class ChromiumTemplateEditorModeTests
     [InlineData(ChromiumTemplateEditorMode.QuillSimple, "quill-host.html")]
     public void ResolveHostPage_ReturnsExpectedFile(ChromiumTemplateEditorMode mode, string expected)
     {
-        Assert.Equal(expected, ChromiumQuillEditorService.ResolveHostPage(mode));
+        Assert.Equal(expected, ChromiumTinyMceEditorService.ResolveHostPage(mode));
     }
 
     [Fact]
@@ -33,6 +33,6 @@ public sealed class ChromiumTemplateEditorModeTests
         Assert.True(File.Exists(path), $"Asset em falta: {path}");
         var html = File.ReadAllText(path);
         Assert.Contains("HANDLEBARS_PROTECT", html, StringComparison.Ordinal);
-        Assert.Contains("format: \"raw\"", html, StringComparison.Ordinal);
+        Assert.Contains("entity_encoding: \"raw\"", html, StringComparison.Ordinal);
     }
 }

@@ -7,6 +7,8 @@ using Microsoft.UI.Xaml;
 using NanopaintHub.Infrastructure.LocalData.Persistence;
 using NanopaintHub_WinUIClient.Services;
 using NanopaintHub_WinUIClient.ViewModels;
+using NanopaintHub.Application.Features.TdsGeneration;
+using NanopaintHub.Application.Features.SdsGeneration;
 
 namespace NanopaintHub_WinUIClient;
 
@@ -51,6 +53,10 @@ public partial class App : Application
         builder.Services.AddTransient<TemplatesViewModel>();
         builder.Services.AddTransient<TemplateEditorViewModel>();
         builder.Services.AddTransient<GeneratePdfViewModel>();
+
+        // Register Use Cases
+        builder.Services.AddTransient<GenerateTdsUseCase>();
+        builder.Services.AddTransient<GenerateSdsUseCase>();
 
         _host = builder.Build();
 

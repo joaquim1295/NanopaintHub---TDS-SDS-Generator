@@ -15,5 +15,8 @@ public class DocumentTemplate : Entity
     public int BottomMargin { get; set; }
 
     public string HtmlStructure { get; set; } = string.Empty;
+    public string CssStructure { get; set; } = string.Empty;
+    public string BuilderJson { get; set; } = string.Empty;
+
 
 }

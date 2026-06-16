@@ -34,16 +34,16 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
         _chartRenderer = chartRenderer;
     }
 
-    public Task<byte[]> GenerateTdsAsync(Product product, DocumentTemplate template, TestBatch? testBatch = null) =>
-        GeneratePdfAsync(product, template, isSds: false, testBatch);
+    public Task<byte[]> GenerateTdsAsync(Product product, DocumentTemplate template, TestBatch? testBatch = null, PdfGenerationSettings? settings = null) =>
+        GeneratePdfAsync(product, template, isSds: false, testBatch, settings);
 
-    public Task<byte[]> GenerateSdsAsync(Product product, DocumentTemplate template) =>
-        GeneratePdfAsync(product, template, isSds: true, testBatch: null);
+    public Task<byte[]> GenerateSdsAsync(Product product, DocumentTemplate template, PdfGenerationSettings? settings = null) =>
+        GeneratePdfAsync(product, template, isSds: true, testBatch: null, settings);
 
-    private async Task<byte[]> GeneratePdfAsync(Product product, DocumentTemplate template, bool isSds, TestBatch? testBatch)
+    private async Task<byte[]> GeneratePdfAsync(Product product, DocumentTemplate template, bool isSds, TestBatch? testBatch, PdfGenerationSettings? settings)
     {
         var finalHtml = await GenerateHtmlAsync(product, template, isSds, testBatch);
-        return await GeneratePdfFromHtmlAsync(finalHtml, template);
+        return await GeneratePdfFromHtmlAsync(finalHtml, template, settings);
     }
 
     public async Task<string> GenerateHtmlAsync(Product product, DocumentTemplate template, bool isSds, TestBatch? testBatch = null)
@@ -63,7 +63,7 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
 
         Console.WriteLine($"[DOC] Handlebars compile started for {kind}.");
         Report("Compilando template Handlebars...", 20);
-        var compiledTemplate = CompileTemplate(template.HtmlStructure);
+        
         Console.WriteLine($"[DOC] Handlebars compile finished for {kind}.");
         Report("Template Handlebars compilado.", 30);
 
@@ -132,10 +132,37 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
                 logoBase64);
         }
 
-        var innerHtml = compiledTemplate(templateData);
+        string innerHtml;
+        if (kind == "TDS" && !string.IsNullOrWhiteSpace(template.BuilderJson))
+        {
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var schema = JsonSerializer.Deserialize<TemplateBuilderSchema>(template.BuilderJson, options) ?? new TemplateBuilderSchema();
+            innerHtml = AdvancedDocumentRenderer.Render(schema, templateData);
+        }
+        else
+        {
+            var compiledTemplate = CompileTemplate(template.HtmlStructure);
+            innerHtml = compiledTemplate(templateData);
+        }
+
         if (string.IsNullOrWhiteSpace(innerHtml))
         {
             throw new InvalidOperationException($"Handlebars render devolveu HTML vazio para {kind}.");
+        }
+
+        // Inject CSS from the template if present
+        if (!string.IsNullOrWhiteSpace(template.CssStructure))
+        {
+            var styleTag = $"<style>\n{template.CssStructure}\n</style>";
+            if (innerHtml.Contains("</head>", StringComparison.OrdinalIgnoreCase))
+            {
+                innerHtml = innerHtml.Replace("</head>", styleTag + "\n</head>", StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                // If there's no head, prepend it (or wrap it)
+                innerHtml = $"<head>\n{styleTag}\n</head>\n" + innerHtml;
+            }
         }
 
         var finalHtml = ApplyLetterheadBackground(innerHtml, template.LetterheadPdfPath);
@@ -145,19 +172,24 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
         return finalHtml;
     }
 
-    public async Task<byte[]> GeneratePdfFromHtmlAsync(string html, DocumentTemplate template)
+    public async Task<byte[]> GeneratePdfFromHtmlAsync(string html, DocumentTemplate template, PdfGenerationSettings? settings = null)
     {
         return await ChromiumBrowserSession.RunAsync(async browser =>
         {
             Report("A iniciar Chromium...", 80);
             await using var page = await browser.NewPageAsync();
             Report("A converter HTML em pagina renderizada...", 88);
+            
+            // Replace TinyMCE pagebreaks with proper CSS breaks before loading
+            html = html.Replace("<!-- pagebreak -->", "<div style=\"page-break-after: always;\"></div>");
+            
             await WithTimeoutAsync(page.SetContentAsync(html), RenderTimeout, "Renderização HTML excedeu o tempo limite.");
             Console.WriteLine("[DOC] HTML content loaded in browser page.");
 
             var pdfOptions = new PdfOptions
             {
-                Format = PaperFormat.A4,
+                Format = (settings?.PageFormat?.ToLowerInvariant() == "letter") ? PaperFormat.Letter : PaperFormat.A4,
+                Landscape = (settings?.PageOrientation?.ToLowerInvariant() == "landscape"),
                 PrintBackground = true,
                 MarginOptions = new MarginOptions
                 {
@@ -167,6 +199,42 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
                     Right = "20px"
                 }
             };
+            
+            // Extract Repeating Header/Footer styling from Template schema if available
+            if (!string.IsNullOrWhiteSpace(template.BuilderJson))
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var schema = JsonSerializer.Deserialize<NanopaintHub.Application.Tds.TemplateBuilderSchema>(template.BuilderJson, options);
+                
+                if (schema != null && (schema.Header?.HeaderRepeatStyle != "None" || schema.Footer?.FooterRepeatStyle != "None"))
+                {
+                    pdfOptions.DisplayHeaderFooter = true;
+                    
+                    if (schema.Header?.HeaderRepeatStyle == "Minimal")
+                    {
+                        pdfOptions.HeaderTemplate = $"<div style=\"font-size: 8px; width: 100%; text-align: center; color: #888;\">{template.TemplateName}</div>";
+                    }
+                    else if (schema.Header?.HeaderRepeatStyle == "Original")
+                    {
+                        // In reality, to inject the full original header you'd have to pre-render it to HTML.
+                        // For now we use a simpler version.
+                        pdfOptions.HeaderTemplate = $"<div style=\"font-size: 10px; width: 100%; text-align: right; margin-right: 20px; color: #1f4f7d; font-weight: bold;\">NanopaintHub - {template.TemplateName}</div>";
+                    }
+                    else
+                    {
+                        pdfOptions.HeaderTemplate = "<span></span>";
+                    }
+                    
+                    if (schema.Footer?.FooterRepeatStyle == "Original")
+                    {
+                        pdfOptions.FooterTemplate = $"<div style=\"font-size: 8px; width: 100%; text-align: center; color: #888;\">Página <span class=\"pageNumber\"></span> de <span class=\"totalPages\"></span></div>";
+                    }
+                    else
+                    {
+                        pdfOptions.FooterTemplate = "<span></span>";
+                    }
+                }
+            }
 
             Report("A gerar ficheiro PDF...", 95);
             var data = await WithTimeoutAsync(page.PdfDataAsync(pdfOptions), RenderTimeout, "Geração PDF excedeu o tempo limite.");
