@@ -141,7 +141,8 @@ public static class TdsHtmlGenerator
         sb.AppendLine(".product-description { margin: 0; max-width: 78%; color: #e6f0fb; text-align: justify; font-size: 10pt; line-height: 1.5; }");
         sb.AppendLine(".main-content { padding: 10mm 14mm 13mm; min-height: 200mm; }");
         sb.AppendLine(".batch-note { margin: 0 0 12px; padding: 8px 10px; border-left: 3px solid var(--accent); background: #ebf6ff; color: #1f4f7d; font-size: 9pt; }");
-        sb.AppendLine(".two-column { column-count: 2; column-gap: 16px; }");
+        sb.AppendLine(".two-column { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }");
+        sb.AppendLine(".two-column > .section { flex: 0 1 calc(50% - 8px); width: calc(50% - 8px); box-sizing: border-box; }");
         sb.AppendLine(".section { page-break-inside: avoid; break-inside: avoid; margin-bottom: 14px; }");
         sb.AppendLine(".section-title { margin: 0 0 8px; font-size: 10pt; text-transform: uppercase; color: var(--secondary); border-bottom: 2px solid var(--line); padding-bottom: 4px; font-weight: 700; letter-spacing: 0.07em; }");
         sb.AppendLine(".features-grid { display: grid; gap: 6px; font-size: 9.6pt; }");
