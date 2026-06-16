@@ -178,6 +178,7 @@ public partial class TemplateEditorViewModel : ObservableObject
         BuilderModel.Sections.Add(new TemplateSection { Title = "Sensor specifications", Type = "Table", DataSource = "Tds", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
         BuilderModel.Sections.Add(new TemplateSection { Title = "Performance charts", Type = "Charts", DataSource = "Charts", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
         SyncBuilderToHtml();
+        OnPropertyChanged(nameof(BuilderModel));
     }
 
     [RelayCommand]

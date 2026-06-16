@@ -217,14 +217,26 @@
 
                                 <!-- BOTTOM AREA: SECÇÕES (1 COLUMN) -->
                                 <Expander Header="Secções de Conteúdo" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}">
-                                        <ItemsRepeater.ItemTemplate>
+                                    <ListView ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}"
+                                              CanReorderItems="True"
+                                              AllowDrop="True"
+                                              SelectionMode="None"
+                                              IsItemClickEnabled="False">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                <Setter Property="Padding" Value="0"/>
+                                                <Setter Property="Margin" Value="0"/>
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                        <ListView.ItemTemplate>
                                             <DataTemplate x:DataType="models:TemplateSection">
                                                 <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                                                       BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                                                       Padding="16" Margin="0,0,0,12" CornerRadius="8">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0" Spacing="8">
                                                         <TextBox Header="Título da Secção" Text="{x:Bind Title, Mode=TwoWay}" />
@@ -250,7 +262,6 @@
                                                             </ComboBox>
                                                         </Grid>
                                                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                                            <!-- Bind AvailableFonts using ElementName or DataContext because ItemsRepeater creates its own scope -->
                                                             <ComboBox Grid.Column="0" Header="Tipo de Fonte" ItemsSource="{Binding ElementName=RootGrid, Path=DataContext.AvailableFonts}" SelectedItem="{x:Bind FontFamily, Mode=TwoWay}" HorizontalAlignment="Stretch" />
                                                             
                                                             <!-- TextColor Picker -->
@@ -263,7 +274,6 @@
                                                                             <Flyout>
                                                                                 <StackPanel Spacing="8">
                                                                                     <ColorPicker Color="{x:Bind TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
-                                                                                    <!-- Close button might need a command, or event handler. We use the event handler from the page. -->
                                                                                     <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
                                                                                 </StackPanel>
                                                                             </Flyout>
@@ -274,10 +284,12 @@
                                                             </StackPanel>
                                                         </Grid>
                                                     </StackPanel>
+                                                    <!-- Reorder Icon -->
+                                                    <FontIcon Grid.Column="1" Glyph="&#xE700;" FontFamily="{ThemeResource SymbolThemeFontFamily}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="16,0,0,0" ToolTipService.ToolTip="Arraste para reordenar" />
                                                 </Grid>
                                             </DataTemplate>
-                                        </ItemsRepeater.ItemTemplate>
-                                    </ItemsRepeater>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
                                 </Expander>
 
                             </StackPanel>
