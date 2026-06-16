@@ -173,9 +173,11 @@
     }
 
     async function loadInitialHtmlFromServer() {
-      if (!chromiumMode || !sessionId) {
-        return "";
+      if (chromiumMode && window.getInitialData) {
+        const data = await window.getInitialData();
+        return data.html || "";
       }
+      if (!sessionId) return "";
       const res = await fetch("/api/html?session=" + encodeURIComponent(sessionId));
       if (!res.ok) {
         throw new Error("API /api/html respondeu " + res.status);
@@ -240,6 +242,12 @@
 
     async function applyToApp() {
       const html = await getTemplateHtml();
+      if (chromiumMode && window.applyChanges) {
+        await window.applyChanges(html);
+        setStatus("Conteúdo enviado para a NanopaintHub. A fechar...");
+        window.close();
+        return;
+      }
       const res = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -253,6 +261,11 @@
     }
 
     async function cancelEdit() {
+      if (chromiumMode && window.cancelEdit) {
+        await window.cancelEdit();
+        window.close();
+        return;
+      }
       await fetch("/api/cancel", { method: "POST" });
       window.close();
     }
