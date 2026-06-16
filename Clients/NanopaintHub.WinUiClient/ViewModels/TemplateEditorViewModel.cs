@@ -17,6 +17,7 @@ public partial class TemplateEditorViewModel : ObservableObject
 
     public List<string> HeaderRepeatStyles { get; } = new() { "None", "Minimal", "Original" };
     public List<string> FooterRepeatStyles { get; } = new() { "None", "Original" };
+    public List<string> AvailableFonts { get; } = new() { "Segoe UI", "Arial", "Helvetica", "Times New Roman", "Courier New", "Verdana", "Georgia", "Tahoma", "Trebuchet MS", "Outfit", "Inter" };
 
     [ObservableProperty]
     private DocumentTemplate? _template;
@@ -162,11 +163,21 @@ public partial class TemplateEditorViewModel : ObservableObject
 
         var bm = new TemplateBuilderModel();
         
-        bm.Sections.Add(new TemplateSection { Title = "Ink features", Type = "BulletPoints", DataSource = "Features", IsHalfWidth = true });
-        bm.Sections.Add(new TemplateSection { Title = "Ink properties", Type = "Table", DataSource = "LiquidProperties", IsHalfWidth = true });
-        bm.Sections.Add(new TemplateSection { Title = "Handling Guidelines", Type = "Table", DataSource = "MechanicalProperties", IsHalfWidth = true });
-        bm.Sections.Add(new TemplateSection { Title = "Sensor specifications", Type = "Table", DataSource = "Tds", IsHalfWidth = true });
-        bm.Sections.Add(new TemplateSection { Title = "Performance charts", Type = "Charts", DataSource = "Charts", IsHalfWidth = false });
+        bm.Theme.FontFamily = "Segoe UI";
+        bm.Theme.PrimaryColor = "#0f2a4a";
+        bm.Theme.SecondaryColor = "#19528d";
+
+        bm.Header.FontFamily = "Segoe UI";
+        bm.Header.TextColor = "#000000";
+
+        bm.Footer.FontFamily = "Segoe UI";
+        bm.Footer.TextColor = "#000000";
+
+        bm.Sections.Add(new TemplateSection { Title = "Ink features", Type = "BulletPoints", DataSource = "Features", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#000000" });
+        bm.Sections.Add(new TemplateSection { Title = "Ink properties", Type = "Table", DataSource = "LiquidProperties", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#000000" });
+        bm.Sections.Add(new TemplateSection { Title = "Handling Guidelines", Type = "Table", DataSource = "MechanicalProperties", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#000000" });
+        bm.Sections.Add(new TemplateSection { Title = "Sensor specifications", Type = "Table", DataSource = "Tds", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#000000" });
+        bm.Sections.Add(new TemplateSection { Title = "Performance charts", Type = "Charts", DataSource = "Charts", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#000000" });
 
         BuilderModel = bm;
         SyncBuilderToHtml();
