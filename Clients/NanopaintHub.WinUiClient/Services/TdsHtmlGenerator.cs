@@ -129,7 +129,7 @@ public static class TdsHtmlGenerator
         sb.AppendLine("  font-size: 10pt; line-height: 1.45;");
         sb.AppendLine("}");
         sb.AppendLine();
-        sb.AppendLine(".page { max-width: 210mm; width: 100%; min-height: 297mm; margin: 0 auto; background: #fff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); position: relative; display: flex; flex-direction: column; }");
+        sb.AppendLine(".page { max-width: 210mm; width: 100%; min-height: 297mm; margin: 0 auto; background: #fff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); position: relative; display: block; overflow: hidden; }");
         sb.AppendLine(".header-banner { background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; padding: 14mm 14mm 10mm; }");
         sb.AppendLine(".header-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.28); padding-bottom: 8px; margin-bottom: 10px; }");
         sb.AppendLine(".logo-wrap { min-height: 30px; display: flex; align-items: center; background: transparent; }");
@@ -139,9 +139,9 @@ public static class TdsHtmlGenerator
         sb.AppendLine(".product-title { margin: 0; font-size: 18pt; font-weight: 700; text-transform: uppercase; line-height: 1.2; letter-spacing: 0.06em; }");
         sb.AppendLine(".product-subtitle { margin: 4px 0 10px; color: #b7d7f6; font-size: 11pt; font-weight: 500; }");
         sb.AppendLine(".product-description { margin: 0; max-width: 78%; color: #e6f0fb; text-align: justify; font-size: 10pt; line-height: 1.5; }");
-        sb.AppendLine(".main-content { padding: 10mm 14mm 13mm; flex: 1; }");
+        sb.AppendLine(".main-content { padding: 10mm 14mm 13mm; min-height: 200mm; }");
         sb.AppendLine(".batch-note { margin: 0 0 12px; padding: 8px 10px; border-left: 3px solid var(--accent); background: #ebf6ff; color: #1f4f7d; font-size: 9pt; }");
-        sb.AppendLine(".two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }");
+        sb.AppendLine(".two-column { column-count: 2; column-gap: 16px; }");
         sb.AppendLine(".section { page-break-inside: avoid; break-inside: avoid; margin-bottom: 14px; }");
         sb.AppendLine(".section-title { margin: 0 0 8px; font-size: 10pt; text-transform: uppercase; color: var(--secondary); border-bottom: 2px solid var(--line); padding-bottom: 4px; font-weight: 700; letter-spacing: 0.07em; }");
         sb.AppendLine(".features-grid { display: grid; gap: 6px; font-size: 9.6pt; }");
@@ -152,7 +152,7 @@ public static class TdsHtmlGenerator
         sb.AppendLine("table.data-table th { width: 44%; text-align: left; color: var(--primary); background: #fff; font-weight: 600; }");
         sb.AppendLine("table.data-table td { text-align: left; color: var(--text-main); }");
         sb.AppendLine("table.data-table tr:nth-child(even) th, table.data-table tr:nth-child(even) td { background: var(--bg-alt); }");
-        sb.AppendLine(".full-width { grid-column: 1 / span 2; }");
+        sb.AppendLine(".full-width { column-span: all; }");
         sb.AppendLine(".chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }");
         sb.AppendLine(".chart-block { border: 1px solid var(--line); background: #fff; border-radius: 3px; padding: 8px; width: 100%; max-width: 300px; margin: 0 auto; page-break-inside: avoid; break-inside: avoid; }");
         sb.AppendLine(".chart-block h4 { margin: 0 0 6px; color: var(--secondary); font-size: 9pt; font-weight: 600; }");
