@@ -1,0 +1,1829 @@
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     mc:Ignorable="d"
+9:     Background="Transparent">
+10: 
+11:     <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+12:         <!-- Header -->
+13:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+14: 
+15:         <!-- Form -->
+16:         <Grid Grid.Row="1">
+17:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+18:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+19:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+20:             
+21:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+22:                 <Grid.RowDefinitions>
+23:                     <RowDefinition Height="Auto" />
+24:                     <RowDefinition Height="*" />
+25:                 </Grid.RowDefinitions>
+26:                 
+27:                 <StackPanel Grid.Row="0" Spacing="16" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
+28:                     <TextBox Header="Nome do Template" Text="{x:Bind ViewModel.Template.TemplateName, Mode=TwoWay}" />
+29:                     <ComboBox Header="Tipo de Documento" SelectedValue="{x:Bind ViewModel.Template.DocumentType, Mode=TwoWay}" SelectedValuePath="Content">
+30:                         <ComboBoxItem Content="TDS" />
+31:                         <ComboBoxItem Content="SDS" />
+32:                     </ComboBox>
+33:                 </StackPanel>
+34:                 
+35:                 <StackPanel Grid.Row="1" Spacing="8">
+36:                     <StackPanel Orientation="Horizontal" Spacing="8">
+37:                         <TextBlock Text="Conteúdo HTML / Layout" Style="{ThemeResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+38:                         <Button Content="Gerar Layout TDS Padrão" Command="{x:Bind ViewModel.GenerateDefaultTdsLayoutCommand}" Style="{ThemeResource AccentButtonStyle}" />
+39:                     </StackPanel>
+40:                     <TextBox Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+41:                              AcceptsReturn="True" 
+42:                              TextWrapping="Wrap" 
+43:                              FontFamily="Consolas" 
+44:                              Height="400" />
+45:                 </StackPanel>
+46:             </Grid>
+47:         </Grid>
+48: 
+49:         <!-- Actions -->
+50:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+51:             <Button Content="Salvar" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+52:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+53:         </StackPanel>
+54:     </Grid>
+55: </Page>
+56: 
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: }
+32: 
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: }
+45: 
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0">
+13:         <!-- Header -->
+14:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+15: 
+16:         <!-- Form -->
+17:         <Grid Grid.Row="1">
+18:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+19:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+20:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+21:             
+22:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+23:                 <Grid.RowDefinitions>
+24:                     <RowDefinition Height="Auto" />
+25:                     <RowDefinition Height="*" />
+26:                 </Grid.RowDefinitions>
+<truncated 13721 bytes>
+="16">
+161:                                 <StackPanel Grid.Column="0" Spacing="8">
+162:                                     <TextBlock Text="Estrutura HTML (DOM)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+163:                                     <TextBox Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+164:                                              AcceptsReturn="True" 
+165:                                              TextWrapping="Wrap" 
+166:                                              FontFamily="Consolas" 
+167:                                              Height="500" />
+168:                                 </StackPanel>
+169:                                 <StackPanel Grid.Column="1" Spacing="8">
+170:                                     <TextBlock Text="Folha de Estilos (CSS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+171:                                     <TextBox Text="{x:Bind ViewModel.Template.CssStructure, Mode=TwoWay}" 
+172:                                              AcceptsReturn="True" 
+173:                                              TextWrapping="Wrap" 
+174:                                              FontFamily="Consolas" 
+175:                                              Height="500" />
+176:                                 </StackPanel>
+177:                             </Grid>
+178:                         </StackPanel>
+179:                     </PivotItem>
+180:                 </Pivot>
+181:             </Grid>
+182:         </Grid>
+183: 
+184:         <!-- Actions -->
+185:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+186:             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+187:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+188:         </StackPanel>
+189:     </Grid>
+190: </Page>
+191: 
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0">
+13:         <!-- Header -->
+14:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+15: 
+16:         <!-- Form -->
+17:         <Grid Grid.Row="1">
+18:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+19:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+20:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+21:             
+22:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+23:                 <Grid.RowDefinitions>
+24:                     <RowDefinition Height="Auto" />
+25:                     <RowDefinition Height="*" />
+26:                 </Grid.RowDefinitions>
+<truncated 13820 bytes>
+="16">
+161:                                 <StackPanel Grid.Column="0" Spacing="8">
+162:                                     <TextBlock Text="Estrutura HTML (DOM)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+163:                                     <TextBox Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+164:                                              AcceptsReturn="True" 
+165:                                              TextWrapping="Wrap" 
+166:                                              FontFamily="Consolas" 
+167:                                              Height="500" />
+168:                                 </StackPanel>
+169:                                 <StackPanel Grid.Column="1" Spacing="8">
+170:                                     <TextBlock Text="Folha de Estilos (CSS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+171:                                     <TextBox Text="{x:Bind ViewModel.Template.CssStructure, Mode=TwoWay}" 
+172:                                              AcceptsReturn="True" 
+173:                                              TextWrapping="Wrap" 
+174:                                              FontFamily="Consolas" 
+175:                                              Height="500" />
+176:                                 </StackPanel>
+177:                             </Grid>
+178:                         </StackPanel>
+179:                     </PivotItem>
+180:                 </Pivot>
+181:             </Grid>
+182:         </Grid>
+183: 
+184:         <!-- Actions -->
+185:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+186:             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+187:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+188:         </StackPanel>
+189:     </Grid>
+190: </Page>
+191: 
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: 
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+46:     {
+47:         var picker = new Windows.Storage.Pickers.FileOpenPicker();
+48:         var mainWindow = (App.Current as App)?.MainWindow;
+49:         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
+50:         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+51:         
+52:         picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+53:         picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+54:         picker.FileTypeFilter.Add(".jpg");
+55:         picker.FileTypeFilter.Add(".jpeg");
+56:         picker.FileTypeFilter.Add(".png");
+57:         picker.FileTypeFilter.Add(".svg");
+58: 
+59:         var file = await picker.PickSingleFileAsync();
+60:         if (file != null)
+61:         {
+62:             ViewModel.BuilderModel.Header.LogoUrl = file.Path;
+63:         }
+64:     }
+65: 
+66:     private async void EditRichText_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+67:     {
+68:         if (sender is Button btn && btn.DataContext is Models.TemplateSection section)
+69:         {
+70:             var dialog = new ContentDialog
+71:             {
+72:                 Title = "TinyMCE Preview",
+73:                 Content = "A janela de edição TinyMCE será implementada aqui. \
+Conteúdo atual: " + section.Content,
+74:                 CloseButtonText = "Fechar",
+75:                 XamlRoot = this.XamlRoot
+76:             };
+77:             await dialog.ShowAsync();
+78:         }
+79:     }
+80: }
+81: 
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0">
+13:         <!-- Header -->
+14:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+15: 
+16:         <!-- Form -->
+17:         <Grid Grid.Row="1">
+18:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+19:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+20:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+21:             
+22:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+23:                 <Grid.RowDefinitions>
+24:                     <RowDefinition Height="Auto" />
+25:                     <RowDefinition Height="*" />
+26:                 </Grid.RowDefinitions>
+<truncated 18530 bytes>
+="16">
+202:                                 <StackPanel Grid.Column="0" Spacing="8">
+203:                                     <TextBlock Text="Estrutura HTML (DOM)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+204:                                     <TextBox Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+205:                                              AcceptsReturn="True" 
+206:                                              TextWrapping="Wrap" 
+207:                                              FontFamily="Consolas" 
+208:                                              Height="500" />
+209:                                 </StackPanel>
+210:                                 <StackPanel Grid.Column="1" Spacing="8">
+211:                                     <TextBlock Text="Folha de Estilos (CSS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+212:                                     <TextBox Text="{x:Bind ViewModel.Template.CssStructure, Mode=TwoWay}" 
+213:                                              AcceptsReturn="True" 
+214:                                              TextWrapping="Wrap" 
+215:                                              FontFamily="Consolas" 
+216:                                              Height="500" />
+217:                                 </StackPanel>
+218:                             </Grid>
+219:                         </StackPanel>
+220:                     </PivotItem>
+221:                 </Pivot>
+222:             </Grid>
+223:         </Grid>
+224: 
+225:         <!-- Actions -->
+226:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+227:             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+228:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+229:         </StackPanel>
+230:     </Grid>
+231: </Page>
+232: 
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: 
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+46:     {
+47:         var picker = new Windows.Storage.Pickers.FileOpenPicker();
+48:         var mai
+<truncated 149 bytes>
+InitializeWithWindow.Initialize(picker, hwnd);
+51:         
+52:         picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+53:         picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+54:         picker.FileTypeFilter.Add(".jpg");
+55:         picker.FileTypeFilter.Add(".jpeg");
+56:         picker.FileTypeFilter.Add(".png");
+57:         picker.FileTypeFilter.Add(".svg");
+58: 
+59:         var file = await picker.PickSingleFileAsync();
+60:         if (file != null)
+61:         {
+62:             ViewModel.BuilderModel.Header.LogoUrl = file.Path;
+63:         }
+64:     }
+65: 
+66:     private async void EditRichText_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+67:     {
+68:         if (sender is Button btn && btn.DataContext is Models.TemplateSection section)
+69:         {
+70:             var window = new TinyMceEditorWindow(section.Content);
+71:             
+72:             var result = await window.ShowAsync();
+73:             if (result)
+74:             {
+75:                 section.Content = window.ResultHtml;
+76:             }
+77:         }
+78:     }
+79: 
+80:     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+81:     {
+82:         // Se ainda não estava personalizado, geramos a versão mais atual do visual builder
+83:         if (!ViewModel.IsCustomizedHtml)
+84:         {
+85:             ViewModel.SyncBuilderToHtml();
+86:         }
+87: 
+88:         var currentHtml = ViewModel.Template?.HtmlStructure ?? "";
+89: 
+90:         var window = new TinyMceEditorWindow(currentHtml);
+91:         
+92:         var result = await window.ShowAsync();
+93:         if (result)
+94:         {
+95:             if (ViewModel.Template != null)
+96:             {
+97:                 ViewModel.Template.HtmlStructure = window.ResultHtml;
+98:                 ViewModel.IsCustomizedHtml = true;
+99:             }
+100:         }
+101:     }
+102: }
+103: 
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0">
+13:         <!-- Header -->
+14:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+15: 
+16:         <!-- Form -->
+17:         <Grid Grid.Row="1">
+18:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+19:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+20:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+21:             
+22:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+23:                 <Grid.RowDefinitions>
+24:                     <RowDefinition Height="Auto" />
+25:                     <RowDefinition Height="*" />
+26:                 </Grid.RowDefinitions>
+<truncated 18575 bytes>
+    <TextBox Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+204:                                              AcceptsReturn="True" 
+205:                                              TextWrapping="Wrap" 
+206:                                              FontFamily="Consolas" 
+207:                                              Height="500" />
+208:                                 </StackPanel>
+209:                                 <StackPanel Grid.Column="1" Spacing="8">
+210:                                     <TextBlock Text="Folha de Estilos (CSS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+211:                                     <TextBox Text="{x:Bind ViewModel.Template.CssStructure, Mode=TwoWay}" 
+212:                                              AcceptsReturn="True" 
+213:                                              TextWrapping="Wrap" 
+214:                                              FontFamily="Consolas" 
+215:                                              Height="500" />
+216:                                 </StackPanel>
+217:                             </Grid>
+218:                         </StackPanel>
+219:                     </PivotItem>
+220:                 </Pivot>
+221:             </Grid>
+222:         </Grid>
+223: 
+224:         <!-- Actions -->
+225:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+226:             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+227:             <Button Content="Preview e Edição Global (TinyMCE)" Click="GlobalTinyMce_Click" />
+228:             <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center"/>
+229:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+230:         </StackPanel>
+231:     </Grid>
+232: </Page>
+233: 
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: 
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+46:     {
+47:         var picker = new Windows.Storage.Pickers.FileOpenPicker();
+48:         var mai
+<truncated 2573 bytes>
+section)
+100:         {
+101:             var quillService = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IChromiumTinyMceEditorService>();
+102:             var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+103:             
+104:             var result = await quillService.OpenEditorAsync(
+105:                 section.Content, 
+106:                 assetsPath, 
+107:                 NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+108:                 
+109:             if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+110:             {
+111:                 section.Content = result.Html;
+112:             }
+113:         }
+114:     }
+115: 
+116:     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+117:     {
+118:         // Se ainda não estava personalizado, geramos a versão mais atual do visual builder
+119:         if (!ViewModel.IsCustomizedHtml)
+120:         {
+121:             ViewModel.SyncBuilderToHtml();
+122:         }
+123: 
+124:         var currentHtml = ViewModel.Template?.HtmlStructure ?? "";
+125: 
+126:         var quillService = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IChromiumTinyMceEditorService>();
+127:         var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+128:         
+129:         var result = await quillService.OpenEditorAsync(
+130:             currentHtml, 
+131:             assetsPath, 
+132:             NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+133: 
+134:         if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+135:         {
+136:             if (ViewModel.Template != null)
+137:             {
+138:                 ViewModel.Template.HtmlStructure = result.Html;
+139:                 ViewModel.IsCustomizedHtml = true;
+140:             }
+141:         }
+142:     }
+143: }
+144: 
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0">
+13:         <!-- Header -->
+14:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+15: 
+16:         <!-- Form -->
+17:         <Grid Grid.Row="1">
+18:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+19:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+20:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+21:             
+22:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+23:                 <Grid.RowDefinitions>
+24:                     <RowDefinition Height="Auto" />
+25:                     <RowDefinition Height="*" />
+26:                 </Grid.RowDefinitions>
+<truncated 19437 bytes>
+    <TextBox Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+209:                                              AcceptsReturn="True" 
+210:                                              TextWrapping="Wrap" 
+211:                                              FontFamily="Consolas" 
+212:                                              Height="500" />
+213:                                 </StackPanel>
+214:                                 <StackPanel Grid.Column="1" Spacing="8">
+215:                                     <TextBlock Text="Folha de Estilos (CSS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+216:                                     <TextBox Text="{x:Bind ViewModel.Template.CssStructure, Mode=TwoWay}" 
+217:                                              AcceptsReturn="True" 
+218:                                              TextWrapping="Wrap" 
+219:                                              FontFamily="Consolas" 
+220:                                              Height="500" />
+221:                                 </StackPanel>
+222:                             </Grid>
+223:                         </StackPanel>
+224:                     </PivotItem>
+225:                 </Pivot>
+226:             </Grid>
+227:         </Grid>
+228: 
+229:         <!-- Actions -->
+230:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+231:             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+232:             <Button Content="Preview e Edição Global (TinyMCE)" Click="GlobalTinyMce_Click" />
+233:             <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center"/>
+234:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+235:         </StackPanel>
+236:     </Grid>
+237: </Page>
+238: 
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: 
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+46:     {
+47:         var picker = new Windows.Storage.Pickers.FileOpenPicker();
+48:         var mai
+<truncated 2867 bytes>
+ = NanopaintHub_WinUIClient.Services.TdsHtmlGenerator.GenerateCss(ViewModel.BuilderModel);
+104:             
+105:             var result = await quillService.OpenEditorAsync(
+106:                 section.Content, 
+107:                 assetsPath, 
+108:                 cssTheme,
+109:                 NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+110:                 
+111:             if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+112:             {
+113:                 section.Content = result.Html;
+114:             }
+115:         }
+116:     }
+117: 
+118:     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+119:     {
+120:         // Se ainda não estava personalizado, geramos a versão mais atual do visual builder
+121:         if (!ViewModel.IsCustomizedHtml)
+122:         {
+123:             ViewModel.SyncBuilderToHtml();
+124:         }
+125: 
+126:         var currentHtml = ViewModel.Template?.HtmlStructure ?? "";
+127: 
+128:         var quillService = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IChromiumTinyMceEditorService>();
+129:         var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+130:         var cssTheme = NanopaintHub_WinUIClient.Services.TdsHtmlGenerator.GenerateCss(ViewModel.BuilderModel);
+131:         
+132:         var result = await quillService.OpenEditorAsync(
+133:             currentHtml, 
+134:             assetsPath, 
+135:             cssTheme,
+136:             NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+137: 
+138:         if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+139:         {
+140:             if (ViewModel.Template != null)
+141:             {
+142:                 ViewModel.Template.HtmlStructure = result.Html;
+143:                 ViewModel.IsCustomizedHtml = true;
+144:             }
+145:         }
+146:     }
+147: }
+148: 
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0">
+13:         <!-- Header -->
+14:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+15: 
+16:         <!-- Form -->
+17:         <Grid Grid.Row="1">
+18:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+19:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+20:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+21:             
+22:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+23:                 <Grid.RowDefinitions>
+24:                     <RowDefinition Height="Auto" />
+25:                     <RowDefinition Height="*" />
+26:                 </Grid.RowDefinitions>
+<truncated 24808 bytes>
+    <TextBox Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+255:                                              AcceptsReturn="True" 
+256:                                              TextWrapping="Wrap" 
+257:                                              FontFamily="Consolas" 
+258:                                              Height="500" />
+259:                                 </StackPanel>
+260:                                 <StackPanel Grid.Column="1" Spacing="8">
+261:                                     <TextBlock Text="Folha de Estilos (CSS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+262:                                     <TextBox Text="{x:Bind ViewModel.Template.CssStructure, Mode=TwoWay}" 
+263:                                              AcceptsReturn="True" 
+264:                                              TextWrapping="Wrap" 
+265:                                              FontFamily="Consolas" 
+266:                                              Height="500" />
+267:                                 </StackPanel>
+268:                             </Grid>
+269:                         </StackPanel>
+270:                     </PivotItem>
+271:                 </Pivot>
+272:             </Grid>
+273:         </Grid>
+274: 
+275:         <!-- Actions -->
+276:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+277:             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+278:             <Button Content="Preview e Edição Global (TinyMCE)" Click="GlobalTinyMce_Click" />
+279:             <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center"/>
+280:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+281:         </StackPanel>
+282:     </Grid>
+283: </Page>
+284: 
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: 
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+46:     {
+47:         var picker = new Windows.Storage.Pickers.FileOpenPicker();
+48:         var mai
+<truncated 2919 bytes>
+r.GenerateCss(ViewModel.BuilderModel);
+104:             
+105:             var result = await quillService.OpenEditorAsync(
+106:                 section.Content, 
+107:                 assetsPath, 
+108:                 cssTheme,
+109:                 NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+110:                 
+111:             if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+112:             {
+113:                 section.Content = result.Html;
+114:             }
+115:         }
+116:     }
+117: 
+118:     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+119:     {
+120:         // Se ainda não estava personalizado, geramos a versão mais atual do visual builder
+121:         if (!ViewModel.IsCustomizedHtml)
+122:         {
+123:             ViewModel.SyncBuilderToHtml();
+124:         }
+125: 
+126:         var currentHtml = ViewModel.Template?.HtmlStructure ?? "";
+127: 
+128:         var quillService = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IChromiumTinyMceEditorService>();
+129:         var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+130:         var cssTheme = NanopaintHub_WinUIClient.Services.TdsHtmlGenerator.GenerateCss(ViewModel.BuilderModel);
+131:         
+132:         var result = await quillService.OpenEditorAsync(
+133:             currentHtml, 
+134:             assetsPath, 
+135:             cssTheme,
+136:             NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+137: 
+138:         if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+139:         {
+140:             if (ViewModel.Template != null)
+141:             {
+142:                 ViewModel.Template.HtmlStructure = result.Html;
+143:                 ViewModel.IsCustomizedHtml = true;
+144:                 ViewModel.SyncHtmlToBuilder();
+145:             }
+146:         }
+147:     }
+148: }
+149: 
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <ScrollViewer VerticalScrollBarVisibility="Auto">
+13:         <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0" Margin="0,0,0,24">
+14:             <!-- Header -->
+15:             <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+16: 
+17:             <!-- Form -->
+18:         <Grid Grid.Row="1">
+19:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+20:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+21:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+22:             
+23:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+24:                 <Grid.RowDefinitions>
+25:                     <RowDefinition Height="Auto" />
+26:
+<truncated 24912 bytes>
+ewModel.Template.HtmlStructure, Mode=TwoWay}" 
+256:                                              AcceptsReturn="True" 
+257:                                              TextWrapping="Wrap" 
+258:                                              FontFamily="Consolas" 
+259:                                              Height="500" />
+260:                                 </StackPanel>
+261:                                 <StackPanel Grid.Column="1" Spacing="8">
+262:                                     <TextBlock Text="Folha de Estilos (CSS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+263:                                     <TextBox Text="{x:Bind ViewModel.Template.CssStructure, Mode=TwoWay}" 
+264:                                              AcceptsReturn="True" 
+265:                                              TextWrapping="Wrap" 
+266:                                              FontFamily="Consolas" 
+267:                                              Height="500" />
+268:                                 </StackPanel>
+269:                             </Grid>
+270:                         </StackPanel>
+271:                     </PivotItem>
+272:                 </Pivot>
+273:             </Grid>
+274:         </Grid>
+275: 
+276:         <!-- Actions -->
+277:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+278:             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+279:             <Button Content="Preview e Edição Global (TinyMCE)" Click="GlobalTinyMce_Click" />
+280:             <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center"/>
+281:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+282:         </StackPanel>
+283:         </Grid>
+284:     </ScrollViewer>
+285: </Page>
+286: 
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: 
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+46:     {
+47:         var picker = new Windows.Storage.Pickers.FileOpenPicker();
+48:         var mai
+<truncated 2919 bytes>
+r.GenerateCss(ViewModel.BuilderModel);
+104:             
+105:             var result = await quillService.OpenEditorAsync(
+106:                 section.Content, 
+107:                 assetsPath, 
+108:                 cssTheme,
+109:                 NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+110:                 
+111:             if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+112:             {
+113:                 section.Content = result.Html;
+114:             }
+115:         }
+116:     }
+117: 
+118:     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+119:     {
+120:         // Se ainda não estava personalizado, geramos a versão mais atual do visual builder
+121:         if (!ViewModel.IsCustomizedHtml)
+122:         {
+123:             ViewModel.SyncBuilderToHtml();
+124:         }
+125: 
+126:         var currentHtml = ViewModel.Template?.HtmlStructure ?? "";
+127: 
+128:         var quillService = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IChromiumTinyMceEditorService>();
+129:         var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+130:         var cssTheme = NanopaintHub_WinUIClient.Services.TdsHtmlGenerator.GenerateCss(ViewModel.BuilderModel);
+131:         
+132:         var result = await quillService.OpenEditorAsync(
+133:             currentHtml, 
+134:             assetsPath, 
+135:             cssTheme,
+136:             NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+137: 
+138:         if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+139:         {
+140:             if (ViewModel.Template != null)
+141:             {
+142:                 ViewModel.Template.HtmlStructure = result.Html;
+143:                 ViewModel.IsCustomizedHtml = true;
+144:                 ViewModel.SyncHtmlToBuilder();
+145:             }
+146:         }
+147:     }
+148: }
+149: 
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: 
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+46:     {
+47:         var picker = new Windows.Storage.Pickers.FileOpenPicker();
+48:         var mai
+<truncated 2919 bytes>
+r.GenerateCss(ViewModel.BuilderModel);
+104:             
+105:             var result = await quillService.OpenEditorAsync(
+106:                 section.Content, 
+107:                 assetsPath, 
+108:                 cssTheme,
+109:                 NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+110:                 
+111:             if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+112:             {
+113:                 section.Content = result.Html;
+114:             }
+115:         }
+116:     }
+117: 
+118:     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+119:     {
+120:         // Se ainda não estava personalizado, geramos a versão mais atual do visual builder
+121:         if (!ViewModel.IsCustomizedHtml)
+122:         {
+123:             ViewModel.SyncBuilderToHtml();
+124:         }
+125: 
+126:         var currentHtml = ViewModel.Template?.HtmlStructure ?? "";
+127: 
+128:         var quillService = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IChromiumTinyMceEditorService>();
+129:         var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+130:         var cssTheme = NanopaintHub_WinUIClient.Services.TdsHtmlGenerator.GenerateCss(ViewModel.BuilderModel);
+131:         
+132:         var result = await quillService.OpenEditorAsync(
+133:             currentHtml, 
+134:             assetsPath, 
+135:             cssTheme,
+136:             NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+137: 
+138:         if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+139:         {
+140:             if (ViewModel.Template != null)
+141:             {
+142:                 ViewModel.Template.HtmlStructure = result.Html;
+143:                 ViewModel.IsCustomizedHtml = true;
+144:                 ViewModel.SyncHtmlToBuilder();
+145:             }
+146:         }
+147:     }
+148: }
+149: 
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <ScrollViewer VerticalScrollBarVisibility="Auto">
+13:         <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0" Margin="0,0,0,24">
+14:             <!-- Header -->
+15:             <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+16: 
+17:             <!-- Form -->
+18:         <Grid Grid.Row="1">
+19:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+20:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+21:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+22:             
+23:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+24:                 <Grid.RowDefinitions>
+25:                     <RowDefinition Height="Auto" />
+26:
+<truncated 24912 bytes>
+ewModel.Template.HtmlStructure, Mode=TwoWay}" 
+256:                                              AcceptsReturn="True" 
+257:                                              TextWrapping="Wrap" 
+258:                                              FontFamily="Consolas" 
+259:                                              Height="500" />
+260:                                 </StackPanel>
+261:                                 <StackPanel Grid.Column="1" Spacing="8">
+262:                                     <TextBlock Text="Folha de Estilos (CSS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+263:                                     <TextBox Text="{x:Bind ViewModel.Template.CssStructure, Mode=TwoWay}" 
+264:                                              AcceptsReturn="True" 
+265:                                              TextWrapping="Wrap" 
+266:                                              FontFamily="Consolas" 
+267:                                              Height="500" />
+268:                                 </StackPanel>
+269:                             </Grid>
+270:                         </StackPanel>
+271:                     </PivotItem>
+272:                 </Pivot>
+273:             </Grid>
+274:         </Grid>
+275: 
+276:         <!-- Actions -->
+277:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+278:             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+279:             <Button Content="Preview e Edição Global (TinyMCE)" Click="GlobalTinyMce_Click" />
+280:             <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center"/>
+281:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+282:         </StackPanel>
+283:         </Grid>
+284:     </ScrollViewer>
+285: </Page>
+286: 
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         Guid? templateId = null;
+24:         if (e.Parameter is Guid id)
+25:         {
+26:             templateId = id;
+27:         }
+28:         
+29:         _ = ViewModel.InitializeAsync(templateId);
+30:     }
+31: 
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+33:     {
+34:         var pivot = sender as Pivot;
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab
+36:         {
+37:             ViewModel.SyncBuilderToHtml();
+38:         }
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab
+40:         {
+41:             ViewModel.SyncHtmlToBuilder();
+42:         }
+43:     }
+44: 
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+46:     {
+47:         var picker = new Windows.Storage.Pickers.FileOpenPicker();
+48:         var mai
+<truncated 2919 bytes>
+r.GenerateCss(ViewModel.BuilderModel);
+104:             
+105:             var result = await quillService.OpenEditorAsync(
+106:                 section.Content, 
+107:                 assetsPath, 
+108:                 cssTheme,
+109:                 NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+110:                 
+111:             if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+112:             {
+113:                 section.Content = result.Html;
+114:             }
+115:         }
+116:     }
+117: 
+118:     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+119:     {
+120:         // Se ainda não estava personalizado, geramos a versão mais atual do visual builder
+121:         if (!ViewModel.IsCustomizedHtml)
+122:         {
+123:             ViewModel.SyncBuilderToHtml();
+124:         }
+125: 
+126:         var currentHtml = ViewModel.Template?.HtmlStructure ?? "";
+127: 
+128:         var quillService = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IChromiumTinyMceEditorService>();
+129:         var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+130:         var cssTheme = NanopaintHub_WinUIClient.Services.TdsHtmlGenerator.GenerateCss(ViewModel.BuilderModel);
+131:         
+132:         var result = await quillService.OpenEditorAsync(
+133:             currentHtml, 
+134:             assetsPath, 
+135:             cssTheme,
+136:             NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
+137: 
+138:         if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+139:         {
+140:             if (ViewModel.Template != null)
+141:             {
+142:                 ViewModel.Template.HtmlStructure = result.Html;
+143:                 ViewModel.IsCustomizedHtml = true;
+144:                 ViewModel.SyncHtmlToBuilder();
+145:             }
+146:         }
+147:     }
+148: }
+149: 
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     mc:Ignorable="d"
+9:     Background="Transparent">
+10: 
+11:     <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+12:         <!-- Header -->
+13:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+14: 
+15:         <!-- Form -->
+16:         <Grid Grid.Row="1">
+17:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+18:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+19:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+20:             
+21:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+22:                 <Grid.RowDefinitions>
+23:                     <RowDefinition Height="Auto" />
+24:                     <RowDefinition Height="*" />
+25:                 </Grid.RowDefinitions>
+26:                 
+27:                 <StackPanel Grid.Row="0" Spacing="16" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
+28:                     <TextBox Header="Nome do Template" Text="{x:Bind ViewModel.Template.TemplateName, Mode=TwoWay}" />
+29:                     <ComboBox Header="Tipo de Documento" SelectedValue="{x:Bind ViewModel.Template.DocumentType, Mode=TwoWay}" SelectedValuePath="Content">
+30:                         <ComboBoxItem Content="TDS" />
+31:                         <ComboBoxItem Content="SDS" />
+32:                     </ComboBox>
+33:                 </StackPanel>
+34:                 
+35:                 <TextBox Grid.Row="1" Header="Conteúdo HTML (Avançado)" 
+36:                          Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+37:                          AcceptsReturn="True" 
+38:                          TextWrapping="Wrap" 
+39:                          FontFamily="Consolas" 
+40:                          HorizontalAlignment="Stretch" 
+41:                          VerticalAlignment="Stretch" />
+42:             </Grid>
+43:         </Grid>
+44: 
+45:         <!-- Actions -->
+46:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+47:             <Button Content="Salvar" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+48:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+49:         </StackPanel>
+50:     </Grid>
+51: </Page>
+52: 
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+using System;
+2: using Microsoft.Extensions.DependencyInjection;
+3: using Microsoft.UI.Xaml.Controls;
+4: using Microsoft.UI.Xaml.Navigation;
+5: using NanopaintHub_WinUIClient.ViewModels;
+6: 
+7: namespace NanopaintHub_WinUIClient.Views;
+8: 
+9: public sealed partial class TemplateEditorPage : Page
+10: {
+11:     public TemplateEditorViewModel ViewModel { get; }
+12: 
+13:     public TemplateEditorPage()
+14:     {
+15:         InitializeComponent();
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
+17:         DataContext = ViewModel;
+18:     }
+19: 
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)
+21:     {
+22:         base.OnNavigatedTo(e);
+23:         if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+24:         {
+25:             if (ViewModel.Template != null)
+26:             {
+27:                 ViewModel.Template.HtmlStructure = result.Html;
+28:                 ViewModel.IsCustomizedHtml = true;
+29:                 ViewModel.SyncHtmlToBuilder();
+30:             }
+31:         }
+32:     }
+33: 
+34:     private async void OpenAdvancedPaginationDialog_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+35:     {
+36:         await AdvancedPaginationDialog.ShowAsync();
+37:     }
+38: 
+39:     private void HeaderRepeatStyle_SelectionChanged(object sender, SelectionChangedEventArgs e)
+40:     {
+41:         if (sender is ComboBox cb && cb.SelectedItem is string style)
+42:         {
+43:             ViewModel.BuilderModel.Header.HeaderRepeatStyle = style;
+44:         }
+45:     }
+46: 
+47:     private void FooterRepeatStyle_SelectionChanged(object sender, SelectionChangedEventArgs e)
+48:     {
+49:         if (sender is ComboBox cb && cb.SelectedItem is string style)
+50:         {
+51:             ViewModel.BuilderModel.Footer.FooterRepeatStyle = style;
+52:         }
+53:     }
+54: }
+55: 
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+9:     mc:Ignorable="d"
+10:     Background="Transparent">
+11: 
+12:     <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+13:         <!-- Header -->
+14:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+15: 
+16:         <!-- Form -->
+17:         <Pivot Grid.Row="1" SelectionChanged="Pivot_SelectionChanged">
+18:             <PivotItem Header="Visual Builder">
+19:                 <Grid>
+20:                     <Grid.ColumnDefinitions>
+21:                         <ColumnDefinition Width="*" />
+22:                         <ColumnDefinition Width="3*" />
+23:                     </Grid.ColumnDefinitions>
+24: 
+25:                     <ScrollViewer Grid.Column="0" Margin="0,0,16,0" Padding="0,0,16,0">
+26:                         <StackPanel Spacing="16">
+27:                             <!-- Cabeçalho -->
+28:                             <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="16">
+29:                                 <StackPanel Spacing="12">
+30:   
+<truncated 8400 bytes>
+ce AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+128:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+129:         </StackPanel>
+130:         
+131:     </Grid>
+132: 
+133:     <ContentDialog x:Name="AdvancedPaginationDialog"
+134:                    Title="Configuração Avançada de Páginas"
+135:                    PrimaryButtonText="Aplicar"
+136:                    DefaultButton="Primary">
+137:         <StackPanel Spacing="16" Width="400">
+138:             <TextBlock Text="Página 1 (Capa)" FontWeight="SemiBold" />
+139:             <CheckBox Content="Mostrar Logotipo na primeira página" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}"/>
+140:             
+141:             <TextBlock Text="Página 2 em diante" FontWeight="SemiBold" Margin="0,8,0,0" />
+142:             
+143:             <ComboBox Header="Estilo do Cabeçalho" ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" SelectionChanged="HeaderRepeatStyle_SelectionChanged" HorizontalAlignment="Stretch" />
+144:             <TextBlock Text="• Minimal: Mostra apenas o título/referência (oculta info extensa)" Foreground="#666" FontSize="12" TextWrapping="Wrap"/>
+145:             <TextBlock Text="• Original: Repete o cabeçalho completo da página 1" Foreground="#666" FontSize="12" TextWrapping="Wrap"/>
+146:             
+147:             <ComboBox Header="Estilo do Rodapé" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" SelectionChanged="FooterRepeatStyle_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,8,0,0"/>
+148:             <TextBlock Text="• Original: Repete as moradas e textos legais" Foreground="#666" FontSize="12" TextWrapping="Wrap"/>
+149:         </StackPanel>
+150:     </ContentDialog>
+151: </Page>
+152: 
+--- VIEW FILE ---
+<?xml version="1.0" encoding="utf-8"?>
+2: <Page
+3:     x:Class="NanopaintHub_WinUIClient.Views.TemplateEditorPage"
+4:     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+5:     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+6:     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+7:     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+8:     mc:Ignorable="d"
+9:     Background="Transparent">
+10: 
+11:     <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+12:         <!-- Header -->
+13:         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+14: 
+15:         <!-- Form -->
+16:         <Grid Grid.Row="1">
+17:             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+18:                           Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+19:                           VerticalAlignment="Center" HorizontalAlignment="Center" Width="64" Height="64" />
+20:             
+21:             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+22:                 <Grid.RowDefinitions>
+23:                     <RowDefinition Height="Auto" />
+24:                     <RowDefinition Height="*" />
+25:                 </Grid.RowDefinitions>
+26:                 
+27:                 <StackPanel Grid.Row="0" Spacing="16" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
+28:                     <TextBox Header="Nome do Template" Text="{x:Bind ViewModel.Template.TemplateName, Mode=TwoWay}" />
+29:                     <ComboBox Header="Tipo de Documento" SelectedValue="{x:Bind ViewModel.Template.DocumentType, Mode=TwoWay}" SelectedValuePath="Content">
+30:                         <ComboBoxItem Content="TDS" />
+31:                         <ComboBoxItem Content="SDS" />
+32:                     </ComboBox>
+33:                 </StackPanel>
+34:                 
+35:                 <TextBox Grid.Row="1" Header="Conteúdo HTML (Avançado)" 
+36:                          Text="{x:Bind ViewModel.Template.HtmlStructure, Mode=TwoWay}" 
+37:                          AcceptsReturn="True" 
+38:                          TextWrapping="Wrap" 
+39:                          FontFamily="Consolas" 
+40:                          HorizontalAlignment="Stretch" 
+41:                          VerticalAlignment="Stretch" />
+42:             </Grid>
+43:         </Grid>
+44: 
+45:         <!-- Actions -->
+46:         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+47:             <Button Content="Salvar" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+48:             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+49:         </StackPanel>
+50:     </Grid>
+51: </Page>
+52: 
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+  Determining projects to restore...\r
+2:   All projects are up-to-date for restore.\r
+3:   NanopaintHub.Domain -> C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\CORE\NanopaintHub.Domain\bin\Debug\
+et8.0\NanopaintHub.Domain.dll\r
+4:   NanopaintHub.Application -> C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\CORE\NanopaintHub.Application\bin\Debug\
+et8.0\NanopaintHub.Application.dll\r
+5:   NanopaintHub.Infrastructure.LocalData -> C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\INFRASTRUCTURE\NanopaintHub.Infrastructure.LocalData\bin\Debug\
+et8.0\NanopaintHub.Infrastructure.LocalData.dll\r
+6:   NanopaintHub.Infrastructure.Documents -> C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\INFRASTRUCTURE\NanopaintHub.Infrastructure.Documents\bin\Debug\
+et8.0\NanopaintHub.Infrastructure.Documents.dll\r
+7: C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\Views\TemplateEditorPage.xaml.cs(49,12): error CS1003: Syntax error, '>' expected [C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\NanopaintHub.WinUIClient.csproj]\r
+8: C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\Views\TemplateEditorPage.xaml.cs(49,12): error CS1003: Syntax error, '(' expected [C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\NanopaintHub.WinUIClient.csproj]\r
+9: C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\Views\TemplateEditorPage.xaml.cs(49,12): error CS1026: ) expected [C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\NanopaintHub.WinUIClient.csproj]\r
+10: C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\Views\TemplateEditorPage.xaml.cs(49,12): error CS1002: ; expected [C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\NanopaintHub.WinUIClient.csproj]\r
+11: C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\Views\TemplateEditorPage.xaml.cs(49,16): error CS1002: ; expected [C:\Users\Arriscado\Documents\Nanopaint\NanopaintHub\Clients\NanopaintHub.WinUiClient\NanopaintHub.WinUIClient.csproj]\r
+12: 
+--- VIEW FILE ---
+using System;\r
+2: using Microsoft.Extensions.DependencyInjection;\r
+3: using Microsoft.UI.Xaml.Controls;\r
+4: using Microsoft.UI.Xaml.Navigation;\r
+5: using NanopaintHub_WinUIClient.ViewModels;\r
+6: \r
+7: namespace NanopaintHub_WinUIClient.Views;\r
+8: \r
+9: public sealed partial class TemplateEditorPage : Page\r
+10: {\r
+11:     public TemplateEditorViewModel ViewModel { get; }\r
+12: \r
+13:     public TemplateEditorPage()\r
+14:     {\r
+15:         InitializeComponent();\r
+16:         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();\r
+17:         DataContext = ViewModel;\r
+18:     }\r
+19: \r
+20:     protected override void OnNavigatedTo(NavigationEventArgs e)\r
+21:     {\r
+22:         base.OnNavigatedTo(e);\r
+23:         Guid? templateId = null;\r
+24:         if (e.Parameter is Guid id)\r
+25:         {\r
+26:             templateId = id;\r
+27:         }\r
+28:         \r
+29:         _ = ViewModel.InitializeAsync(templateId);\r
+30:     }\r
+31: \r
+32:     private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)\r
+33:     {\r
+34:         var pivot = sender as Pivot;\r
+35:         if (pivot?.SelectedIndex == 1) // Advanced Tab\r
+36:         {\r
+37:             ViewModel.SyncBuilderToHtml();\r
+38:         }\r
+39:         else if (pivot?.SelectedIndex == 0) // Builder Tab\r
+40:         {\r
+41:             ViewModel.SyncHtmlToBuilder();\r
+42:         }\r
+43:     }\r
+44: \r
+45:     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)\r
+46:     {\r
+47:         var picker = new Windows.Storage
+<truncated 890 bytes>
+lick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)\r
+67:     {\r
+68:         if (sender is Button btn && btn.DataContext is Models.TemplateSection section)\r
+69:         {\r
+70:             var window = new TinyMceEditorWindow(section.Content);\r
+71:             \r
+72:             var result = await window.ShowAsync();\r
+73:             if (result)\r
+74:             {\r
+75:                 section.Content = window.ResultHtml;\r
+76:             }\r
+77:         }\r
+78:     }\r
+79: \r
+80:     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)\r
+81:     {\r
+82:         // Se ainda não estava personalizado, geramos a versão mais atual do visual builder\r
+83:         if (!ViewModel.IsCustomizedHtml)\r
+84:         {\r
+85:             ViewModel.SyncBuilderToHtml();\r
+86:         }\r
+87: \r
+88:         var currentHtml = ViewModel.Template?.HtmlStructure ?? "";\r
+89: \r
+90:         var window = new TinyMceEditorWindow(currentHtml);\r
+91:         \r
+92:         var result = await window.ShowAsync();\r
+93:         if (result)\r
+94:         {\r
+95:             if (ViewModel.Template != null)\r
+96:             {\r
+97:                 ViewModel.Template.HtmlStructure = window.ResultHtml;\r
+98:                 ViewModel.IsCustomizedHtml = true;\r
+99:             }\r
+100:         }\r
+101:     }\r
+102: \r
+103:     private void HeaderRepeatStyle_SelectionChanged(object sender, SelectionChangedEventArgs e)\r
+104:     {\r
+105:         if (sender is ComboBox cb && cb.SelectedItem is string style)\r
+106:         {\r
+107:             ViewModel.BuilderModel.Header.HeaderRepeatStyle = style;\r
+108:         }\r
+109:     }\r
+110: \r
+111:     private void FooterRepeatStyle_SelectionChanged(object sender, SelectionChangedEventArgs e)\r
+112:     {\r
+113:         if (sender is ComboBox cb && cb.SelectedItem is string style)\r
+114:         {\r
+115:             ViewModel.BuilderModel.Footer.FooterRepeatStyle = style;\r
+116:         }\r
+117:     }\r
+118: }\r
+119: \r
+120: 
+--- FULL FILE OVERWRITE ---
+\
+--- VIEW FILE ---
+# Adição de Configurações de Página e Cabeçalhos/Rodapés Repetíveis
+2: 
+3: A nova funcionalidade requer alterações no Gerador de PDF e no Editor de Templates para permitir um controlo absoluto sobre a paginação e elementos repetitivos nas páginas.
+4: 
+5: ## User Review Required
+6: 
+7: > [!IMPORTANT]
+8: > **Confirmação de Funcionalidades:**
+9: > 1. **Quebras de Página**: Vou adicionar a opção "Quebra de Página" no editor TinyMCE (Preview / Editar). Isto permitirá forçar a quebra da página num local exato.
+10: > 2. **Tamanho e Orientação de Página**: Vou adicionar estas opções ao ecrã "Gerador de PDF" (GeneratePdfView) para permitir escolher A4 ou Carta, e modo Retrato ou Paisagem na hora de gerar o ficheiro.
+11: > 3. **Cabeçalhos e Rodapés Repetíveis**: Vou adicionar opções no ecrã "Editor de Templates" (Visual Builder) para definir se o Cabeçalho deve repetir em todas as páginas (como versão "Original" completa, versão "Minimalista", ou Nenhuma) e o Rodapé (Nenhum, ou Original).
+12: >
+13: > Por favor aprova se este plano corresponde exatamente ao que pediste.
+14: 
+15: ## Proposed Changes
+16: 
+17: ### `GeneratePdfView` (Ecrã de Geração)
+18: 
+19: #### [MODIFY] [GeneratePdfPage.xaml](file:///C:/Users/Arriscado/Documents/Nanopaint/NanopaintHub/Clients/NanopaintHub.WinUiClient/Views/GeneratePdfPage.xaml)
+20: - Adicionar controlos `ComboBox` para "Tamanho da Página" (A4, Carta).
+21: - Adicionar controlos `ComboBox` para "Orientação" (Retrato, Paisagem).
+22: 
+23: #### [MODIFY] [Generate
+<truncated 762 bytes>
+do/Documents/Nanopaint/NanopaintHub/Clients/NanopaintHub.WinUiClient/Views/TemplateEditorPage.xaml)
+35: - Adicionar `ComboBox` para escolher o estilo de repetição do cabeçalho e do rodapé.
+36: 
+37: ---
+38: 
+39: ### Motor de Geração (DocumentGeneratorService)
+40: 
+41: #### [MODIFY] [IDocumentGeneratorService.cs](file:///C:/Users/Arriscado/Documents/Nanopaint/NanopaintHub/Infrastructure/NanopaintHub.Infrastructure.Documents/Services/IDocumentGeneratorService.cs)
+42: - Alterar as assinaturas para suportar um objeto `PdfGenerationOptions` que transporte as configurações da página (A4/Carta, Orientação) e defina `HeaderTemplate` e `FooterTemplate`.
+43: 
+44: #### [MODIFY] [DocumentGeneratorService.cs](file:///C:/Users/Arriscado/Documents/Nanopaint/NanopaintHub/Infrastructure/NanopaintHub.Infrastructure.Documents/Services/DocumentGeneratorService.cs)
+45: - Mapear as opções passadas (A4/Carta, Paisagem/Retrato) para o `PdfOptions` do PuppeteerSharp.
+46: - Injetar código HTML/CSS inline nativo no `HeaderTemplate` e `FooterTemplate` do Puppeteer consoante as opções selecionadas de repetição.
+47: - Converter a tag `<!-- pagebreak -->` inserida pelo TinyMCE para `<div style="page-break-after: always;"></div>` para forçar quebras exatas.
+48: 
+49: #### [MODIFY] [wysiwyg-host.html](file:///C:/Users/Arriscado/Documents/Nanopaint/NanopaintHub/Clients/NanopaintHub.WinUiClient/Assets/Editor/wysiwyg-host.html)
+50: - Adicionar o plugin `pagebreak` à configuração do TinyMCE. Isto adiciona um botão "Quebra de Página" na barra de ferramentas.
+51: 
+52: ## Verification Plan
+53: 
+54: ### Manual Verification
+55: - Testar a inserção de uma quebra de página via TinyMCE e confirmar que o PDF gerado obedece à mesma.
+56: - Alterar a orientação para Paisagem e confirmar no PDF gerado.
+57: - Definir o cabeçalho repetível para "Minimal" no Visual Builder e verificar se aparece um cabeçalho curto no topo das páginas secundárias.
+58: 
