@@ -107,11 +107,8 @@ public partial class TemplateEditorViewModel : ObservableObject
 
         Template.BuilderJson = JsonSerializer.Serialize(BuilderModel);
         
-        if (!IsCustomizedHtml)
-        {
-            Template.HtmlStructure = TdsHtmlGenerator.GenerateHtml(BuilderModel);
-            Template.CssStructure = TdsHtmlGenerator.GenerateCss(BuilderModel);
-        }
+        Template.HtmlStructure = TdsHtmlGenerator.GenerateHtml(BuilderModel);
+        Template.CssStructure = TdsHtmlGenerator.GenerateCss(BuilderModel);
         
         OnPropertyChanged(nameof(Template)); // Refresh bind
     }
@@ -179,6 +176,24 @@ public partial class TemplateEditorViewModel : ObservableObject
         BuilderModel.Sections.Add(new TemplateSection { Title = "Performance charts", Type = "Charts", DataSource = "Charts", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
         SyncBuilderToHtml();
         OnPropertyChanged(nameof(BuilderModel));
+    }
+
+    [RelayCommand]
+    private async Task EditGlobalHtmlAsync()
+    {
+        if (Template == null) return;
+
+        // Sync changes made in the UI into HtmlStructure before opening Editor
+        SyncBuilderToHtml();
+
+        var result = await _editorService.OpenEditorAsync(Template.HtmlStructure, Template.CssStructure);
+        if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+        {
+            Template.HtmlStructure = result.Html;
+            SyncHtmlToBuilder();
+            OnPropertyChanged(nameof(Template));
+            OnPropertyChanged(nameof(BuilderModel));
+        }
     }
 
     [RelayCommand]
