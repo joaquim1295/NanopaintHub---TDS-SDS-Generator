@@ -8,6 +8,7 @@ public class TemplateBuilderSchema
     public TemplateHeaderSchema Header { get; set; } = new();
     public TemplateThemeSchema Theme { get; set; } = new();
     public TemplateFooterSchema Footer { get; set; } = new();
+    public TemplateBatchSchema Batch { get; set; } = new();
     public List<TemplateSectionSchema> Sections { get; set; } = new();
 }
 
@@ -43,6 +44,12 @@ public class TemplateFooterSchema
     public string FontFamily { get; set; } = "";
     public string TextColor { get; set; } = "";
     public string FooterRepeatStyle { get; set; } = "None";
+}
+
+public class TemplateBatchSchema
+{
+    public bool ShowBatchNote { get; set; } = true;
+    public string BatchNoteFormat { get; set; } = "Batch data applied: {batch} (merged with product specifications where applicable).";
 }
 
 public class TemplateSectionSchema

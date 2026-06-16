@@ -15,6 +15,9 @@ public partial class TemplateBuilderModel : ObservableObject
     [ObservableProperty]
     private TemplateFooter _footer = new();
 
+    [ObservableProperty]
+    private TemplateBatch _batch = new();
+
     public ObservableCollection<TemplateSection> Sections { get; } = new();
 }
 
@@ -91,6 +94,15 @@ public partial class TemplateFooter : ObservableObject
 
     [ObservableProperty]
     private string _footerRepeatStyle = "None";
+}
+
+public partial class TemplateBatch : ObservableObject
+{
+    [ObservableProperty]
+    private bool _showBatchNote = true;
+
+    [ObservableProperty]
+    private string _batchNoteFormat = "Batch data applied: {batch} (merged with product specifications where applicable).";
 }
 
 public partial class TemplateSection : ObservableObject
