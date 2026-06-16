@@ -14,6 +14,7 @@ public partial class TemplateEditorViewModel : ObservableObject
 {
     private readonly ITemplateRepository _templateRepository;
     private readonly INavigationService _navigationService;
+    private readonly IChromiumTinyMceEditorService _editorService;
 
     public List<string> HeaderRepeatStyles { get; } = new() { "None", "Minimal", "Original" };
     public List<string> FooterRepeatStyles { get; } = new() { "None", "Original" };
@@ -34,10 +35,11 @@ public partial class TemplateEditorViewModel : ObservableObject
     [ObservableProperty]
     private string _pageTitle = "Novo Template";
 
-    public TemplateEditorViewModel(ITemplateRepository templateRepository, INavigationService navigationService)
+    public TemplateEditorViewModel(ITemplateRepository templateRepository, INavigationService navigationService, IChromiumTinyMceEditorService editorService)
     {
         _templateRepository = templateRepository;
         _navigationService = navigationService;
+        _editorService = editorService;
     }
 
     public async Task InitializeAsync(Guid? templateId)
