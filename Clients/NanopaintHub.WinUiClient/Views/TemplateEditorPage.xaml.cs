@@ -94,26 +94,7 @@ public sealed partial class TemplateEditorPage : Page
         }
     }
 
-    private async void EditRichText_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        if (sender is Button btn && btn.DataContext is Models.TemplateSection section)
-        {
-            var quillService = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IChromiumTinyMceEditorService>();
-            var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
-            var cssTheme = NanopaintHub_WinUIClient.Services.TdsHtmlGenerator.GenerateCss(ViewModel.BuilderModel);
-            
-            var result = await quillService.OpenEditorAsync(
-                section.Content, 
-                assetsPath, 
-                cssTheme,
-                NanopaintHub.Application.Contracts.ChromiumTemplateEditorMode.WordLike);
-                
-            if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
-            {
-                section.Content = result.Html;
-            }
-        }
-    }
+    
 
     private async void GlobalTinyMce_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {

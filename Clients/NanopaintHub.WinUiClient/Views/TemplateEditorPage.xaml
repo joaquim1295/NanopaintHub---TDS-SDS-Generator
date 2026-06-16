@@ -36,169 +36,189 @@
                 <Pivot Grid.Row="1" SelectionChanged="Pivot_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <PivotItem Header="Visual Builder" Margin="0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,16,16,16">
-                            <StackPanel Spacing="16" MaxWidth="900" HorizontalAlignment="Stretch">
+                            
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="16" HorizontalAlignment="Stretch">
                                 
-                                <!-- Cabeçalho -->
-                                <Expander Header="Cabeçalho (Informação &amp; Identificação)" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-                                        <!-- Logo & Repeat Style -->
-                                        <StackPanel Grid.Column="0" Spacing="12">
-                                            <TextBlock Text="Logotipo &amp; Geral" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-                                                <TextBox Grid.Column="0" Header="URL do Logotipo" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay}" />
-                                                <Button Grid.Column="1" Content="..." Click="PickLogo_Click" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
-                                                <CheckBox Grid.Column="2" Content="Mostrar Logo" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
-                                            </Grid>
-                                            <TextBox Header="Altura do Logotipo (px)" Text="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" />
-                                            <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" SelectionChanged="HeaderRepeatStyle_SelectionChanged" HorizontalAlignment="Stretch" />
-                                            
-                                            <TextBlock Text="Informação do Documento" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,12,0,0" />
-                                            <TextBox Header="Tipo de Documento (ex: Technical Data Sheet)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay}" />
-                                            <TextBox Header="Subtítulo / Categoria (ex: Functional Ink)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay}" />
-                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                                <TextBox Grid.Column="0" Header="Versão (ex: Version 3)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay}" />
-                                                <!-- We could use CalendarDatePicker for Date, but TextBox is more flexible for custom strings if needed, let's stick to TextBox for Version. Date is DateOffset? so we need a CalendarDatePicker -->
-                                                <CalendarDatePicker Grid.Column="1" Header="Data de Revisão" Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" HorizontalAlignment="Stretch" />
-                                            </Grid>
-                                        </StackPanel>
-
-                                        <!-- Identification -->
-                                        <StackPanel Grid.Column="1" Spacing="12">
-                                            <TextBlock Text="Identificação da Tinta" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                            <TextBox Header="Tipo de Tinta (ex: Piezoresistive Ink)" Text="{x:Bind ViewModel.BuilderModel.Header.IdentType, Mode=TwoWay}" />
-                                            <TextBox Header="Nome Registado (ex: NP-PI-1000)" Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay}" />
-                                            <TextBox Header="Descrição / Resumo" Text="{x:Bind ViewModel.BuilderModel.Header.IdentDesc, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="140" />
-                                        </StackPanel>
-                                    </Grid>
-                                </Expander>
-
-                                <!-- Batch (Lote) -->
-                                <Expander Header="Configuração de Lote (Batch)" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                    <StackPanel Spacing="12">
-                                        <CheckBox Content="Mostrar nota de aplicação de lote (Se houver)" IsChecked="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=TwoWay}" />
-                                        <TextBox Header="Formato da Nota" Text="{x:Bind ViewModel.BuilderModel.Batch.BatchNoteFormat, Mode=TwoWay}" 
-                                                 PlaceholderText="Ex: Batch data applied: {batch} (merged with product specifications where applicable)."
-                                                 IsEnabled="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=OneWay}" />
-                                    </StackPanel>
-                                </Expander>
-
-                                <!-- Tema -->
-                                <Expander Header="Tema Global" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-                                        
-                                        <!-- Primary Color -->
-                                        <StackPanel Grid.Column="0" Spacing="8">
-                                            <TextBlock Text="Cor Primária" Style="{ThemeResource BodyTextBlockStyle}" />
-                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                                <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
-                                                    <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
-                                                    <Button.Flyout>
-                                                        <Flyout>
-                                                            <StackPanel Spacing="8">
-                                                                <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" 
-                                                                             IsColorChannelTextInputVisible="True" 
-                                                                             IsHexInputVisible="True" 
-                                                                             IsAlphaEnabled="False" />
-                                                                <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
-                                                            </StackPanel>
-                                                        </Flyout>
-                                                    </Button.Flyout>
-                                                </Button>
-                                                <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay}" VerticalAlignment="Center" />
-                                            </Grid>
-                                        </StackPanel>
-
-                                        <!-- Secondary Color -->
-                                        <StackPanel Grid.Column="1" Spacing="8">
-                                            <TextBlock Text="Cor Secundária" Style="{ThemeResource BodyTextBlockStyle}" />
-                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                                <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
-                                                    <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
-                                                    <Button.Flyout>
-                                                        <Flyout>
-                                                            <StackPanel Spacing="8">
-                                                                <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" 
-                                                                             IsColorChannelTextInputVisible="True" 
-                                                                             IsHexInputVisible="True" 
-                                                                             IsAlphaEnabled="False" />
-                                                                <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
-                                                            </StackPanel>
-                                                        </Flyout>
-                                                    </Button.Flyout>
-                                                </Button>
-                                                <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay}" VerticalAlignment="Center" />
-                                            </Grid>
-                                        </StackPanel>
-
-                                    </Grid>
-                                </Expander>
-
-                                <!-- Secções -->
-                                <Expander Header="Secções de Conteúdo" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}">
-                                        <ItemsRepeater.ItemTemplate>
-                                            <DataTemplate x:DataType="models:TemplateSection">
-                                                <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                                      Padding="16" Margin="0,0,0,12" CornerRadius="8">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel Grid.Column="0" Spacing="8">
-                                                        <TextBox Header="Título da Secção" Text="{x:Bind Title, Mode=TwoWay}" />
-                                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                                            <ComboBox Grid.Column="0" Header="Tipo de Secção" SelectedValue="{x:Bind Type, Mode=TwoWay}" SelectedValuePath="Content" HorizontalAlignment="Stretch">
-                                                                <ComboBoxItem Content="RichText" />
-                                                                <ComboBoxItem Content="Text" />
-                                                                <ComboBoxItem Content="Table" />
-                                                                <ComboBoxItem Content="BulletPoints" />
-                                                                <ComboBoxItem Content="Graphics" />
-                                                            </ComboBox>
-                                                            <ComboBox Grid.Column="1" Header="Layout" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" HorizontalAlignment="Stretch">
-                                                                <ComboBoxItem Content="1 Coluna (100% largura)">
-                                                                    <ComboBoxItem.Tag>
-                                                                        <x:Boolean>False</x:Boolean>
-                                                                    </ComboBoxItem.Tag>
-                                                                </ComboBoxItem>
-                                                                <ComboBoxItem Content="2 Colunas (50% largura)">
-                                                                    <ComboBoxItem.Tag>
-                                                                        <x:Boolean>True</x:Boolean>
-                                                                    </ComboBoxItem.Tag>
-                                                                </ComboBoxItem>
-                                                            </ComboBox>
-                                                        </Grid>
-                                                    </StackPanel>
-                                                    <Button Grid.Column="1" Content="Editar Conteúdo no TinyMCE" 
-                                                            Style="{ThemeResource AccentButtonStyle}"
-                                                            VerticalAlignment="Bottom" Margin="16,0,0,0" 
-                                                            Click="EditRichText_Click" 
-                                                            Visibility="{x:Bind Type, Converter={StaticResource StringEqualityToVisibilityConverter}, ConverterParameter='RichText', Mode=OneWay}" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsRepeater.ItemTemplate>
-                                    </ItemsRepeater>
-                                </Expander>
-
-                                <!-- Rodapé -->
-                                <Expander Header="Rodapé" IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                    <StackPanel Spacing="12">
+                                <!-- COLUNA ESQUERDA -->
+                                <StackPanel Grid.Column="0" Spacing="16">
+                                    
+                                    <!-- Tema -->
+                                    <Expander Header="Tema Global" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                         <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                            
+                                            <!-- Primary Color -->
                                             <StackPanel Grid.Column="0" Spacing="8">
-                                                <TextBlock Text="Endereço / Empresa (Coluna 1)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="100" />
+                                                <TextBlock Text="Cor Primária" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                    <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
+                                                        <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                        <Button.Flyout>
+                                                            <Flyout>
+                                                                <StackPanel Spacing="8">
+                                                                    <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" 
+                                                                                 IsColorChannelTextInputVisible="True" 
+                                                                                 IsHexInputVisible="True" 
+                                                                                 IsAlphaEnabled="False" />
+                                                                    <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                                </StackPanel>
+                                                            </Flyout>
+                                                        </Button.Flyout>
+                                                    </Button>
+                                                    <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay}" VerticalAlignment="Center" />
+                                                </Grid>
                                             </StackPanel>
+
+                                            <!-- Secondary Color -->
                                             <StackPanel Grid.Column="1" Spacing="8">
-                                                <TextBlock Text="Contactos / Website (Coluna 2)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="100" />
+                                                <TextBlock Text="Cor Secundária" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                    <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
+                                                        <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                        <Button.Flyout>
+                                                            <Flyout>
+                                                                <StackPanel Spacing="8">
+                                                                    <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" 
+                                                                                 IsColorChannelTextInputVisible="True" 
+                                                                                 IsHexInputVisible="True" 
+                                                                                 IsAlphaEnabled="False" />
+                                                                    <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                                </StackPanel>
+                                                            </Flyout>
+                                                        </Button.Flyout>
+                                                    </Button>
+                                                    <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay}" VerticalAlignment="Center" />
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <TextBox Grid.Column="0" Grid.ColumnSpan="2" Header="Tipo de Fonte Global" Text="{x:Bind ViewModel.BuilderModel.Theme.FontFamily, Mode=TwoWay}" Margin="0,16,0,0"/>
+
+                                        </Grid>
+                                    </Expander>
+
+                                    <!-- Secções -->
+                                    <Expander Header="Secções de Conteúdo" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}">
+                                            <ItemsRepeater.ItemTemplate>
+                                                <DataTemplate x:DataType="models:TemplateSection">
+                                                    <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                                          Padding="16" Margin="0,0,0,12" CornerRadius="8">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0" Spacing="8">
+                                                            <TextBox Header="Título da Secção" Text="{x:Bind Title, Mode=TwoWay}" />
+                                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                                                <ComboBox Grid.Column="0" Header="Tipo de Secção" SelectedValue="{x:Bind Type, Mode=TwoWay}" SelectedValuePath="Content" HorizontalAlignment="Stretch">
+                                                                    <ComboBoxItem Content="RichText" />
+                                                                    <ComboBoxItem Content="Text" />
+                                                                    <ComboBoxItem Content="Table" />
+                                                                    <ComboBoxItem Content="BulletPoints" />
+                                                                    <ComboBoxItem Content="Graphics" />
+                                                                </ComboBox>
+                                                                <ComboBox Grid.Column="1" Header="Layout" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" HorizontalAlignment="Stretch">
+                                                                    <ComboBoxItem Content="1 Coluna">
+                                                                        <ComboBoxItem.Tag>
+                                                                            <x:Boolean>False</x:Boolean>
+                                                                        </ComboBoxItem.Tag>
+                                                                    </ComboBoxItem>
+                                                                    <ComboBoxItem Content="2 Colunas">
+                                                                        <ComboBoxItem.Tag>
+                                                                            <x:Boolean>True</x:Boolean>
+                                                                        </ComboBoxItem.Tag>
+                                                                    </ComboBoxItem>
+                                                                </ComboBox>
+                                                            </Grid>
+                                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                                                <TextBox Grid.Column="0" Header="Tipo de Fonte" Text="{x:Bind FontFamily, Mode=TwoWay}" PlaceholderText="Default" />
+                                                                <TextBox Grid.Column="1" Header="Cor do Texto" Text="{x:Bind TextColor, Mode=TwoWay}" PlaceholderText="Default" />
+                                                            </Grid>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsRepeater.ItemTemplate>
+                                        </ItemsRepeater>
+                                    </Expander>
+
+                                </StackPanel>
+
+                                <!-- COLUNA DIREITA -->
+                                <StackPanel Grid.Column="1" Spacing="16">
+                                    
+                                    <!-- Cabeçalho -->
+                                    <Expander Header="Cabeçalho (Informação &amp; Identificação)" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                            <!-- Logo & Repeat Style -->
+                                            <StackPanel Grid.Column="0" Spacing="12">
+                                                <TextBlock Text="Logotipo &amp; Geral" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                                    <TextBox Grid.Column="0" Header="URL do Logotipo" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay}" />
+                                                    <Button Grid.Column="1" Content="..." Click="PickLogo_Click" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                                    <CheckBox Grid.Column="2" Content="Mostrar Logo" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                                </Grid>
+                                                <TextBox Header="Altura do Logotipo (px)" Text="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" />
+                                                <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" SelectionChanged="HeaderRepeatStyle_SelectionChanged" HorizontalAlignment="Stretch" />
+                                                
+                                                <TextBlock Text="Informação do Documento" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,12,0,0" />
+                                                <TextBox Header="Tipo de Documento (ex: Technical Data Sheet)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay}" />
+                                                <TextBox Header="Subtítulo / Categoria (ex: Functional Ink)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay}" />
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                                    <TextBox Grid.Column="0" Header="Versão (ex: Version 3)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay}" />
+                                                    <CalendarDatePicker Grid.Column="1" Header="Data de Revisão" Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                                                </Grid>
+
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                                    <TextBox Grid.Column="0" Header="Tipo de Fonte" Text="{x:Bind ViewModel.BuilderModel.Header.FontFamily, Mode=TwoWay}" PlaceholderText="Default" />
+                                                    <TextBox Grid.Column="1" Header="Cor do Texto" Text="{x:Bind ViewModel.BuilderModel.Header.TextColor, Mode=TwoWay}" PlaceholderText="Default" />
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <!-- Identification -->
+                                            <StackPanel Grid.Column="1" Spacing="12">
+                                                <TextBlock Text="Identificação (Cabeçalho)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                <TextBox Header="Tipo (ex: Piezoresistive Ink)" Text="{x:Bind ViewModel.BuilderModel.Header.IdentType, Mode=TwoWay}" />
+                                                <TextBox Header="Nome Registado (ex: NP-PI-1000)" Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay}" />
+                                                <TextBox Header="Descrição / Resumo" Text="{x:Bind ViewModel.BuilderModel.Header.IdentDesc, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="140" />
                                             </StackPanel>
                                         </Grid>
-                                        <TextBox Header="Trademark / Direitos e Avisos (Texto Legal)" Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="80" />
-                                        <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" SelectionChanged="FooterRepeatStyle_SelectionChanged" HorizontalAlignment="Stretch" />
-                                    </StackPanel>
-                                </Expander>
-                                
-                            </StackPanel>
+                                    </Expander>
+
+                                    <!-- Batch (Lote) -->
+                                    <Expander Header="Configuração de Lote (Batch)" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                        <StackPanel Spacing="12">
+                                            <CheckBox Content="Mostrar nota de aplicação de lote (Se houver)" IsChecked="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=TwoWay}" />
+                                            <TextBox Header="Formato da Nota" Text="{x:Bind ViewModel.BuilderModel.Batch.BatchNoteFormat, Mode=TwoWay}" 
+                                                     PlaceholderText="Ex: Batch data applied: {batch} (merged with product specifications where applicable)."
+                                                     IsEnabled="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=OneWay}" />
+                                        </StackPanel>
+                                    </Expander>
+
+                                    <!-- Rodapé -->
+                                    <Expander Header="Rodapé" IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                        <StackPanel Spacing="12">
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                                <StackPanel Grid.Column="0" Spacing="8">
+                                                    <TextBlock Text="Endereço / Empresa (Coluna 1)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                    <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="100" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Spacing="8">
+                                                    <TextBlock Text="Contactos / Website (Coluna 2)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                    <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="100" />
+                                                </StackPanel>
+                                            </Grid>
+                                            <TextBox Header="Trademark / Direitos e Avisos (Texto Legal)" Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="80" />
+                                            <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" SelectionChanged="FooterRepeatStyle_SelectionChanged" HorizontalAlignment="Stretch" />
+                                            
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                                <TextBox Grid.Column="0" Header="Tipo de Fonte" Text="{x:Bind ViewModel.BuilderModel.Footer.FontFamily, Mode=TwoWay}" PlaceholderText="Default" />
+                                                <TextBox Grid.Column="1" Header="Cor do Texto" Text="{x:Bind ViewModel.BuilderModel.Footer.TextColor, Mode=TwoWay}" PlaceholderText="Default" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Expander>
+
+                                </StackPanel>
+                            </Grid>
                         </ScrollViewer>
                     </PivotItem>
                     
