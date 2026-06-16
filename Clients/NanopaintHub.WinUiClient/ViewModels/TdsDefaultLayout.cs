@@ -313,7 +313,7 @@ public static class TdsDefaultLayout
 </head>
 <body>
   <div class=""page"">
-    <header class=""header-banner"">
+    <header class=""header-banner"" style=""font-family: 'Segoe UI'; color: #ffffff;"">
       <div class=""header-top-row"">
         <div class=""logo-wrap"">
           <img class=""logo-image"" src=""{{{Assets.Logo}}}"" alt=""Nanopaint Logo"" />
@@ -338,7 +338,7 @@ public static class TdsDefaultLayout
       </div>
 
       <div class=""two-column"">
-        <section class=""section"">
+        <section class=""section"" style=""font-family: 'Segoe UI'; color: #223145;"">
           <h2 class=""section-title"">Ink features</h2>
           <div class=""features-grid"">
             {{#each Features}}
@@ -347,7 +347,7 @@ public static class TdsDefaultLayout
           </div>
         </section>
 
-        <section class=""section"">
+        <section class=""section"" style=""font-family: 'Segoe UI'; color: #223145;"">
           <h2 class=""section-title"">Ink properties</h2>
           <table class=""data-table"">
             <tbody>
@@ -358,7 +358,7 @@ public static class TdsDefaultLayout
           </table>
         </section>
 
-        <section class=""section full-width"">
+        <section class=""section full-width"" style=""font-family: 'Segoe UI'; color: #223145;"">
           <h2 class=""section-title"">Handling guidelines</h2>
           <table class=""data-table"">
             <tbody>
@@ -369,7 +369,7 @@ public static class TdsDefaultLayout
           </table>
         </section>
 
-        <section class=""section full-width"">
+        <section class=""section full-width"" style=""font-family: 'Segoe UI'; color: #223145;"">
           <h2 class=""section-title"">Sensor specifications</h2>
           <table class=""data-table"">
             <tbody>
@@ -386,7 +386,7 @@ public static class TdsDefaultLayout
           </table>
         </section>
 
-        <section class=""section full-width"">
+        <section class=""section full-width"" style=""font-family: 'Segoe UI'; color: #223145;"">
           <h2 class=""section-title"">Performance charts</h2>
           <div class=""chart-grid"">
             <div class=""chart-block"">
@@ -412,7 +412,7 @@ public static class TdsDefaultLayout
       </p>
     </main>
 
-    <footer class=""footer-area"">
+    <footer class=""footer-area"" style=""font-family: 'Segoe UI'; color: #0f2a4a;"">
       <div class=""footer-contact"">
         <span>www.nanopaint-tech.com</span>
         <span>info@nanopaint-tech.com</span>
