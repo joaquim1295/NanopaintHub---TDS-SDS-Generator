@@ -172,9 +172,12 @@
       }
     }
 
+    let initialCss = "";
+
     async function loadInitialHtmlFromServer() {
       if (chromiumMode && window.getInitialData) {
         const data = await window.getInitialData();
+        initialCss = data.cssTheme || "";
         return data.html || "";
       }
       if (!sessionId) return "";
@@ -218,7 +221,7 @@
         extended_valid_elements: "*[*]",
         entity_encoding: "raw",
         protect: HANDLEBARS_PROTECT,
-        content_style: "body { font-family: Segoe UI, Arial, sans-serif; font-size: 11pt; }",
+        content_style: (initialCss ? initialCss + "\n" : "") + "body { font-family: Segoe UI, Arial, sans-serif; font-size: 11pt; }",
         setup: (editor) => {
           editorInstance = editor;
           editor.on("init", () => {

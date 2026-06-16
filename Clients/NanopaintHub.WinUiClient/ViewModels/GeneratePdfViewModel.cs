@@ -227,7 +227,20 @@ public partial class GeneratePdfViewModel : ObservableObject
             if (!string.IsNullOrWhiteSpace(_customPreviewHtml))
             {
                 // Generate from the manually edited HTML preview
-                pdfBytes = await _documentGeneratorService.GeneratePdfFromHtmlAsync(_customPreviewHtml, SelectedTemplate, settings);
+                var htmlToRender = _customPreviewHtml;
+                if (!string.IsNullOrWhiteSpace(SelectedTemplate.CssStructure))
+                {
+                    var styleTag = $"<style>\n{SelectedTemplate.CssStructure}\n</style>";
+                    if (htmlToRender.Contains("</head>", StringComparison.OrdinalIgnoreCase))
+                    {
+                        htmlToRender = htmlToRender.Replace("</head>", styleTag + "\n</head>", StringComparison.OrdinalIgnoreCase);
+                    }
+                    else
+                    {
+                        htmlToRender = $"<!doctype html>\n<html>\n<head>\n{styleTag}\n</head>\n<body>\n{htmlToRender}\n</body>\n</html>";
+                    }
+                }
+                pdfBytes = await _documentGeneratorService.GeneratePdfFromHtmlAsync(htmlToRender, SelectedTemplate, settings);
             }
             else if (DocumentType == "TDS")
             {
