@@ -30,6 +30,16 @@ public static class TemplateHtmlParser
         if (!string.IsNullOrWhiteSpace(html))
         {
             // Parse Header Fields
+            var headerStyleMatch = Regex.Match(html, @"<header[^>]*style=""([^""]+)""");
+            if (headerStyleMatch.Success)
+            {
+                var style = headerStyleMatch.Groups[1].Value;
+                var fm = Regex.Match(style, @"font-family:\s*'([^']+)'");
+                if (fm.Success) model.Header.FontFamily = fm.Groups[1].Value;
+                var cm = Regex.Match(style, @"color:\s*(#[0-9a-fA-F]{3,6}|rgb\([^\)]+\)|[a-zA-Z]+)");
+                if (cm.Success) model.Header.TextColor = cm.Groups[1].Value;
+            }
+
             var logoTagMatch = Regex.Match(html, @"<img\s+[^>]*logo-image[^>]*>");
             if (!logoTagMatch.Success)
             {
@@ -106,18 +116,31 @@ public static class TemplateHtmlParser
 
 
             // Parse Structured Sections
-            var sectionMatches = Regex.Matches(html, @"<section class=""(.*?)"">([\s\S]*?)</section>");
+            var sectionMatches = Regex.Matches(html, @"<section\s+([^>]*)>([\s\S]*?)</section>");
             if (sectionMatches.Count > 0)
             {
                 foreach (Match match in sectionMatches)
                 {
-                    var cssClass = match.Groups[1].Value;
+                    var attrs = match.Groups[1].Value;
                     var innerHtml = match.Groups[2].Value;
+
+                    var classMatch = Regex.Match(attrs, @"class=""([^""]+)""");
+                    var cssClass = classMatch.Success ? classMatch.Groups[1].Value : "";
 
                     var section = new TemplateSection
                     {
                         IsHalfWidth = !cssClass.Contains("full-width")
                     };
+
+                    var styleMatch = Regex.Match(attrs, @"style=""([^""]+)""");
+                    if (styleMatch.Success)
+                    {
+                        var style = styleMatch.Groups[1].Value;
+                        var fm = Regex.Match(style, @"font-family:\s*'([^']+)'");
+                        if (fm.Success) section.FontFamily = fm.Groups[1].Value;
+                        var cm = Regex.Match(style, @"color:\s*(#[0-9a-fA-F]{3,6}|rgb\([^\)]+\)|[a-zA-Z]+)");
+                        if (cm.Success) section.TextColor = cm.Groups[1].Value;
+                    }
 
                     var titleMatch = Regex.Match(innerHtml, @"<h2[^>]*>(.*?)</h2>");
                     if (titleMatch.Success)
@@ -183,6 +206,16 @@ public static class TemplateHtmlParser
             }
 
             var footerMatch = Regex.Match(html, @"<footer[^>]*>([\s\S]*?)</footer>");
+            var footerStyleMatch = Regex.Match(html, @"<footer[^>]*style=""([^""]+)""");
+            if (footerStyleMatch.Success)
+            {
+                var style = footerStyleMatch.Groups[1].Value;
+                var fm = Regex.Match(style, @"font-family:\s*'([^']+)'");
+                if (fm.Success) model.Footer.FontFamily = fm.Groups[1].Value;
+                var cm = Regex.Match(style, @"color:\s*(#[0-9a-fA-F]{3,6}|rgb\([^\)]+\)|[a-zA-Z]+)");
+                if (cm.Success) model.Footer.TextColor = cm.Groups[1].Value;
+            }
+
             if (footerMatch.Success)
             {
                 var fHtml = footerMatch.Groups[1].Value;
