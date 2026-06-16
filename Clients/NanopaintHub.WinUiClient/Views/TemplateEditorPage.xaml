@@ -25,22 +25,23 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 
-                <StackPanel Grid.Row="0" Spacing="16" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
-                    <TextBox Header="Nome do Template" Text="{x:Bind ViewModel.Template.TemplateName, Mode=TwoWay}" />
-                    <ComboBox Header="Tipo de Documento" SelectedValue="{x:Bind ViewModel.Template.DocumentType, Mode=TwoWay}" SelectedValuePath="Content">
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="16" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
+                    <TextBox Grid.Column="0" Header="Nome do Template" Text="{x:Bind ViewModel.Template.TemplateName, Mode=TwoWay}" HorizontalAlignment="Stretch" MinWidth="300" />
+                    <ComboBox Grid.Column="1" Header="Tipo de Documento" SelectedValue="{x:Bind ViewModel.Template.DocumentType, Mode=TwoWay}" SelectedValuePath="Content" MinWidth="150">
                         <ComboBoxItem Content="TDS" />
                         <ComboBoxItem Content="SDS" />
                     </ComboBox>
-                </StackPanel>
+                </Grid>
                 
                 <Pivot Grid.Row="1" SelectionChanged="Pivot_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <PivotItem Header="Visual Builder" Margin="0">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,16,16,16">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Padding="0,16,16,16">
                             
-                            <StackPanel Spacing="16" HorizontalAlignment="Stretch">
+                            <StackPanel Spacing="16" HorizontalAlignment="Stretch" MinWidth="800">
                                 
-                                <!-- TOP AREA: 2 COLUMNS -->
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                <!-- TOP AREA: 2 COLUMNS ENCAPSULADOS NO EXPANDER DEFINIÇÕES -->
+                                <Expander Header="Definições" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
                                     
                                     <!-- COLUNA ESQUERDA -->
                                     <StackPanel Grid.Column="0" Spacing="16">
@@ -213,7 +214,8 @@
                                         </Expander>
                                     </StackPanel>
 
-                                </Grid>
+                                    </Grid>
+                                </Expander>
 
                                 <!-- BOTTOM AREA: SECÇÕES (1 COLUMN) -->
                                 <Expander Header="Secções de Conteúdo" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
