@@ -78,26 +78,29 @@ public partial class TemplateEditorViewModel : ObservableObject
     {
         if (Template == null) return;
 
+        bool hasLoaded = false;
         if (!string.IsNullOrWhiteSpace(Template.BuilderJson))
         {
             try
             {
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 BuilderModel = JsonSerializer.Deserialize<TemplateBuilderModel>(Template.BuilderJson, options) ?? new TemplateBuilderModel();
+                if (BuilderModel.Sections != null && BuilderModel.Sections.Count > 0)
+                {
+                    hasLoaded = true;
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[TemplateEditorViewModel] JSON deserialize falhou: {ex.Message}");
-                // Fallback se JSON for inválido
-                BuilderModel = TemplateHtmlParser.Parse(Template.HtmlStructure, Template.CssStructure);
             }
         }
-        else if (!string.IsNullOrWhiteSpace(Template.HtmlStructure) || !string.IsNullOrWhiteSpace(Template.CssStructure))
+
+        if (!hasLoaded && (!string.IsNullOrWhiteSpace(Template.HtmlStructure) || !string.IsNullOrWhiteSpace(Template.CssStructure)))
         {
-            // Reverse parsing do HTML antigo para blocos
             BuilderModel = TemplateHtmlParser.Parse(Template.HtmlStructure, Template.CssStructure);
         }
-        else
+        else if (!hasLoaded)
         {
             BuilderModel = new TemplateBuilderModel();
         }

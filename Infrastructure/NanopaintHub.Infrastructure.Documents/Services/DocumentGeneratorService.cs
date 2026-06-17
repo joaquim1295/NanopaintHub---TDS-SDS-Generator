@@ -133,10 +133,20 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
         }
 
         string innerHtml;
-        if (kind == "TDS" && !string.IsNullOrWhiteSpace(template.BuilderJson))
+        if (kind == "TDS")
         {
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var schema = JsonSerializer.Deserialize<TemplateBuilderSchema>(template.BuilderJson, options) ?? new TemplateBuilderSchema();
+            TemplateBuilderSchema? schema = null;
+            if (!string.IsNullOrWhiteSpace(template.BuilderJson))
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                schema = JsonSerializer.Deserialize<TemplateBuilderSchema>(template.BuilderJson, options);
+            }
+
+            if (schema == null || schema.Sections == null || schema.Sections.Count == 0)
+            {
+                schema = TemplateHtmlParser.ParseToSchema(template.HtmlStructure, template.CssStructure);
+            }
+
             innerHtml = AdvancedDocumentRenderer.Render(schema, templateData);
         }
         else

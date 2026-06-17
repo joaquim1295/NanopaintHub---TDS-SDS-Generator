@@ -68,11 +68,21 @@ public sealed partial class TemplateEditorPage : Page
                 
                 var destPath = System.IO.Path.Combine(dataDir, file.Name);
                 
-                var sourceStorageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(file.Path);
-                var folder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(dataDir);
-                var copiedFile = await sourceStorageFile.CopyAsync(folder, file.Name, Windows.Storage.NameCollisionOption.GenerateUniqueName);
+                var normalizedFilePath = System.IO.Path.GetFullPath(file.Path);
+                var normalizedDestPath = System.IO.Path.GetFullPath(destPath);
+                
+                if (string.Equals(normalizedFilePath, normalizedDestPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    ViewModel.BuilderModel.Header.LogoUrl = "file:///" + file.Path.Replace("\\", "/");
+                }
+                else
+                {
+                    var sourceStorageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(file.Path);
+                    var folder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(dataDir);
+                    var copiedFile = await sourceStorageFile.CopyAsync(folder, file.Name, Windows.Storage.NameCollisionOption.GenerateUniqueName);
 
-                ViewModel.BuilderModel.Header.LogoUrl = "file:///" + copiedFile.Path.Replace("\\", "/");
+                    ViewModel.BuilderModel.Header.LogoUrl = "file:///" + copiedFile.Path.Replace("\\", "/");
+                }
             }
             catch (Exception ex)
             {

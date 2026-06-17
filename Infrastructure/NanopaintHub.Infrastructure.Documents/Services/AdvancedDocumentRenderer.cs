@@ -71,14 +71,34 @@ public static class AdvancedDocumentRenderer
         sb.AppendLine("      <p class=\"batch-note\">Batch data applied: <strong>{{BatchNumber}}</strong> (merged with product specifications where applicable).</p>");
         sb.AppendLine("      {{/if}}");
 
-        sb.AppendLine("      <div class=\"two-column-layout\">");
+        bool insideTwoColumn = false;
 
         foreach (var sec in model.Sections)
         {
+            if (sec.IsHalfWidth)
+            {
+                if (!insideTwoColumn)
+                {
+                    sb.AppendLine("      <div class=\"two-column\">");
+                    insideTwoColumn = true;
+                }
+            }
+            else
+            {
+                if (insideTwoColumn)
+                {
+                    sb.AppendLine("      </div>");
+                    insideTwoColumn = false;
+                }
+            }
+
             GenerateSectionHtml(sb, sec);
         }
 
-        sb.AppendLine("      </div>");
+        if (insideTwoColumn)
+        {
+            sb.AppendLine("      </div>");
+        }
         sb.AppendLine("    </main>");
 
         // Footer
@@ -139,10 +159,10 @@ public static class AdvancedDocumentRenderer
         sb.AppendLine(".main-content { padding: 10mm 14mm 13mm; flex: 1; display: flex; flex-direction: column; }");
         sb.AppendLine(".batch-note { margin: 0 0 12px; padding: 8px 10px; border-left: 3px solid var(--accent); background: #ebf6ff; color: #1f4f7d; font-size: 9pt; }");
         
-        // Use css multi-column instead of grid to allow natural flowing without breaking inner items
-        sb.AppendLine(".two-column-layout { column-count: 2; column-gap: 16px; flex: 1; }");
-        sb.AppendLine(".section { break-inside: avoid; page-break-inside: avoid; margin-bottom: 14px; display: inline-block; width: 100%; }");
-        sb.AppendLine(".section.full-width { column-span: all; display: block; width: 100%; }");
+        sb.AppendLine(".two-column { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }");
+        sb.AppendLine(".two-column > .section { flex: 0 1 calc(50% - 8px); width: calc(50% - 8px); box-sizing: border-box; }");
+        sb.AppendLine(".section { page-break-inside: avoid; break-inside: avoid; margin-bottom: 14px; }");
+        sb.AppendLine(".section.full-width { width: 100%; }");
         
         sb.AppendLine(".section-title { margin: 0 0 8px; font-size: 10pt; text-transform: uppercase; color: var(--secondary); border-bottom: 2px solid var(--line); padding-bottom: 4px; font-weight: 700; }");
         sb.AppendLine(".features-grid { display: grid; gap: 6px; font-size: 9.6pt; }");
