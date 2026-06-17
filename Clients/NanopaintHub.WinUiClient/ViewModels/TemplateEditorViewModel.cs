@@ -104,11 +104,23 @@ public partial class TemplateEditorViewModel : ObservableObject
         {
             BuilderModel = new TemplateBuilderModel();
         }
+
+        if (BuilderModel.Layout != null)
+        {
+            BuilderModel.Layout.TopMargin = Template.TopMargin;
+            BuilderModel.Layout.BottomMargin = Template.BottomMargin;
+        }
     }
 
     public void SyncBuilderToHtml()
     {
         if (Template == null) return;
+
+        if (BuilderModel.Layout != null)
+        {
+            Template.TopMargin = (int)BuilderModel.Layout.TopMargin;
+            Template.BottomMargin = (int)BuilderModel.Layout.BottomMargin;
+        }
 
         Template.BuilderJson = JsonSerializer.Serialize(BuilderModel);
         

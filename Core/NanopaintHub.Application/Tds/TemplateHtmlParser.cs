@@ -42,6 +42,43 @@ public static class TemplateHtmlParser
                 fontMatch = Regex.Match(css, @"font-family:\s*([^;},\s]+)");
             if (fontMatch.Success) schema.Theme.FontFamily = fontMatch.Groups[1].Value.Trim();
 
+            // Page layout settings from CSS custom properties
+            var topMarginMatch = Regex.Match(css, @"--margin-top:\s*(\d+(?:\.\d+)?)px");
+            if (topMarginMatch.Success && double.TryParse(topMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var tm))
+                schema.Layout.TopMargin = tm;
+
+            var bottomMarginMatch = Regex.Match(css, @"--margin-bottom:\s*(\d+(?:\.\d+)?)px");
+            if (bottomMarginMatch.Success && double.TryParse(bottomMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var bm))
+                schema.Layout.BottomMargin = bm;
+
+            var leftMarginMatch = Regex.Match(css, @"--margin-left:\s*(\d+(?:\.\d+)?)px");
+            if (leftMarginMatch.Success && double.TryParse(leftMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var lm))
+                schema.Layout.LeftMargin = lm;
+
+            var rightMarginMatch = Regex.Match(css, @"--margin-right:\s*(\d+(?:\.\d+)?)px");
+            if (rightMarginMatch.Success && double.TryParse(rightMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var rm))
+                schema.Layout.RightMargin = rm;
+
+            var headerPadTopMatch = Regex.Match(css, @"--header-padding-top:\s*(\d+(?:\.\d+)?)mm");
+            if (headerPadTopMatch.Success && double.TryParse(headerPadTopMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var hpt))
+                schema.Layout.HeaderPaddingTop = hpt;
+
+            var headerPadBottomMatch = Regex.Match(css, @"--header-padding-bottom:\s*(\d+(?:\.\d+)?)mm");
+            if (headerPadBottomMatch.Success && double.TryParse(headerPadBottomMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var hpb))
+                schema.Layout.HeaderPaddingBottom = hpb;
+
+            var footerPadTopMatch = Regex.Match(css, @"--footer-padding-top:\s*(\d+(?:\.\d+)?)px");
+            if (footerPadTopMatch.Success && double.TryParse(footerPadTopMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var fpt))
+                schema.Layout.FooterPaddingTop = fpt;
+
+            var footerPadBottomMatch = Regex.Match(css, @"--footer-padding-bottom:\s*(\d+(?:\.\d+)?)px");
+            if (footerPadBottomMatch.Success && double.TryParse(footerPadBottomMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var fpb))
+                schema.Layout.FooterPaddingBottom = fpb;
+
+            var secMarginMatch = Regex.Match(css, @"--section-margin-bottom:\s*(\d+(?:\.\d+)?)px");
+            if (secMarginMatch.Success && double.TryParse(secMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var smb))
+                schema.Layout.SectionMarginBottom = smb;
+
             // Header Color / Font from CSS
             var headerColorMatch = Regex.Match(css, @"\.header-banner\s*\{[^}]*color:\s*([^;}]+)");
             if (headerColorMatch.Success) schema.Header.TextColor = NormalizeColor(headerColorMatch.Groups[1].Value.Trim());
@@ -69,10 +106,10 @@ public static class TemplateHtmlParser
             if (headerStyleMatch.Success)
             {
                 var style = headerStyleMatch.Groups[1].Value;
-                var fm = Regex.Match(style, @"font-family:\s*'([^']+)'");
-                if (fm.Success) schema.Header.FontFamily = fm.Groups[1].Value;
-                var cm = Regex.Match(style, @"color:\s*(#[0-9a-fA-F]{3,6}|rgb\([^\)]+\)|[a-zA-Z]+)");
-                if (cm.Success) schema.Header.TextColor = NormalizeColor(cm.Groups[1].Value);
+                var fm = Regex.Match(style, @"font-family:\s*['""]?([^'"",;}]+)");
+                if (fm.Success) schema.Header.FontFamily = fm.Groups[1].Value.Trim();
+                var cm = Regex.Match(style, @"color:\s*([^;]+)");
+                if (cm.Success) schema.Header.TextColor = NormalizeColor(cm.Groups[1].Value.Trim());
             }
 
             var logoTagMatch = Regex.Match(html, @"<img\s+[^>]*logo-image[^>]*>");
@@ -154,6 +191,7 @@ public static class TemplateHtmlParser
             var sectionMatches = Regex.Matches(html, @"<section\s+([^>]*)>([\s\S]*?)</section>");
             if (sectionMatches.Count > 0)
             {
+                int lastIndex = 0;
                 foreach (Match match in sectionMatches)
                 {
                     var attrs = match.Groups[1].Value;
@@ -168,14 +206,31 @@ public static class TemplateHtmlParser
                         IsHalfWidth = !cssClass.Contains("full-width")
                     };
 
+                    // Look for page break before the section
+                    var gapHtml = html.Substring(lastIndex, match.Index - lastIndex);
+                    section.PageBreakBefore = gapHtml.Contains("page-break-before: always") || gapHtml.Contains("break-before: page");
+                    lastIndex = match.Index + match.Length;
+
                     var styleMatch = Regex.Match(attrs, @"style=""([^""]+)""");
                     if (styleMatch.Success)
                     {
                         var style = styleMatch.Groups[1].Value;
-                        var fm = Regex.Match(style, @"font-family:\s*'([^']+)'");
-                        if (fm.Success) section.FontFamily = fm.Groups[1].Value;
-                        var cm = Regex.Match(style, @"color:\s*(#[0-9a-fA-F]{3,6}|rgb\([^\)]+\)|[a-zA-Z]+)");
-                        if (cm.Success) section.TextColor = cm.Groups[1].Value;
+                        var fm = Regex.Match(style, @"font-family:\s*['""]?([^'"",;}]+)");
+                        if (fm.Success) section.FontFamily = fm.Groups[1].Value.Trim();
+                        var cm = Regex.Match(style, @"color:\s*([^;]+)");
+                        if (cm.Success) section.TextColor = cm.Groups[1].Value.Trim();
+
+                        var fsMatch = Regex.Match(style, @"font-size:\s*(\d+(?:\.\d+)?)\s*pt");
+                        if (fsMatch.Success && double.TryParse(fsMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var fs))
+                            section.FontSize = fs;
+
+                        var mbMatch = Regex.Match(style, @"margin-bottom:\s*(\d+(?:\.\d+)?)\s*px");
+                        if (mbMatch.Success && double.TryParse(mbMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var mb))
+                            section.MarginBottom = mb;
+
+                        var mhMatch = Regex.Match(style, @"min-height:\s*(\d+(?:\.\d+)?)\s*px");
+                        if (mhMatch.Success && double.TryParse(mhMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var mh))
+                            section.MinHeight = mh;
                     }
 
                     var titleMatch = Regex.Match(innerHtml, @"<h2[^>]*>(.*?)</h2>");
@@ -247,10 +302,10 @@ public static class TemplateHtmlParser
             if (footerStyleMatch.Success)
             {
                 var style = footerStyleMatch.Groups[1].Value;
-                var fm = Regex.Match(style, @"font-family:\s*'([^']+)'");
-                if (fm.Success) schema.Footer.FontFamily = fm.Groups[1].Value;
-                var cm = Regex.Match(style, @"color:\s*(#[0-9a-fA-F]{3,6}|rgb\([^\)]+\)|[a-zA-Z]+)");
-                if (cm.Success) schema.Footer.TextColor = cm.Groups[1].Value;
+                var fm = Regex.Match(style, @"font-family:\s*['""]?([^'"",;}]+)");
+                if (fm.Success) schema.Footer.FontFamily = fm.Groups[1].Value.Trim();
+                var cm = Regex.Match(style, @"color:\s*([^;]+)");
+                if (cm.Success) schema.Footer.TextColor = cm.Groups[1].Value.Trim();
             }
 
             if (footerMatch.Success)

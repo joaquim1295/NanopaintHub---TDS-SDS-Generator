@@ -196,6 +196,28 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
             await WithTimeoutAsync(page.SetContentAsync(html), RenderTimeout, "Renderização HTML excedeu o tempo limite.");
             Console.WriteLine("[DOC] HTML content loaded in browser page.");
 
+            double leftMargin = 20;
+            double rightMargin = 20;
+            NanopaintHub.Application.Tds.TemplateBuilderSchema? schema = null;
+
+            if (!string.IsNullOrWhiteSpace(template.BuilderJson))
+            {
+                try
+                {
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    schema = JsonSerializer.Deserialize<NanopaintHub.Application.Tds.TemplateBuilderSchema>(template.BuilderJson, options);
+                    if (schema?.Layout != null)
+                    {
+                        leftMargin = schema.Layout.LeftMargin;
+                        rightMargin = schema.Layout.RightMargin;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[DOC] Falha ao deserializar BuilderJson: {ex.Message}");
+                }
+            }
+
             var pdfOptions = new PdfOptions
             {
                 Format = (settings?.PageFormat?.ToLowerInvariant() == "letter") ? PaperFormat.Letter : PaperFormat.A4,
@@ -205,44 +227,38 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
                 {
                     Top = $"{template.TopMargin}px",
                     Bottom = $"{template.BottomMargin}px",
-                    Left = "20px",
-                    Right = "20px"
+                    Left = $"{leftMargin}px",
+                    Right = $"{rightMargin}px"
                 }
             };
             
             // Extract Repeating Header/Footer styling from Template schema if available
-            if (!string.IsNullOrWhiteSpace(template.BuilderJson))
+            if (schema != null && (schema.Header?.HeaderRepeatStyle != "None" || schema.Footer?.FooterRepeatStyle != "None"))
             {
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var schema = JsonSerializer.Deserialize<NanopaintHub.Application.Tds.TemplateBuilderSchema>(template.BuilderJson, options);
+                pdfOptions.DisplayHeaderFooter = true;
                 
-                if (schema != null && (schema.Header?.HeaderRepeatStyle != "None" || schema.Footer?.FooterRepeatStyle != "None"))
+                if (schema.Header?.HeaderRepeatStyle == "Minimal")
                 {
-                    pdfOptions.DisplayHeaderFooter = true;
-                    
-                    if (schema.Header?.HeaderRepeatStyle == "Minimal")
-                    {
-                        pdfOptions.HeaderTemplate = $"<div style=\"font-size: 8px; width: 100%; text-align: center; color: #888;\">{template.TemplateName}</div>";
-                    }
-                    else if (schema.Header?.HeaderRepeatStyle == "Original")
-                    {
-                        // In reality, to inject the full original header you'd have to pre-render it to HTML.
-                        // For now we use a simpler version.
-                        pdfOptions.HeaderTemplate = $"<div style=\"font-size: 10px; width: 100%; text-align: right; margin-right: 20px; color: #1f4f7d; font-weight: bold;\">NanopaintHub - {template.TemplateName}</div>";
-                    }
-                    else
-                    {
-                        pdfOptions.HeaderTemplate = "<span></span>";
-                    }
-                    
-                    if (schema.Footer?.FooterRepeatStyle == "Original")
-                    {
-                        pdfOptions.FooterTemplate = $"<div style=\"font-size: 8px; width: 100%; text-align: center; color: #888;\">Página <span class=\"pageNumber\"></span> de <span class=\"totalPages\"></span></div>";
-                    }
-                    else
-                    {
-                        pdfOptions.FooterTemplate = "<span></span>";
-                    }
+                    pdfOptions.HeaderTemplate = $"<div style=\"font-size: 8px; width: 100%; text-align: center; color: #888;\">{template.TemplateName}</div>";
+                }
+                else if (schema.Header?.HeaderRepeatStyle == "Original")
+                {
+                    // In reality, to inject the full original header you'd have to pre-render it to HTML.
+                    // For now we use a simpler version.
+                    pdfOptions.HeaderTemplate = $"<div style=\"font-size: 10px; width: 100%; text-align: right; margin-right: 20px; color: #1f4f7d; font-weight: bold;\">NanopaintHub - {template.TemplateName}</div>";
+                }
+                else
+                {
+                    pdfOptions.HeaderTemplate = "<span></span>";
+                }
+                
+                if (schema.Footer?.FooterRepeatStyle == "Original")
+                {
+                    pdfOptions.FooterTemplate = $"<div style=\"font-size: 8px; width: 100%; text-align: center; color: #888;\">Página <span class=\"pageNumber\"></span> de <span class=\"totalPages\"></span></div>";
+                }
+                else
+                {
+                    pdfOptions.FooterTemplate = "<span></span>";
                 }
             }
 

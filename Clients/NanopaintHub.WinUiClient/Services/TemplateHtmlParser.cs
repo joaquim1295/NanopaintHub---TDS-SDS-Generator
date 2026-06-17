@@ -44,6 +44,19 @@ public static class TemplateHtmlParser
         model.Batch.ShowBatchNote = schema.Batch.ShowBatchNote;
         model.Batch.BatchNoteFormat = schema.Batch.BatchNoteFormat;
 
+        if (schema.Layout != null)
+        {
+            model.Layout.TopMargin = schema.Layout.TopMargin;
+            model.Layout.BottomMargin = schema.Layout.BottomMargin;
+            model.Layout.LeftMargin = schema.Layout.LeftMargin;
+            model.Layout.RightMargin = schema.Layout.RightMargin;
+            model.Layout.HeaderPaddingTop = schema.Layout.HeaderPaddingTop;
+            model.Layout.HeaderPaddingBottom = schema.Layout.HeaderPaddingBottom;
+            model.Layout.FooterPaddingTop = schema.Layout.FooterPaddingTop;
+            model.Layout.FooterPaddingBottom = schema.Layout.FooterPaddingBottom;
+            model.Layout.SectionMarginBottom = schema.Layout.SectionMarginBottom;
+        }
+
         foreach (var sec in schema.Sections)
         {
             model.Sections.Add(new TemplateSection
@@ -55,7 +68,11 @@ public static class TemplateHtmlParser
                 Content = sec.Content,
                 IsHalfWidth = sec.IsHalfWidth,
                 FontFamily = sec.FontFamily,
-                TextColor = sec.TextColor
+                TextColor = sec.TextColor,
+                FontSize = sec.FontSize,
+                PageBreakBefore = sec.PageBreakBefore,
+                MarginBottom = sec.MarginBottom,
+                MinHeight = sec.MinHeight
             });
         }
 

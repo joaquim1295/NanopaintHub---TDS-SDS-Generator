@@ -75,6 +75,17 @@ public static class AdvancedDocumentRenderer
 
         foreach (var sec in model.Sections)
         {
+            if (sec.PageBreakBefore)
+            {
+                if (insideTwoColumn)
+                {
+                    sb.AppendLine("      </div>");
+                    insideTwoColumn = false;
+                }
+                sb.AppendLine("      <div class=\"page-break-preview\"><span>--- QUEBRA DE PÁGINA ---</span></div>");
+                sb.AppendLine("      <div style=\"page-break-before: always; break-before: page;\"></div>");
+            }
+
             if (sec.IsHalfWidth)
             {
                 if (!insideTwoColumn)
@@ -136,6 +147,15 @@ public static class AdvancedDocumentRenderer
         sb.AppendLine("  --text-muted: #556376;");
         sb.AppendLine("  --line: #d8e1ec;");
         sb.AppendLine("  --bg-alt: #f6f9fc;");
+        sb.AppendLine($"  --margin-top: {model.Layout.TopMargin}px;");
+        sb.AppendLine($"  --margin-bottom: {model.Layout.BottomMargin}px;");
+        sb.AppendLine($"  --margin-left: {model.Layout.LeftMargin}px;");
+        sb.AppendLine($"  --margin-right: {model.Layout.RightMargin}px;");
+        sb.AppendLine($"  --header-padding-top: {model.Layout.HeaderPaddingTop}mm;");
+        sb.AppendLine($"  --header-padding-bottom: {model.Layout.HeaderPaddingBottom}mm;");
+        sb.AppendLine($"  --footer-padding-top: {model.Layout.FooterPaddingTop}px;");
+        sb.AppendLine($"  --footer-padding-bottom: {model.Layout.FooterPaddingBottom}px;");
+        sb.AppendLine($"  --section-margin-bottom: {model.Layout.SectionMarginBottom}px;");
         sb.AppendLine("}");
         sb.AppendLine();
         sb.AppendLine("* { box-sizing: border-box; }");
@@ -147,7 +167,7 @@ public static class AdvancedDocumentRenderer
         sb.AppendLine("}");
         sb.AppendLine();
         sb.AppendLine(".page { width: 210mm; min-height: 297mm; margin: 0 auto; background: #fff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); position: relative; display: flex; flex-direction: column; }");
-        sb.AppendLine(".header-banner { background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; padding: 14mm 14mm 10mm; page-break-inside: avoid; }");
+        sb.AppendLine(".header-banner { background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; padding: var(--header-padding-top) var(--margin-right) var(--header-padding-bottom) var(--margin-left); page-break-inside: avoid; }");
         sb.AppendLine(".header-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.28); padding-bottom: 8px; margin-bottom: 10px; }");
         sb.AppendLine(".logo-wrap { min-height: 30px; display: flex; align-items: center; background: transparent; }");
         sb.AppendLine(".logo-image { width: auto; object-fit: contain; display: block; }");
@@ -156,12 +176,12 @@ public static class AdvancedDocumentRenderer
         sb.AppendLine(".product-title { margin: 0; font-size: 18pt; font-weight: 700; text-transform: uppercase; line-height: 1.2; }");
         sb.AppendLine(".product-subtitle { margin: 4px 0 10px; color: #b7d7f6; font-size: 11pt; font-weight: 500; }");
         sb.AppendLine(".product-description { margin: 0; max-width: 78%; color: #e6f0fb; text-align: justify; font-size: 10pt; line-height: 1.5; }");
-        sb.AppendLine(".main-content { padding: 10mm 14mm 13mm; flex: 1; display: flex; flex-direction: column; }");
+        sb.AppendLine(".main-content { padding: 10mm var(--margin-right) 13mm var(--margin-left); flex: 1; display: flex; flex-direction: column; }");
         sb.AppendLine(".batch-note { margin: 0 0 12px; padding: 8px 10px; border-left: 3px solid var(--accent); background: #ebf6ff; color: #1f4f7d; font-size: 9pt; }");
         
         sb.AppendLine(".two-column { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }");
         sb.AppendLine(".two-column > .section { flex: 0 1 calc(50% - 8px); width: calc(50% - 8px); box-sizing: border-box; }");
-        sb.AppendLine(".section { page-break-inside: avoid; break-inside: avoid; margin-bottom: 14px; }");
+        sb.AppendLine(".section { page-break-inside: avoid; break-inside: avoid; margin-bottom: var(--section-margin-bottom); }");
         sb.AppendLine(".section.full-width { width: 100%; }");
         
         sb.AppendLine(".section-title { margin: 0 0 8px; font-size: 10pt; text-transform: uppercase; color: var(--secondary); border-bottom: 2px solid var(--line); padding-bottom: 4px; font-weight: 700; }");
@@ -175,10 +195,18 @@ public static class AdvancedDocumentRenderer
         sb.AppendLine(".chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }");
         sb.AppendLine(".chart-block { border: 1px solid var(--line); background: #fff; border-radius: 3px; padding: 8px; width: 100%; break-inside: avoid; }");
         sb.AppendLine(".chart-block h4 { margin: 0 0 6px; color: var(--secondary); font-size: 9pt; font-weight: 600; }");
-        sb.AppendLine(".footer-area { padding: 8px 14mm 10px; border-top: 1px solid var(--line); background: #fff; break-inside: avoid; page-break-inside: avoid; }");
+        sb.AppendLine(".footer-area { padding: var(--footer-padding-top) var(--margin-right) var(--footer-padding-bottom) var(--margin-left); border-top: 1px solid var(--line); background: #fff; break-inside: avoid; page-break-inside: avoid; }");
         sb.AppendLine(".footer-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 8.5pt; font-weight: 600; color: var(--primary); margin-bottom: 4px; }");
         sb.AppendLine(".footer-legal { margin: 10px 0 0; color: var(--text-muted); font-size: 8pt; line-height: 1.35; text-align: justify; }");
-        sb.AppendLine("@media print { body { background: #fff; } .page { box-shadow: none; margin: 0; width: 100%; min-height: auto; } @page { size: A4; margin: 0; } }");
+        sb.AppendLine(".page-break-preview { display: flex; align-items: center; justify-content: center; margin: 18px 0; border-top: 1px dashed var(--line); position: relative; }");
+        sb.AppendLine(".page-break-preview span { background: #fff; padding: 0 8px; font-size: 7.5pt; color: var(--text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; }");
+        sb.AppendLine("/* Custom inheritance rules when section specifies custom styles */");
+        sb.AppendLine(".section[style*=\"font-family\"] .section-title, .section[style*=\"font-family\"] .features-grid, .section[style*=\"font-family\"] table.data-table, .section[style*=\"font-family\"] table.data-table th, .section[style*=\"font-family\"] table.data-table td, .section[style*=\"font-family\"] .chart-block h4 { font-family: inherit; }");
+        sb.AppendLine(".section[style*=\"color\"] .section-title { color: inherit; border-bottom-color: currentColor; }");
+        sb.AppendLine(".section[style*=\"color\"] .features-grid, .section[style*=\"color\"] table.data-table, .section[style*=\"color\"] table.data-table th, .section[style*=\"color\"] table.data-table td, .section[style*=\"color\"] .chart-block h4 { color: inherit; }");
+        sb.AppendLine(".section[style*=\"font-size\"] .section-title { font-size: 1.15em; }");
+        sb.AppendLine(".section[style*=\"font-size\"] .features-grid, .section[style*=\"font-size\"] table.data-table, .section[style*=\"font-size\"] table.data-table th, .section[style*=\"font-size\"] table.data-table td, .section[style*=\"font-size\"] .chart-block h4 { font-size: inherit; }");
+        sb.AppendLine("@media print { body { background: #fff; } .page { box-shadow: none; margin: 0; width: 100%; min-height: auto; } @page { size: A4; margin: 0; } .header-banner { padding: var(--header-padding-top) var(--margin-right) var(--header-padding-bottom) var(--margin-left); } .main-content { padding: 10mm var(--margin-right) 13mm var(--margin-left); } .footer-area { padding: var(--footer-padding-top) var(--margin-right) var(--footer-padding-bottom) var(--margin-left); } .page-break-preview { display: none; } }");
         
         return sb.ToString();
     }
@@ -187,13 +215,19 @@ public static class AdvancedDocumentRenderer
     {
         string cssClass = sec.IsHalfWidth ? "section" : "section full-width";
 
-        string secStyle = "";
-        if (!string.IsNullOrWhiteSpace(sec.FontFamily) || !string.IsNullOrWhiteSpace(sec.TextColor))
-        {
-            var f = !string.IsNullOrWhiteSpace(sec.FontFamily) ? $"font-family: '{sec.FontFamily}', sans-serif;" : "";
-            var c = !string.IsNullOrWhiteSpace(sec.TextColor) ? $"color: {sec.TextColor};" : "";
-            secStyle = $" style=\"{f} {c}\"";
-        }
+        var styles = new System.Collections.Generic.List<string>();
+        if (!string.IsNullOrWhiteSpace(sec.FontFamily))
+            styles.Add($"font-family: '{sec.FontFamily}', sans-serif;");
+        if (!string.IsNullOrWhiteSpace(sec.TextColor))
+            styles.Add($"color: {sec.TextColor};");
+        if (sec.FontSize > 0)
+            styles.Add($"font-size: {sec.FontSize}pt;");
+        if (sec.MarginBottom >= 0)
+            styles.Add($"margin-bottom: {sec.MarginBottom}px;");
+        if (sec.MinHeight > 0)
+            styles.Add($"min-height: {sec.MinHeight}px;");
+
+        string secStyle = styles.Count > 0 ? $" style=\"{string.Join(" ", styles)}\"" : "";
 
         if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
         {
@@ -233,7 +267,7 @@ public static class AdvancedDocumentRenderer
         }
         else if (sec.Type == "Charts")
         {
-            sb.AppendLine("          {{#if Charts.HasLinearity}}");
+            sb.AppendLine("          {{#if Charts}}");
             sb.AppendLine("          <div class=\"chart-grid\">");
             sb.AppendLine("            {{#if Charts.HasLinearity}}");
             sb.AppendLine("            <div class=\"chart-block\"><h4>Linearity</h4>{{{Charts.LinearitySvg}}}</div>");

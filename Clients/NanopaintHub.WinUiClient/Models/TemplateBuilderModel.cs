@@ -18,7 +18,40 @@ public partial class TemplateBuilderModel : ObservableObject
     [ObservableProperty]
     private TemplateBatch _batch = new();
 
+    [ObservableProperty]
+    private TemplateLayout _layout = new();
+
     public ObservableCollection<TemplateSection> Sections { get; } = new();
+}
+
+public partial class TemplateLayout : ObservableObject
+{
+    [ObservableProperty]
+    private double _topMargin = 24;
+
+    [ObservableProperty]
+    private double _bottomMargin = 20;
+
+    [ObservableProperty]
+    private double _leftMargin = 20;
+
+    [ObservableProperty]
+    private double _rightMargin = 20;
+
+    [ObservableProperty]
+    private double _headerPaddingTop = 14;
+
+    [ObservableProperty]
+    private double _headerPaddingBottom = 10;
+
+    [ObservableProperty]
+    private double _footerPaddingTop = 8;
+
+    [ObservableProperty]
+    private double _footerPaddingBottom = 10;
+
+    [ObservableProperty]
+    private double _sectionMarginBottom = 14;
 }
 
 public partial class TemplateHeader : ObservableObject
@@ -134,4 +167,16 @@ public partial class TemplateSection : ObservableObject
 
     [ObservableProperty]
     private string _textColor = "";
+
+    [ObservableProperty]
+    private double _fontSize = -1;
+
+    [ObservableProperty]
+    private bool _pageBreakBefore;
+
+    [ObservableProperty]
+    private double _marginBottom = -1;
+
+    [ObservableProperty]
+    private double _minHeight = 0;
 }
