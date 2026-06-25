@@ -47,7 +47,7 @@
                                     <StackPanel Grid.Column="0" Spacing="16">
                                         <!-- Tema Global -->
                                         <Expander Header="Tema Global" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="16">
+                                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="16">
                                                 
                                                 <!-- Primary Color -->
                                                 <StackPanel Grid.Row="0" Grid.Column="0" Spacing="8">
@@ -94,11 +94,55 @@
                                                 </StackPanel>
 
                                                 <!-- Global Font -->
-                                                <ComboBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
-                                                          Header="Tipo de Fonte Global" 
-                                                          ItemsSource="{x:Bind ViewModel.AvailableFonts}" 
-                                                          SelectedItem="{x:Bind ViewModel.BuilderModel.Theme.FontFamily, Mode=TwoWay}" 
-                                                          Width="250" HorizontalAlignment="Left" />
+                                                <StackPanel Grid.Row="1" Grid.Column="0" Spacing="8">
+                                                    <TextBlock Text="Tipo de Fonte Global" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" 
+                                                              SelectedItem="{x:Bind ViewModel.BuilderModel.Theme.FontFamily, Mode=TwoWay}" 
+                                                              Width="250" HorizontalAlignment="Left" />
+                                                </StackPanel>
+
+                                                <!-- Base Font Size and Scale -->
+                                                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="8">
+                                                    <TextBlock Text="Tipografia Base" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="16">
+                                                        <NumberBox Grid.Column="0" Header="Tamanho da Fonte (pt)" Value="{x:Bind ViewModel.BuilderModel.Theme.BaseFontSize, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="0.5" LargeChange="1" 
+                                                                   Minimum="5" Maximum="30" Width="120" HorizontalAlignment="Left" />
+                                                        <NumberBox Grid.Column="1" Header="Escala das Secções (%)" Value="{Binding BuilderModel.Layout.SectionBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="5" LargeChange="10" 
+                                                                   Minimum="50" Maximum="200" Width="140" HorizontalAlignment="Left" />
+                                                    </Grid>
+                                                </StackPanel>
+
+                                                <!-- Content Spacings -->
+                                                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="8">
+                                                    <TextBlock Text="Espaçamentos de Conteúdo (mm)" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="16">
+                                                        <NumberBox Grid.Column="0" Header="Distância Cabeçalho -> Conteúdo" Value="{x:Bind ViewModel.BuilderModel.Layout.ContentPaddingTop, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="200" />
+                                                        <NumberBox Grid.Column="1" Header="Distância Lote -> Secções" Value="{x:Bind ViewModel.BuilderModel.Layout.BatchNotePaddingBottom, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="180" />
+                                                        <NumberBox Grid.Column="2" Header="Espaçamento entre Secções" Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="180" />
+                                                    </Grid>
+                                                </StackPanel>
+
+                                                <!-- Page Margins -->
+                                                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Spacing="8">
+                                                    <TextBlock Text="Margens da Página (mm)" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16">
+                                                        <NumberBox Grid.Column="0" Header="Topo" Value="{x:Bind ViewModel.BuilderModel.Layout.TopMargin, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="100"
+                                                                   ToolTipService.ToolTip="Mínimo de 12mm forçado pelo gerador se houver cabeçalho" />
+                                                        <NumberBox Grid.Column="1" Header="Fundo" Value="{x:Bind ViewModel.BuilderModel.Layout.BottomMargin, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="100"
+                                                                   ToolTipService.ToolTip="Mínimo de 15mm forçado pelo gerador se houver rodapé" />
+                                                        <NumberBox Grid.Column="2" Header="Esquerda" Value="{x:Bind ViewModel.BuilderModel.Layout.LeftMargin, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="100" />
+                                                        <NumberBox Grid.Column="3" Header="Direita" Value="{x:Bind ViewModel.BuilderModel.Layout.RightMargin, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="100" />
+                                                    </Grid>
+                                                </StackPanel>
 
                                             </Grid>
                                         </Expander>
@@ -114,8 +158,16 @@
                                                         <Button Grid.Column="1" Content="..." Click="PickLogo_Click" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
                                                         <CheckBox Grid.Column="2" Content="Mostrar Logo" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
                                                     </Grid>
-                                                    <TextBox Header="Altura do Logotipo (px)" Text="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" />
-                                                    <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" SelectionChanged="HeaderRepeatStyle_SelectionChanged" Width="200" HorizontalAlignment="Left" />
+                                                    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" HorizontalAlignment="Left">
+                                                        <TextBox Grid.Column="0" Header="Altura do Logotipo (px)" Text="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" Width="120" />
+                                                        <NumberBox Grid.Column="1" Header="Escala do Cabeçalho (%)" Value="{Binding BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="5" LargeChange="10" Minimum="50" Maximum="200" Width="140" />
+                                                        <NumberBox Grid.Column="2" Header="Espaço Topo (mm)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="140" />
+                                                        <NumberBox Grid.Column="3" Header="Espaço Fundo (mm)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" 
+                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="140" />
+                                                    </Grid>
+                                                    <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" Width="200" HorizontalAlignment="Left" />
                                                     
                                                     <TextBlock Text="Informação do Documento" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,12,0,0" />
                                                     <TextBox Header="Tipo de Documento (ex: Technical Data Sheet)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay}" Width="350" HorizontalAlignment="Left" />
@@ -125,7 +177,7 @@
                                                         <CalendarDatePicker Grid.Column="1" Header="Data de Revisão" Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" Width="180" HorizontalAlignment="Stretch" />
                                                     </Grid>
 
-                                                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="16" HorizontalAlignment="Left">
+                                                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="16" HorizontalAlignment="Left">
                                                         <ComboBox Grid.Column="0" Header="Tipo de Fonte" ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.FontFamily, Mode=TwoWay}" Width="200" />
                                                         
                                                         <!-- TextColor Picker -->
@@ -146,6 +198,8 @@
                                                                 <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.TextColor, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
                                                             </Grid>
                                                         </StackPanel>
+                                                        
+                                                        <NumberBox Grid.Column="2" Header="Tamanho da Fonte (pt)" Value="{Binding BuilderModel.Header.FontSize, Mode=TwoWay}" SmallChange="1" LargeChange="2" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Padrão (-1)" Width="150" />
                                                     </Grid>
                                                 </StackPanel>
 
@@ -187,7 +241,7 @@
                                                     </StackPanel>
                                                 </Grid>
                                                 <TextBox Header="Trademark / Direitos e Avisos (Texto Legal)" Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="80" HorizontalAlignment="Stretch" />
-                                                <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" SelectionChanged="FooterRepeatStyle_SelectionChanged" Width="200" HorizontalAlignment="Left" />
+                                                <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" Width="200" HorizontalAlignment="Left" />
                                                 
                                                 <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="16" HorizontalAlignment="Left">
                                                     <ComboBox Grid.Column="0" Header="Tipo de Fonte" ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FontFamily, Mode=TwoWay}" Width="200" />
@@ -211,34 +265,6 @@
                                                         </Grid>
                                                     </StackPanel>
                                                 </Grid>
-                                            </StackPanel>
-                                        </Expander>
-
-                                        <!-- Layout de Página -->
-                                        <Expander Header="Layout de Página &amp; Espaçamentos" IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                            <StackPanel Spacing="12">
-                                                <TextBlock Text="Margens da Página (PDF)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
-                                                    <NumberBox Grid.Column="0" Header="Sup. (px)" Value="{x:Bind ViewModel.BuilderModel.Layout.TopMargin, Mode=TwoWay}" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
-                                                    <NumberBox Grid.Column="1" Header="Inf. (px)" Value="{x:Bind ViewModel.BuilderModel.Layout.BottomMargin, Mode=TwoWay}" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
-                                                    <NumberBox Grid.Column="2" Header="Esq. (px)" Value="{x:Bind ViewModel.BuilderModel.Layout.LeftMargin, Mode=TwoWay}" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
-                                                    <NumberBox Grid.Column="3" Header="Dir. (px)" Value="{x:Bind ViewModel.BuilderModel.Layout.RightMargin, Mode=TwoWay}" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
-                                                </Grid>
-
-                                                <TextBlock Text="Espaçamento do Cabeçalho &amp; Rodapé" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,8,0,0" />
-                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                                                    <StackPanel Grid.Column="0" Spacing="4">
-                                                        <NumberBox Header="Cabeçalho Sup. (mm)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SmallChange="1" LargeChange="5" SpinButtonPlacementMode="Compact" />
-                                                        <NumberBox Header="Cabeçalho Inf. (mm)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SmallChange="1" LargeChange="5" SpinButtonPlacementMode="Compact" />
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="1" Spacing="4">
-                                                        <NumberBox Header="Rodapé Sup. (px)" Value="{x:Bind ViewModel.BuilderModel.Layout.FooterPaddingTop, Mode=TwoWay}" SmallChange="1" LargeChange="5" SpinButtonPlacementMode="Compact" />
-                                                        <NumberBox Header="Rodapé Inf. (px)" Value="{x:Bind ViewModel.BuilderModel.Layout.FooterPaddingBottom, Mode=TwoWay}" SmallChange="1" LargeChange="5" SpinButtonPlacementMode="Compact" />
-                                                    </StackPanel>
-                                                </Grid>
-
-                                                <TextBlock Text="Espaçamento das Secções (Global)" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,8,0,0" />
-                                                <NumberBox Header="Margem Inferior das Secções (px)" Value="{x:Bind ViewModel.BuilderModel.Layout.SectionMarginBottom, Mode=TwoWay}" SmallChange="1" LargeChange="5" SpinButtonPlacementMode="Compact" Width="200" HorizontalAlignment="Left" />
                                             </StackPanel>
                                         </Expander>
                                     </StackPanel>
@@ -294,6 +320,13 @@
                                                                          </ComboBoxItem.Tag>
                                                                      </ComboBoxItem>
                                                                  </ComboBox>
+                                                                 <Button Content="Editar Conteúdo" 
+                                                                         Margin="0,8,0,0"
+                                                                         HorizontalAlignment="Stretch"
+                                                                         Command="{Binding ElementName=RootGrid, Path=DataContext.EditSectionContentCommand}"
+                                                                         CommandParameter="{Binding}"
+                                                                         Visibility="{Binding Type, Converter={StaticResource StringEqualityToVisibilityConverter}, ConverterParameter='RichText'}"
+                                                                         Style="{ThemeResource AccentButtonStyle}"/>
                                                              </StackPanel>
 
                                                              <!-- Coluna 2: Fonte & Cor -->
@@ -374,7 +407,7 @@
         <!-- Actions -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
             <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
-            <Button Content="Preview e Edição Global (TinyMCE)" Click="GlobalTinyMce_Click" />
+            <Button Content="Preview e Edição Global (TinyMCE)" Command="{x:Bind ViewModel.EditGlobalHtmlCommand}" />
             <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center"/>
             <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
         </StackPanel>

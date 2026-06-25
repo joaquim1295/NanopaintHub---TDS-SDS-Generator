@@ -11,8 +11,10 @@ using NanopaintHub.Application.Contracts;
 using NanopaintHub.Application.Tds;
 using NanopaintHub.Domain.Entities;
 using NanopaintHub.Infrastructure.Documents.Tds;
-using PuppeteerSharp;
-using PuppeteerSharp.Media;
+using NanopaintHub.Application.Contracts;
+using NanopaintHub.Application.Tds;
+using NanopaintHub.Domain.Entities;
+using NanopaintHub.Infrastructure.Documents.Tds;
 
 public sealed class DocumentGeneratorService : IDocumentGeneratorService
 {
@@ -21,17 +23,23 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
     private readonly IPdfGenerationProgressNotifier _progress;
     private readonly TdsDataMergeService _tdsMerge;
     private readonly ITdsChartRenderer _chartRenderer;
+    private readonly IPdfLayoutService _pdfLayout;
+    private readonly IHtmlToPdfGenerator _pdfGenerator;
 
     public DocumentGeneratorService(
         ISupplierComponentRepository supplierComponents,
         IPdfGenerationProgressNotifier progress,
         TdsDataMergeService tdsMerge,
-        ITdsChartRenderer chartRenderer)
+        ITdsChartRenderer chartRenderer,
+        IPdfLayoutService pdfLayout,
+        IHtmlToPdfGenerator pdfGenerator)
     {
         _supplierComponents = supplierComponents;
         _progress = progress;
         _tdsMerge = tdsMerge;
         _chartRenderer = chartRenderer;
+        _pdfLayout = pdfLayout;
+        _pdfGenerator = pdfGenerator;
     }
 
     public Task<byte[]> GenerateTdsAsync(Product product, DocumentTemplate template, TestBatch? testBatch = null, PdfGenerationSettings? settings = null) =>
@@ -147,7 +155,9 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
                 schema = TemplateHtmlParser.ParseToSchema(template.HtmlStructure, template.CssStructure);
             }
 
-            innerHtml = AdvancedDocumentRenderer.Render(schema, templateData);
+            _pdfLayout.NormalizeLayout(schema, template);
+
+            innerHtml = AdvancedDocumentRenderer.Render(schema!, templateData);
         }
         else
         {
@@ -175,7 +185,42 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
             }
         }
 
+        // Always inject Paged.js script offline
+        var pagedJsPath = Path.Combine(AppContext.BaseDirectory, "Assets", "paged.polyfill.js");
+        var pagedJsScript = "<script src=\"https://unpkg.com/pagedjs/dist/paged.polyfill.js\"></script>";
+        if (File.Exists(pagedJsPath))
+        {
+            var scriptContent = File.ReadAllText(pagedJsPath);
+            pagedJsScript = $"<script>\n{scriptContent}\n</script>";
+        }
+
+        if (innerHtml.Contains("</head>", StringComparison.OrdinalIgnoreCase))
+        {
+            innerHtml = innerHtml.Replace("</head>", pagedJsScript + "\n</head>", StringComparison.OrdinalIgnoreCase);
+        }
+        else
+        {
+            innerHtml = $"<head>\n{pagedJsScript}\n</head>\n" + innerHtml;
+        }
+
         var finalHtml = ApplyLetterheadBackground(innerHtml, template.LetterheadPdfPath);
+
+        // Convert local images to Base64 to bypass about:blank CORS restrictions
+        var imgRegex = new System.Text.RegularExpressions.Regex(@"<img[^>]+src=[""'](file:///[^""']+|[a-zA-Z]:\\[^""']+|/[^""']+)[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        finalHtml = imgRegex.Replace(finalHtml, match => 
+        {
+            var src = match.Groups[1].Value;
+            var localPath = src.StartsWith("file:///") ? src.Substring(8).Replace("/", "\\") : src;
+            if (File.Exists(localPath))
+            {
+                var bytes = File.ReadAllBytes(localPath);
+                var ext = Path.GetExtension(localPath).ToLowerInvariant();
+                var mimeType = ext switch { ".png" => "image/png", ".jpg" => "image/jpeg", ".jpeg" => "image/jpeg", ".gif" => "image/gif", ".svg" => "image/svg+xml", ".webp" => "image/webp", _ => "application/octet-stream" };
+                var base64 = Convert.ToBase64String(bytes);
+                return match.Value.Replace(src, $"data:{mimeType};base64,{base64}");
+            }
+            return match.Value;
+        });
         Console.WriteLine($"[DOC] HTML rendered for {kind}. Length={finalHtml.Length} chars.");
         Report("HTML convertido e pronto para renderizacao.", 60);
 
@@ -184,90 +229,19 @@ public sealed class DocumentGeneratorService : IDocumentGeneratorService
 
     public async Task<byte[]> GeneratePdfFromHtmlAsync(string html, DocumentTemplate template, PdfGenerationSettings? settings = null)
     {
-        return await ChromiumBrowserSession.RunAsync(async browser =>
-        {
-            Report("A iniciar Chromium...", 80);
-            await using var page = await browser.NewPageAsync();
-            Report("A converter HTML em pagina renderizada...", 88);
-            
-            // Replace TinyMCE pagebreaks with proper CSS breaks before loading
-            html = html.Replace("<!-- pagebreak -->", "<div style=\"page-break-after: always;\"></div>");
-            
-            await WithTimeoutAsync(page.SetContentAsync(html), RenderTimeout, "Renderização HTML excedeu o tempo limite.");
-            Console.WriteLine("[DOC] HTML content loaded in browser page.");
+        Report("A iniciar motor PDF WinUI...", 80);
+        Report("A converter HTML em pagina renderizada...", 88);
+        
+        html = html.Replace("<!-- pagebreak -->", "<div style=\"page-break-after: always;\"></div>");
 
-            double leftMargin = 20;
-            double rightMargin = 20;
-            NanopaintHub.Application.Tds.TemplateBuilderSchema? schema = null;
+        var pageFormat = (settings?.PageFormat?.ToLowerInvariant() == "letter") ? "Letter" : "A4";
+        var isLandscape = (settings?.PageOrientation?.ToLowerInvariant() == "landscape");
 
-            if (!string.IsNullOrWhiteSpace(template.BuilderJson))
-            {
-                try
-                {
-                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    schema = JsonSerializer.Deserialize<NanopaintHub.Application.Tds.TemplateBuilderSchema>(template.BuilderJson, options);
-                    if (schema?.Layout != null)
-                    {
-                        leftMargin = schema.Layout.LeftMargin;
-                        rightMargin = schema.Layout.RightMargin;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[DOC] Falha ao deserializar BuilderJson: {ex.Message}");
-                }
-            }
-
-            var pdfOptions = new PdfOptions
-            {
-                Format = (settings?.PageFormat?.ToLowerInvariant() == "letter") ? PaperFormat.Letter : PaperFormat.A4,
-                Landscape = (settings?.PageOrientation?.ToLowerInvariant() == "landscape"),
-                PrintBackground = true,
-                MarginOptions = new MarginOptions
-                {
-                    Top = $"{template.TopMargin}px",
-                    Bottom = $"{template.BottomMargin}px",
-                    Left = $"{leftMargin}px",
-                    Right = $"{rightMargin}px"
-                }
-            };
-            
-            // Extract Repeating Header/Footer styling from Template schema if available
-            if (schema != null && (schema.Header?.HeaderRepeatStyle != "None" || schema.Footer?.FooterRepeatStyle != "None"))
-            {
-                pdfOptions.DisplayHeaderFooter = true;
-                
-                if (schema.Header?.HeaderRepeatStyle == "Minimal")
-                {
-                    pdfOptions.HeaderTemplate = $"<div style=\"font-size: 8px; width: 100%; text-align: center; color: #888;\">{template.TemplateName}</div>";
-                }
-                else if (schema.Header?.HeaderRepeatStyle == "Original")
-                {
-                    // In reality, to inject the full original header you'd have to pre-render it to HTML.
-                    // For now we use a simpler version.
-                    pdfOptions.HeaderTemplate = $"<div style=\"font-size: 10px; width: 100%; text-align: right; margin-right: 20px; color: #1f4f7d; font-weight: bold;\">NanopaintHub - {template.TemplateName}</div>";
-                }
-                else
-                {
-                    pdfOptions.HeaderTemplate = "<span></span>";
-                }
-                
-                if (schema.Footer?.FooterRepeatStyle == "Original")
-                {
-                    pdfOptions.FooterTemplate = $"<div style=\"font-size: 8px; width: 100%; text-align: center; color: #888;\">Página <span class=\"pageNumber\"></span> de <span class=\"totalPages\"></span></div>";
-                }
-                else
-                {
-                    pdfOptions.FooterTemplate = "<span></span>";
-                }
-            }
-
-            Report("A gerar ficheiro PDF...", 95);
-            var data = await WithTimeoutAsync(page.PdfDataAsync(pdfOptions), RenderTimeout, "Geração PDF excedeu o tempo limite.");
-            Console.WriteLine($"[DOC] PDF generated successfully. Bytes={data.Length}");
-            Report("PDF gerado com sucesso.", 100);
-            return data;
-        });
+        Report("A gerar ficheiro PDF...", 95);
+        var data = await _pdfGenerator.GeneratePdfAsync(html, pageFormat, isLandscape);
+        Console.WriteLine($"[DOC] PDF generated successfully. Bytes={data.Length}");
+        Report("PDF gerado com sucesso.", 100);
+        return data;
     }
 
     /// <summary>

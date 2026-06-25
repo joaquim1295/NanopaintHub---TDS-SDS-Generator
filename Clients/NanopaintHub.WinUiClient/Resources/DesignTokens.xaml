@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Design Tokens -->
+  <!-- Primary accent -->
+  <Color x:Key="AccentColor">#FF6200EE</Color>
+  <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+  <!-- Glass / Acrylic background -->
+  <AcrylicBrush x:Key="GlassyBackgroundBrush"
+                TintColor="{StaticResource AccentColor}"
+                TintOpacity="0.2"
+                FallbackColor="{StaticResource AccentColor}"/>
+  <!-- Corner radius token -->
+  <x:Double x:Key="CardCornerRadius">12</x:Double>
+</ResourceDictionary>

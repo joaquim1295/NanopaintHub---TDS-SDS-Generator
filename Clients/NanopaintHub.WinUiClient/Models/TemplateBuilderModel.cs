@@ -45,6 +45,15 @@ public partial class TemplateLayout : ObservableObject
     private double _headerPaddingBottom = 10;
 
     [ObservableProperty]
+    private double _contentPaddingTop = 10;
+
+    [ObservableProperty]
+    private double _batchNotePaddingBottom = 12;
+
+    [ObservableProperty]
+    private double _sectionSpacing = 16;
+
+    [ObservableProperty]
     private double _footerPaddingTop = 8;
 
     [ObservableProperty]
@@ -52,6 +61,36 @@ public partial class TemplateLayout : ObservableObject
 
     [ObservableProperty]
     private double _sectionMarginBottom = 14;
+
+    [ObservableProperty]
+    private double _headerBaseScale = 1.0;
+
+    public double HeaderBaseScalePercentage
+    {
+        get => System.Math.Round(HeaderBaseScale * 100);
+        set 
+        {
+            if (SetProperty(ref _headerBaseScale, value / 100.0, nameof(HeaderBaseScale)))
+            {
+                OnPropertyChanged(nameof(HeaderBaseScalePercentage));
+            }
+        }
+    }
+
+    public double SectionBaseScalePercentage
+    {
+        get => System.Math.Round(SectionBaseScale * 100);
+        set 
+        {
+            if (SetProperty(ref _sectionBaseScale, value / 100.0, nameof(SectionBaseScale)))
+            {
+                OnPropertyChanged(nameof(SectionBaseScalePercentage));
+            }
+        }
+    }
+
+    [ObservableProperty]
+    private double _sectionBaseScale = 1.0;
 }
 
 public partial class TemplateHeader : ObservableObject
@@ -93,7 +132,7 @@ public partial class TemplateHeader : ObservableObject
     private string _textColor = "";
 
     [ObservableProperty]
-    private string _headerRepeatStyle = "None";
+    private string _headerRepeatStyle = "Original";
 }
 
 public partial class TemplateTheme : ObservableObject
@@ -106,6 +145,9 @@ public partial class TemplateTheme : ObservableObject
 
     [ObservableProperty]
     private string _fontFamily = "Segoe UI";
+
+    [ObservableProperty]
+    private double _baseFontSize = 9;
 }
 
 public partial class TemplateFooter : ObservableObject
@@ -126,7 +168,7 @@ public partial class TemplateFooter : ObservableObject
     private string _textColor = "";
 
     [ObservableProperty]
-    private string _footerRepeatStyle = "None";
+    private string _footerRepeatStyle = "Original";
 }
 
 public partial class TemplateBatch : ObservableObject

@@ -23,28 +23,38 @@
     body {
       margin: 0;
       padding: 0;
-      background: #e2e2e2;
+      background: #fff;
       color: var(--text-main);
       font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
       font-size: 10pt;
       line-height: 1.45;
     }
 
-    .page {
-      width: 210mm;
-      min-height: 297mm;
-      margin: 0 auto;
-      background: #fff;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      position: relative;
+    .header-minimal {
+      position: running(header-running);
+      border-bottom: 2px solid var(--primary);
+      padding: 0 15mm 2mm 15mm;
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 8.5pt;
+      color: var(--secondary);
+      font-weight: 600;
+      width: 100%;
+    }
+
+    .footer-area {
+      position: running(footer-running);
+      padding: 6mm 15mm 4mm 15mm;
+      border-top: 1px solid var(--line);
+      width: 100%;
     }
 
     .header-banner {
-      background: linear-gradient(180deg, #14365d 0%, #0f2a4a 100%);
+      background: var(--primary);
       color: #fff;
-      padding: 14mm 14mm 10mm;
+      padding: 12mm 15mm 12mm 15mm;
+      margin-bottom: 10mm;
     }
 
     .header-top-row {
@@ -61,7 +71,6 @@
       min-height: 30px;
       display: flex;
       align-items: center;
-      background: transparent;
     }
 
     .logo-wrap img.logo-image {
@@ -69,20 +78,11 @@
       width: auto;
       object-fit: contain;
       display: block;
-      background: transparent;
-    }
-
-    .logo-fallback {
-      font-size: 16pt;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: #fff;
-      text-transform: lowercase;
     }
 
     .doc-meta {
       text-align: right;
-      font-size: 8.8pt;
+      font-size: 0.88em;
       color: #d5e4f5;
       line-height: 1.35;
     }
@@ -92,13 +92,13 @@
       color: #9ac7f4;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      font-size: 9.2pt;
+      font-size: 0.92em;
       margin-bottom: 2px;
     }
 
     .product-title {
       margin: 0;
-      font-size: 18pt;
+      font-size: 1.8em;
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -108,7 +108,7 @@
     .product-subtitle {
       margin: 4px 0 10px;
       color: #b7d7f6;
-      font-size: 11pt;
+      font-size: 1.1em;
       font-weight: 500;
     }
 
@@ -117,25 +117,14 @@
       max-width: 78%;
       color: #e6f0fb;
       text-align: justify;
-      font-size: 10pt;
+      font-size: 0.95em;
       line-height: 1.5;
     }
 
-    .main-content {
-      padding: 10mm 14mm 13mm;
-      flex: 1;
-    }
-
-    .footer-area {
-      padding: 8px 14mm 10px;
-      border-top: 1px solid var(--line);
-      background: #fff;
-    }
-
-    .footer-contact {
+    .footer-cols {
       display: flex;
       gap: 20px;
-      font-size: 8.5pt;
+      font-size: 0.85em;
       font-weight: 600;
       color: var(--primary);
       margin-bottom: 4px;
@@ -150,7 +139,7 @@
       padding-bottom: 8px;
       border-bottom: 1px solid var(--line);
       color: var(--text-muted);
-      font-size: 9pt;
+      font-size: 0.9em;
     }
 
     .batch-note {
@@ -159,25 +148,30 @@
       border-left: 3px solid var(--accent);
       background: #ebf6ff;
       color: #1f4f7d;
-      font-size: 9pt;
+      font-size: 0.9em;
     }
 
     .two-column {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      align-items: start;
+      column-count: 2;
+      column-gap: 16px;
+      display: block;
+      column-fill: auto;
     }
 
     .section {
-      page-break-inside: avoid;
       break-inside: avoid;
+      page-break-inside: avoid;
       margin-bottom: 14px;
+      width: 100%;
+    }
+
+    .full-width {
+      width: 100%;
     }
 
     .section-title {
       margin: 0 0 8px;
-      font-size: 10pt;
+      font-size: 1.05em;
       letter-spacing: 0.07em;
       text-transform: uppercase;
       color: var(--secondary);
@@ -189,7 +183,7 @@
     .features-grid {
       display: grid;
       gap: 6px;
-      font-size: 9.6pt;
+      font-size: 0.96em;
     }
 
     .feature-item {
@@ -210,14 +204,14 @@
       justify-content: center;
       background: var(--primary);
       color: #fff;
-      font-size: 9px;
+      font-size: 0.6em;
       font-weight: 700;
     }
 
     table.data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 9.1pt;
+      font-size: 0.9em;
     }
 
     table.data-table th,
@@ -245,32 +239,26 @@
       background: var(--bg-alt);
     }
 
-    .full-width {
-      grid-column: 1 / span 2;
-    }
-
     .chart-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
       gap: 10px;
     }
 
     .chart-block {
+      flex: 1 1 160px;
       border: 1px solid var(--line);
       background: #fff;
       border-radius: 3px;
       padding: 8px;
-      max-width: 300px;
-      margin: 0 auto;
       width: 100%;
-      page-break-inside: avoid;
       break-inside: avoid;
     }
 
     .chart-block h4 {
       margin: 0 0 6px;
       color: var(--secondary);
-      font-size: 9pt;
+      font-size: 0.9em;
       font-weight: 600;
     }
 
@@ -297,18 +285,92 @@
       line-height: 1.35;
     }
 
+    /* === PAGED.JS PRINT CSS === */
     @media print {
       body { background: #fff; }
-      .page { box-shadow: none; margin: 0; width: 100%; min-height: auto; }
-      @page { size: A4; margin: 0; }
-      .header-banner { padding: 12mm 12mm 8mm; }
-      .main-content { padding: 9mm 12mm 11mm; }
-      .footer-area { padding: 6px 12mm 8px; }
+      .page-wrapper { margin: 0; width: 100%; }
+      
+      @page {
+        size: A4;
+        margin: 15mm 0 35mm 0; /* Menos margem no topo, 0 nas laterais (padding faz o resto) */
+        
+        /* Clear all margin boxes except the center ones to allow full width */
+        @top-left { content: none; }
+        @top-right { content: none; }
+        @top-center { 
+          content: element(header-running); 
+          width: 100%; 
+        }
+        
+        @bottom-left { content: none; }
+        @bottom-right { content: none; }
+        @bottom-center { 
+          content: element(footer-running); 
+          width: 100%; 
+        }
+      }
+      
+      @page :first {
+        margin-top: 0;
+        @top-center { content: none; }
+      }
+    }
+    
+    /* === SCREEN PREVIEW CSS === */
+    @media screen {
+      body { background: #e2e2e2; padding: 20px; }
+      .page-wrapper { 
+        width: 210mm; 
+        margin: 0 auto; 
+        background: #fff; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        min-height: 297mm; 
+        position: relative; 
+        padding: 15mm 0 35mm 0; 
+        box-sizing: border-box;
+      }
+      
+      .header-minimal { display: none; }
+      
+      .footer-area { 
+        position: absolute; 
+        bottom: 0; 
+        left: 0; 
+        width: 100%; 
+        border-top: 1px solid var(--line); 
+        padding: 6mm 15mm; 
+        box-sizing: border-box; 
+      }
+      
+      .header-banner {
+        /* Cancela o padding do ecrã para colar o banner ao topo */
+        margin-top: -15mm;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="page">
+  <div class="page-wrapper">
+
+    <!-- This runs into the top margin box of Paged.js -->
+    <div class="header-minimal">
+      <span>{{Name}} · {{Code}}</span>
+      <span>TDS Version {{Version}}</span>
+    </div>
+
+    <!-- This runs into the bottom margin box of Paged.js -->
+    <footer class="footer-area">
+      <div class="footer-cols">
+        <div class="footer-col1">NanoPaint, Lda.<br/>Universidade do Minho<br/>Braga, Portugal</div>
+        <div class="footer-col2">www.nanopaint-tech.com<br/>info@nanopaint-tech.com</div>
+      </div>
+      <p class="footer-legal">
+        © 2026 NanoPaint Lda. All rights reserved. This Technical Data Sheet is generated from product records in NanopaintHub.
+        Values shown reflect stored product data with optional batch overlay.
+      </p>
+    </footer>
+
+    <!-- This sits at the very top of the first page -->
     <header class="header-banner">
       <div class="header-top-row">
         <div class="logo-wrap">
@@ -325,7 +387,8 @@
       <p class="product-description">{{Description}}</p>
     </header>
 
-    <main class="main-content">
+    <!-- Main Content Flow -->
+    <main class="main-content" style="padding: 0 15mm;">
       <p class="batch-note" data-batch="{{BatchNumber}}">Batch data applied: <strong>{{BatchNumber}}</strong> (merged with product specifications where applicable).</p>
 
       <div class="meta-bar">
@@ -353,53 +416,53 @@
             </tbody>
           </table>
         </section>
-
-        <section class="section full-width">
-          <h2 class="section-title">Handling guidelines</h2>
-          <table class="data-table">
-            <tbody>
-              <!-- {{#each MechanicalProperties}} -->
-              <tr><th>{{@key}}</th><td>{{this}}</td></tr>
-              <!-- {{/each}} -->
-            </tbody>
-          </table>
-        </section>
-
-        <section class="section full-width">
-          <h2 class="section-title">Sensor specifications</h2>
-          <table class="data-table">
-            <tbody>
-              <tr><th>Sensitivity (Volts)</th><td>{{Tds.SensitivityVolts}} V</td></tr>
-              <tr><th>Sensitivity (Per Unit)</th><td>{{Tds.SensitivityPerUnit}} {{Tds.SensitivityLabel}}</td></tr>
-              <tr><th>Response time</th><td>{{Tds.ResponseTimeSec}} s</td></tr>
-              <tr><th>Recovery time</th><td>{{Tds.RecoveryTimeSec}} s</td></tr>
-              <tr><th>Repeatability</th><td>{{Tds.RepeatabilityPercent}} %</td></tr>
-              <tr><th>Rest resistance</th><td>{{Tds.RestResistanceOhms}} Ω</td></tr>
-              <tr><th>Operating temperature</th><td>{{Tds.OperatingTempMinC}} °C to {{Tds.OperatingTempMaxC}} °C ({{Tds.OperatingTempMinF}} °F to {{Tds.OperatingTempMaxF}} °F)</td></tr>
-              <tr><th>Range</th><td>{{Tds.RangeMin}} – {{Tds.RangeMax}} {{Tds.ForceUnit}}</td></tr>
-              <tr><th>Hysteresis</th><td>{{Tds.HysteresisPercent}} %</td></tr>
-            </tbody>
-          </table>
-        </section>
-
-        <section class="section full-width">
-          <h2 class="section-title">Performance charts</h2>
-          <div class="chart-grid">
-            <div class="chart-block">
-              <h4>Linearity</h4>
-              {{{Charts.LinearitySvg}}}
-            </div>
-            <div class="chart-block">
-              <h4>Resistance vs Force</h4>
-              {{{Charts.ResistanceSvg}}}
-            </div>
-            <div class="chart-block">
-              <h4>Hysteresis</h4>
-              {{{Charts.HysteresisSvg}}}
-            </div>
-          </div>
-        </section>
       </div>
+
+      <section class="section full-width">
+        <h2 class="section-title">Handling guidelines</h2>
+        <table class="data-table">
+          <tbody>
+            <!-- {{#each MechanicalProperties}} -->
+            <tr><th>{{@key}}</th><td>{{this}}</td></tr>
+            <!-- {{/each}} -->
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section full-width">
+        <h2 class="section-title">Sensor specifications</h2>
+        <table class="data-table">
+          <tbody>
+            <tr><th>Sensitivity (Volts)</th><td>{{Tds.SensitivityVolts}} V</td></tr>
+            <tr><th>Sensitivity (Per Unit)</th><td>{{Tds.SensitivityPerUnit}} {{Tds.SensitivityLabel}}</td></tr>
+            <tr><th>Response time</th><td>{{Tds.ResponseTimeSec}} s</td></tr>
+            <tr><th>Recovery time</th><td>{{Tds.RecoveryTimeSec}} s</td></tr>
+            <tr><th>Repeatability</th><td>{{Tds.RepeatabilityPercent}} %</td></tr>
+            <tr><th>Rest resistance</th><td>{{Tds.RestResistanceOhms}} Ω</td></tr>
+            <tr><th>Operating temperature</th><td>{{Tds.OperatingTempMinC}} °C to {{Tds.OperatingTempMaxC}} °C ({{Tds.OperatingTempMinF}} °F to {{Tds.OperatingTempMaxF}} °F)</td></tr>
+            <tr><th>Range</th><td>{{Tds.RangeMin}} – {{Tds.RangeMax}} {{Tds.ForceUnit}}</td></tr>
+            <tr><th>Hysteresis</th><td>{{Tds.HysteresisPercent}} %</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section full-width">
+        <h2 class="section-title">Performance charts</h2>
+        <div class="chart-grid">
+          <div class="chart-block">
+            <h4>Linearity</h4>
+            {{{Charts.LinearitySvg}}}
+          </div>
+          <div class="chart-block">
+            <h4>Resistance vs Force</h4>
+            {{{Charts.ResistanceSvg}}}
+          </div>
+          <div class="chart-block">
+            <h4>Hysteresis</h4>
+            {{{Charts.HysteresisSvg}}}
+          </div>
+        </div>
+      </section>
 
       <p class="legal-intro">
         Safety Data Sheets (SDS) are available by emailing us or contacting your sales representative. Always consult
@@ -408,16 +471,6 @@
       </p>
     </main>
 
-    <footer class="footer-area">
-      <div class="footer-contact">
-        <span>www.nanopaint-tech.com</span>
-        <span>info@nanopaint-tech.com</span>
-      </div>
-      <p class="footer-legal">
-        © 2026 NanoPaint Lda. All rights reserved. This Technical Data Sheet is generated from product records in NanopaintHub.
-        Values shown reflect stored product data with optional batch overlay.
-      </p>
-    </footer>
   </div>
 </body>
 </html>

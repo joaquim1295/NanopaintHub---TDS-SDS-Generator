@@ -21,9 +21,29 @@ public class TemplateLayoutSchema
     public double RightMargin { get; set; } = 20;
     public double HeaderPaddingTop { get; set; } = 14;     // in mm
     public double HeaderPaddingBottom { get; set; } = 10;  // in mm
+    public double ContentPaddingTop { get; set; } = 10;
+    public double BatchNotePaddingBottom { get; set; } = 12;
+    public double SectionSpacing { get; set; } = 16;
     public double FooterPaddingTop { get; set; } = 8;      // in px
     public double FooterPaddingBottom { get; set; } = 10;  // in px
     public double SectionMarginBottom { get; set; } = 14;  // in px
+    public double SectionBaseScale { get; set; } = 1.0;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public double SectionBaseScalePercentage
+    {
+        get => System.Math.Round(SectionBaseScale * 100);
+        set => SectionBaseScale = value / 100.0;
+    }
+
+    public double HeaderBaseScale { get; set; } = 1.0;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public double HeaderBaseScalePercentage
+    {
+        get => System.Math.Round(HeaderBaseScale * 100);
+        set => HeaderBaseScale = value / 100.0;
+    }
 }
 
 public class TemplateHeaderSchema
@@ -40,7 +60,8 @@ public class TemplateHeaderSchema
     public bool ShowLogo { get; set; } = true;
     public string FontFamily { get; set; } = "";
     public string TextColor { get; set; } = "";
-    public string HeaderRepeatStyle { get; set; } = "None";
+    public string HeaderRepeatStyle { get; set; } = "Original";
+    public double FontSize { get; set; } = -1;
 }
 
 public class TemplateThemeSchema
@@ -48,6 +69,7 @@ public class TemplateThemeSchema
     public string PrimaryColor { get; set; } = "#0f2a4a";
     public string SecondaryColor { get; set; } = "#19528d";
     public string FontFamily { get; set; } = "Segoe UI";
+    public double BaseFontSize { get; set; } = 9;
 }
 
 public class TemplateFooterSchema
@@ -57,7 +79,7 @@ public class TemplateFooterSchema
     public string LegalText { get; set; } = "";
     public string FontFamily { get; set; } = "";
     public string TextColor { get; set; } = "";
-    public string FooterRepeatStyle { get; set; } = "None";
+    public string FooterRepeatStyle { get; set; } = "Original";
 }
 
 public class TemplateBatchSchema

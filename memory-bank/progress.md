@@ -1,20 +1,20 @@
 # Progress
 
 ## What Works
-- The Main Application structure, dependency injection, and MVVM scaffolding.
-- The `TemplateEditorPage.xaml` interface has been successfully implemented with expanders, color pickers, and dynamic sections.
-- The Color Picker functionality now correctly updates bindings and closes the Flyouts via `VisualTreeHelper.GetOpenPopupsForXamlRoot`.
-- The Logo file picker correctly copies selected images to a safe LocalAppData folder and configures the `file:///` URI.
-- The `ChromiumTinyMceEditorService` is successfully bypassing WebView2 limitations to allow Rich Text editing of templates via PuppeteerSharp.
+- **Clean Architecture & SOLID Scaffolding**: Main application layout, dependencies, and MVVM bindings are aligned.
+- **Decoupled Template Generation**: HTML and CSS template construction is encapsulated in the Application Layer service (`ITdsHtmlGenerator`).
+- **MVVM Command Routing**: View/ViewModel separation is enforced, views delegate visual editing entirely to VM commands (`EditGlobalHtmlCommand` and `EditSectionContentCommand`).
+- **Section Editing**: Section content editing inside the builder is fully functional via out-of-process TinyMCE headed browser automation.
+- **Layout Margins Normalization**: PDF safety margin clamping is synchronized between the visual editor preview and backend generator.
+- **Obsolete Code Removed**: Embedded WebView2 editor windows have been deleted, clean compilation has been restored.
+- **Unit Testing**: 24 tests covering database persistence, layout normalization, and HTML templates pass successfully.
 
 ## What's Left to Build
-- Connecting the visual `TemplateBuilderModel` to real Product Data (e.g., fetching product features, mixing parameters).
-- The actual HTML to PDF conversion engine logic using the defined templates.
-- Complete the integration of other block types (Charts, Tables) in the PDF generator.
+- Connect visual template schemas to dynamic product specs and test batch tables in SQLite.
+- Complete visual editor page templates list search or custom categorization filters.
 
 ## Current Status
-- Development is focused on finalizing the Template Builder UX. The editor is stable and functional.
+- Client layer refactoring is completed. Visual builder features are aligned with the technical architecture documents.
 
 ## Known Issues
-- WinUI 3 `Flyout` hierarchy is tricky, requiring explicit XamlRoot popup closing.
-- WebView2 is considered broken/unreliable in this workspace; avoid using it for anything critical.
+- WebView2 hosting remains disabled due to runtime instabilities on the host machine; out-of-process Chromium automation is the primary stable alternative.

@@ -209,18 +209,23 @@
         plugins: [
           "advlist", "autolink", "lists", "link", "image", "charmap", "preview",
           "anchor", "searchreplace", "visualblocks", "code", "fullscreen",
-          "insertdatetime", "media", "table", "help", "wordcount"
+          "insertdatetime", "media", "table", "help", "wordcount", "pagebreak"
         ].join(" "),
         toolbar:
           "undo redo | blocks fontsize | bold italic underline strikethrough | " +
           "forecolor backcolor | alignleft aligncenter alignright alignjustify | " +
-          "bullist numlist outdent indent | table link image | removeformat code fullscreen",
+          "bullist numlist outdent indent | table link image pagebreak | removeformat code fullscreen",
         verify_html: false,
         valid_elements: "*[*]",
         extended_valid_elements: "*[*]",
         entity_encoding: "raw",
         protect: HANDLEBARS_PROTECT,
-        content_style: (initialCss ? initialCss + "\n" : "") + "body { font-family: Segoe UI, Arial, sans-serif; font-size: 11pt; }",
+        pagebreak_separator: '<div style="page-break-before: always;"></div>',
+        content_style: (initialCss ? initialCss + "\n" : "") + 
+          "html { background: #e5e7eb; padding: 20px 0; } " +
+          "body { font-family: Segoe UI, Arial, sans-serif; font-size: 11pt; " + 
+          "max-width: 210mm; min-height: 297mm; margin: 0 auto !important; padding: 15mm 20mm; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.15); box-sizing: border-box; } " +
+          "@media print { html { padding: 0; background: none; } body { box-shadow: none; padding: 0; margin: 0 !important; max-width: none; min-height: auto; } }",
         setup: (editor) => {
           editorInstance = editor;
           editor.on("init", () => {

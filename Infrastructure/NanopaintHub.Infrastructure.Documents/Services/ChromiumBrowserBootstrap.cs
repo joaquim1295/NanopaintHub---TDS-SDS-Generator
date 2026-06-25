@@ -12,42 +12,31 @@ internal static class ChromiumBrowserBootstrap
 
     public static async Task EnsureDownloadedAsync(CancellationToken cancellationToken = default)
     {
-        await DownloadGate.WaitAsync(cancellationToken);
-        try
-        {
-            if (_browserDownloaded)
-            {
-                return;
-            }
-
-            var fetcher = new BrowserFetcher();
-            await WithTimeoutAsync(
-                fetcher.DownloadAsync(),
-                DownloadTimeout,
-                "Download do Chromium excedeu o tempo limite.",
-                cancellationToken);
-            _browserDownloaded = true;
-        }
-        finally
-        {
-            DownloadGate.Release();
-        }
+        // Edge is already installed on Windows, no need to download Chromium
+        // We bypass BrowserFetcher entirely.
+        await Task.CompletedTask;
     }
 
     public static async Task<IBrowser> LaunchAsync(
         bool headless,
-        IReadOnlyList<string>? extraArgs = null,
+        string[]? extraArgs = null,
         CancellationToken cancellationToken = default)
     {
-        await EnsureDownloadedAsync(cancellationToken);
+        var edgePath = @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe";
+        if (!System.IO.File.Exists(edgePath))
+        {
+            throw new FileNotFoundException("Microsoft Edge não foi encontrado neste sistema. Por favor instale o Edge ou verifique o caminho.");
+        }
 
-        var args = extraArgs?.ToArray();
-        var launch = Puppeteer.LaunchAsync(new LaunchOptions
+        var options = new LaunchOptions
         {
             Headless = headless,
-            DefaultViewport = headless ? new ViewPortOptions { Width = 794, Height = 1123 } : null,
-            Args = args is { Length: > 0 } ? args : null,
-        });
+            ExecutablePath = edgePath,
+            Args = extraArgs ?? Array.Empty<string>(),
+            DefaultViewport = null
+        };
+
+        var launch = Puppeteer.LaunchAsync(options);
 
         return await WithTimeoutAsync(
             launch,

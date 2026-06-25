@@ -5,16 +5,24 @@ using NanopaintHub.Application.Tds;
 using NanopaintHub.Infrastructure.Documents.Services;
 using NanopaintHub.Infrastructure.Documents.Tds;
 
+using Microsoft.Extensions.Configuration;
+using NanopaintHub.Infrastructure.Documents.DependencyInjection;
+
 public static class NanopaintHubDocumentsServiceCollectionExtensions
 {
-    public static IServiceCollection AddNanopaintHubDocuments(this IServiceCollection services)
+    public static IServiceCollection AddNanopaintHubDocuments(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<PdfGeneratorOptions>(configuration.GetSection("PdfGenerator"));
         services.AddSingleton<IPdfGenerationProgressNotifier, PdfGenerationProgressNotifier>();
         services.AddSingleton<IHtmlPreviewService, HtmlPreviewService>();
         services.AddSingleton<IChromiumTinyMceEditorService, ChromiumTinyMceEditorService>();
         services.AddSingleton<TdsDataMergeService>();
         services.AddSingleton<ITdsChartRenderer, TdsChartSvgBuilder>();
-        services.AddScoped<IDocumentGeneratorService, DocumentGeneratorService>();
+        services.AddSingleton<ITdsHtmlGenerator, TdsHtmlGenerator>();
+        services.AddScoped<IPdfLayoutService, TdsPdfLayoutService>();
+        services.AddScoped<DocumentGeneratorService>();
+        services.AddScoped<QuestPdfDocumentGeneratorService>();
+        services.AddScoped<IDocumentGeneratorService, DocumentGeneratorRouter>();
         return services;
     }
 }

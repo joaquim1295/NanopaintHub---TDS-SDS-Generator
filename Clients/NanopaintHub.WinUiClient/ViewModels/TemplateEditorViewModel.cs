@@ -15,6 +15,8 @@ public partial class TemplateEditorViewModel : ObservableObject
     private readonly ITemplateRepository _templateRepository;
     private readonly INavigationService _navigationService;
     private readonly IChromiumTinyMceEditorService _editorService;
+    private readonly ITdsHtmlGenerator _htmlGenerator;
+    private readonly IPdfLayoutService _pdfLayoutService;
 
     public List<string> HeaderRepeatStyles { get; } = new() { "None", "Minimal", "Original" };
     public List<string> FooterRepeatStyles { get; } = new() { "None", "Original" };
@@ -35,11 +37,18 @@ public partial class TemplateEditorViewModel : ObservableObject
     [ObservableProperty]
     private string _pageTitle = "Novo Template";
 
-    public TemplateEditorViewModel(ITemplateRepository templateRepository, INavigationService navigationService, IChromiumTinyMceEditorService editorService)
+    public TemplateEditorViewModel(
+        ITemplateRepository templateRepository, 
+        INavigationService navigationService, 
+        IChromiumTinyMceEditorService editorService,
+        ITdsHtmlGenerator htmlGenerator,
+        IPdfLayoutService pdfLayoutService)
     {
         _templateRepository = templateRepository;
         _navigationService = navigationService;
         _editorService = editorService;
+        _htmlGenerator = htmlGenerator;
+        _pdfLayoutService = pdfLayoutService;
     }
 
     public async Task InitializeAsync(Guid? templateId)
@@ -116,16 +125,31 @@ public partial class TemplateEditorViewModel : ObservableObject
     {
         if (Template == null) return;
 
+        // Map UI model to Application schema
+        var schema = TemplateHtmlParser.MapModelToSchema(BuilderModel);
+
+        // Normalize layout (enforce safety margins Top >= 45, Bottom >= 40 if headers/footers repeats are on)
+        _pdfLayoutService.NormalizeLayout(schema, Template);
+
+        // Sync margins to Template entity
+        Template.TopMargin = (int)schema.Layout.TopMargin;
+        Template.BottomMargin = (int)schema.Layout.BottomMargin;
+
+        // Sync normalized values back to BuilderModel UI properties
         if (BuilderModel.Layout != null)
         {
-            Template.TopMargin = (int)BuilderModel.Layout.TopMargin;
-            Template.BottomMargin = (int)BuilderModel.Layout.BottomMargin;
+            BuilderModel.Layout.TopMargin = schema.Layout.TopMargin;
+            BuilderModel.Layout.BottomMargin = schema.Layout.BottomMargin;
+            BuilderModel.Layout.LeftMargin = schema.Layout.LeftMargin;
+            BuilderModel.Layout.RightMargin = schema.Layout.RightMargin;
         }
 
+        // Serialize Builder UI state
         Template.BuilderJson = JsonSerializer.Serialize(BuilderModel);
         
-        Template.HtmlStructure = TdsHtmlGenerator.GenerateHtml(BuilderModel);
-        Template.CssStructure = TdsHtmlGenerator.GenerateCss(BuilderModel);
+        // Generate structured HTML and CSS using the application service
+        Template.HtmlStructure = _htmlGenerator.GenerateHtml(schema);
+        Template.CssStructure = _htmlGenerator.GenerateCss(schema);
         
         OnPropertyChanged(nameof(Template)); // Refresh bind
     }
@@ -144,7 +168,11 @@ public partial class TemplateEditorViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            SyncBuilderToHtml();
+            // Only synchronize from Builder to HTML if the user hasn't explicitly customized the HTML via TinyMCE.
+            if (!IsCustomizedHtml)
+            {
+                SyncBuilderToHtml();
+            }
 
             var existing = await _templateRepository.GetByIdAsync(Template.Id);
             if (existing != null)
@@ -189,7 +217,7 @@ public partial class TemplateEditorViewModel : ObservableObject
         BuilderModel.Sections.Add(new TemplateSection { Title = "Ink features", Type = "BulletPoints", DataSource = "Features", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#223145" });
         BuilderModel.Sections.Add(new TemplateSection { Title = "Ink properties", Type = "Table", DataSource = "LiquidProperties", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#223145" });
         BuilderModel.Sections.Add(new TemplateSection { Title = "Handling Guidelines", Type = "Table", DataSource = "MechanicalProperties", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
-        BuilderModel.Sections.Add(new TemplateSection { Title = "Sensor specifications", Type = "RichText", DataSource = "Tds", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", Content = @"<table class=""data-table""><tbody><tr><th>Sensitivity (Volts)</th><td>{{Tds.SensitivityVolts}} V</td></tr><tr><th>Sensitivity (Per Unit)</th><td>{{Tds.SensitivityPerUnit}} {{Tds.SensitivityLabel}}</td></tr><tr><th>Response time</th><td>{{Tds.ResponseTimeSec}} s</td></tr><tr><th>Recovery time</th><td>{{Tds.RecoveryTimeSec}} s</td></tr><tr><th>Repeatability</th><td>{{Tds.RepeatabilityPercent}} %</td></tr><tr><th>Rest resistance</th><td>{{Tds.RestResistanceOhms}} &Omega;</td></tr><tr><th>Operating temperature</th><td>{{Tds.OperatingTempMinC}} &deg;C to {{Tds.OperatingTempMaxC}} &deg;C</td></tr><tr><th>Range</th><td>{{Tds.RangeMin}} &ndash; {{Tds.RangeMax}} {{Tds.ForceUnit}}</td></tr><tr><th>Hysteresis</th><td>{{Tds.HysteresisPercent}} %</td></tr></tbody></table>" });
+        BuilderModel.Sections.Add(new TemplateSection { Title = "Sensor specifications", Type = "Table", DataSource = "Tds", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", Content = "" });
         BuilderModel.Sections.Add(new TemplateSection { Title = "Performance charts", Type = "Charts", DataSource = "Charts", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
         SyncBuilderToHtml();
         OnPropertyChanged(nameof(BuilderModel));
@@ -203,13 +231,46 @@ public partial class TemplateEditorViewModel : ObservableObject
         // Sync changes made in the UI into HtmlStructure before opening Editor
         SyncBuilderToHtml();
 
-        var result = await _editorService.OpenEditorAsync(Template.HtmlStructure, Template.CssStructure);
+        var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+        var result = await _editorService.OpenEditorAsync(
+            Template.HtmlStructure, 
+            assetsPath, 
+            Template.CssStructure,
+            ChromiumTemplateEditorMode.WordLike);
+
         if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
         {
             Template.HtmlStructure = result.Html;
-            SyncHtmlToBuilder();
+            IsCustomizedHtml = true;
+            
+            // WE NO LONGER DO SyncHtmlToBuilder() HERE!
+            // Reverse-parsing complex TinyMCE edits back to the strict UI builder model causes data loss.
+            // By setting IsCustomizedHtml = true, we lock the UI and rely on the saved HTML directly.
+
             OnPropertyChanged(nameof(Template));
             OnPropertyChanged(nameof(BuilderModel));
+        }
+    }
+
+    [RelayCommand]
+    private async Task EditSectionContentAsync(TemplateSection section)
+    {
+        if (section == null || Template == null) return;
+
+        // Sync latest CSS to pass to editor
+        SyncBuilderToHtml();
+
+        var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+        var result = await _editorService.OpenEditorAsync(
+            section.Content, 
+            assetsPath, 
+            Template.CssStructure,
+            ChromiumTemplateEditorMode.WordLike);
+
+        if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+        {
+            section.Content = result.Html;
+            SyncBuilderToHtml();
         }
     }
 

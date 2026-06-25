@@ -5,9 +5,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Assets\paged.polyfill.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4022.49" />
     <PackageReference Include="PuppeteerSharp" Version="25.0.4" />
+    <PackageReference Include="QuestPDF" Version="2026.6.0" />
   </ItemGroup>
 
   <PropertyGroup>

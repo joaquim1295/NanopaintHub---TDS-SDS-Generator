@@ -43,19 +43,19 @@ public static class TemplateHtmlParser
             if (fontMatch.Success) schema.Theme.FontFamily = fontMatch.Groups[1].Value.Trim();
 
             // Page layout settings from CSS custom properties
-            var topMarginMatch = Regex.Match(css, @"--margin-top:\s*(\d+(?:\.\d+)?)px");
+            var topMarginMatch = Regex.Match(css, @"--margin-top:\s*(\d+(?:\.\d+)?)(px|mm)");
             if (topMarginMatch.Success && double.TryParse(topMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var tm))
                 schema.Layout.TopMargin = tm;
 
-            var bottomMarginMatch = Regex.Match(css, @"--margin-bottom:\s*(\d+(?:\.\d+)?)px");
+            var bottomMarginMatch = Regex.Match(css, @"--margin-bottom:\s*(\d+(?:\.\d+)?)(px|mm)");
             if (bottomMarginMatch.Success && double.TryParse(bottomMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var bm))
                 schema.Layout.BottomMargin = bm;
 
-            var leftMarginMatch = Regex.Match(css, @"--margin-left:\s*(\d+(?:\.\d+)?)px");
+            var leftMarginMatch = Regex.Match(css, @"--margin-left:\s*(\d+(?:\.\d+)?)(px|mm)");
             if (leftMarginMatch.Success && double.TryParse(leftMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var lm))
                 schema.Layout.LeftMargin = lm;
 
-            var rightMarginMatch = Regex.Match(css, @"--margin-right:\s*(\d+(?:\.\d+)?)px");
+            var rightMarginMatch = Regex.Match(css, @"--margin-right:\s*(\d+(?:\.\d+)?)(px|mm)");
             if (rightMarginMatch.Success && double.TryParse(rightMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var rm))
                 schema.Layout.RightMargin = rm;
 
@@ -75,9 +75,26 @@ public static class TemplateHtmlParser
             if (footerPadBottomMatch.Success && double.TryParse(footerPadBottomMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var fpb))
                 schema.Layout.FooterPaddingBottom = fpb;
 
-            var secMarginMatch = Regex.Match(css, @"--section-margin-bottom:\s*(\d+(?:\.\d+)?)px");
-            if (secMarginMatch.Success && double.TryParse(secMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var smb))
-                schema.Layout.SectionMarginBottom = smb;
+            var contentPadTopMatch = Regex.Match(css, @"--content-padding-top:\s*(\d+(?:\.\d+)?)mm");
+            if (contentPadTopMatch.Success && double.TryParse(contentPadTopMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var cpt))
+                schema.Layout.ContentPaddingTop = cpt;
+
+            var batchPadBottomMatch = Regex.Match(css, @"--batch-note-padding-bottom:\s*(\d+(?:\.\d+)?)mm");
+            if (batchPadBottomMatch.Success && double.TryParse(batchPadBottomMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var bnpb))
+                schema.Layout.BatchNotePaddingBottom = bnpb;
+
+            var secSpacingMatch = Regex.Match(css, @"--section-spacing:\s*(\d+(?:\.\d+)?)px");
+            if (secSpacingMatch.Success && double.TryParse(secSpacingMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var ssp))
+                schema.Layout.SectionSpacing = ssp;
+            else
+            {
+                var secMarginMatch = Regex.Match(css, @"--section-margin-bottom:\s*(\d+(?:\.\d+)?)px");
+                if (secMarginMatch.Success && double.TryParse(secMarginMatch.Groups[1].Value, CultureInfo.InvariantCulture, out var smb))
+                {
+                    schema.Layout.SectionSpacing = smb;
+                    schema.Layout.SectionMarginBottom = smb;
+                }
+            }
 
             // Header Color / Font from CSS
             var headerColorMatch = Regex.Match(css, @"\.header-banner\s*\{[^}]*color:\s*([^;}]+)");
@@ -110,6 +127,9 @@ public static class TemplateHtmlParser
                 if (fm.Success) schema.Header.FontFamily = fm.Groups[1].Value.Trim();
                 var cm = Regex.Match(style, @"color:\s*([^;]+)");
                 if (cm.Success) schema.Header.TextColor = NormalizeColor(cm.Groups[1].Value.Trim());
+                var sm = Regex.Match(style, @"font-size:\s*([\d\.]+)pt");
+                if (sm.Success && double.TryParse(sm.Groups[1].Value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double size))
+                    schema.Header.FontSize = size;
             }
 
             var logoTagMatch = Regex.Match(html, @"<img\s+[^>]*logo-image[^>]*>");

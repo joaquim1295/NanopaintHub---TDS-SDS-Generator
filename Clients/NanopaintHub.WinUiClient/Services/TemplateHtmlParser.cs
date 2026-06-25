@@ -19,6 +19,7 @@ public static class TemplateHtmlParser
         model.Theme.PrimaryColor = schema.Theme.PrimaryColor;
         model.Theme.SecondaryColor = schema.Theme.SecondaryColor;
         model.Theme.FontFamily = schema.Theme.FontFamily;
+        model.Theme.BaseFontSize = schema.Theme.BaseFontSize;
 
         model.Header.InfoDocType = schema.Header.InfoDocType;
         model.Header.InfoCategory = schema.Header.InfoCategory;
@@ -52,9 +53,14 @@ public static class TemplateHtmlParser
             model.Layout.RightMargin = schema.Layout.RightMargin;
             model.Layout.HeaderPaddingTop = schema.Layout.HeaderPaddingTop;
             model.Layout.HeaderPaddingBottom = schema.Layout.HeaderPaddingBottom;
+            model.Layout.ContentPaddingTop = schema.Layout.ContentPaddingTop;
+            model.Layout.BatchNotePaddingBottom = schema.Layout.BatchNotePaddingBottom;
+            model.Layout.SectionSpacing = schema.Layout.SectionSpacing;
             model.Layout.FooterPaddingTop = schema.Layout.FooterPaddingTop;
             model.Layout.FooterPaddingBottom = schema.Layout.FooterPaddingBottom;
             model.Layout.SectionMarginBottom = schema.Layout.SectionMarginBottom;
+            model.Layout.SectionBaseScale = schema.Layout.SectionBaseScale;
+            model.Layout.HeaderBaseScale = schema.Layout.HeaderBaseScale;
         }
 
         foreach (var sec in schema.Sections)
@@ -77,5 +83,78 @@ public static class TemplateHtmlParser
         }
 
         return model;
+    }
+
+    public static TemplateBuilderSchema MapModelToSchema(TemplateBuilderModel model)
+    {
+        var schema = new TemplateBuilderSchema();
+
+        schema.Theme.PrimaryColor = model.Theme.PrimaryColor;
+        schema.Theme.SecondaryColor = model.Theme.SecondaryColor;
+        schema.Theme.FontFamily = model.Theme.FontFamily;
+        schema.Theme.BaseFontSize = model.Theme.BaseFontSize;
+
+        schema.Header.InfoDocType = model.Header.InfoDocType;
+        schema.Header.InfoCategory = model.Header.InfoCategory;
+        schema.Header.InfoRevisedDate = model.Header.InfoRevisedDate;
+        schema.Header.InfoVersion = model.Header.InfoVersion;
+        schema.Header.IdentType = model.Header.IdentType;
+        schema.Header.IdentName = model.Header.IdentName;
+        schema.Header.IdentDesc = model.Header.IdentDesc;
+        schema.Header.LogoUrl = model.Header.LogoUrl;
+        schema.Header.LogoHeight = model.Header.LogoHeight;
+        schema.Header.ShowLogo = model.Header.ShowLogo;
+        schema.Header.FontFamily = model.Header.FontFamily;
+        schema.Header.TextColor = model.Header.TextColor;
+        schema.Header.HeaderRepeatStyle = model.Header.HeaderRepeatStyle;
+
+        schema.Footer.Column1 = model.Footer.Column1;
+        schema.Footer.Column2 = model.Footer.Column2;
+        schema.Footer.LegalText = model.Footer.LegalText;
+        schema.Footer.FontFamily = model.Footer.FontFamily;
+        schema.Footer.TextColor = model.Footer.TextColor;
+        schema.Footer.FooterRepeatStyle = model.Footer.FooterRepeatStyle;
+
+        schema.Batch.ShowBatchNote = model.Batch.ShowBatchNote;
+        schema.Batch.BatchNoteFormat = model.Batch.BatchNoteFormat;
+
+        if (model.Layout != null)
+        {
+            schema.Layout.TopMargin = model.Layout.TopMargin;
+            schema.Layout.BottomMargin = model.Layout.BottomMargin;
+            schema.Layout.LeftMargin = model.Layout.LeftMargin;
+            schema.Layout.RightMargin = model.Layout.RightMargin;
+            schema.Layout.HeaderPaddingTop = model.Layout.HeaderPaddingTop;
+            schema.Layout.HeaderPaddingBottom = model.Layout.HeaderPaddingBottom;
+            schema.Layout.ContentPaddingTop = model.Layout.ContentPaddingTop;
+            schema.Layout.BatchNotePaddingBottom = model.Layout.BatchNotePaddingBottom;
+            schema.Layout.SectionSpacing = model.Layout.SectionSpacing;
+            schema.Layout.FooterPaddingTop = model.Layout.FooterPaddingTop;
+            schema.Layout.FooterPaddingBottom = model.Layout.FooterPaddingBottom;
+            schema.Layout.SectionMarginBottom = model.Layout.SectionMarginBottom;
+            schema.Layout.SectionBaseScale = model.Layout.SectionBaseScale;
+            schema.Layout.HeaderBaseScale = model.Layout.HeaderBaseScale;
+        }
+
+        foreach (var sec in model.Sections)
+        {
+            schema.Sections.Add(new TemplateSectionSchema
+            {
+                Id = sec.Id,
+                Title = sec.Title,
+                Type = sec.Type,
+                DataSource = sec.DataSource,
+                Content = sec.Content,
+                IsHalfWidth = sec.IsHalfWidth,
+                FontFamily = sec.FontFamily,
+                TextColor = sec.TextColor,
+                FontSize = sec.FontSize,
+                PageBreakBefore = sec.PageBreakBefore,
+                MarginBottom = sec.MarginBottom,
+                MinHeight = sec.MinHeight
+            });
+        }
+
+        return schema;
     }
 }

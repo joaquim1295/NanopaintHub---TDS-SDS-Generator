@@ -9,6 +9,7 @@ using NanopaintHub_WinUIClient.Services;
 using NanopaintHub_WinUIClient.ViewModels;
 using NanopaintHub.Application.Features.TdsGeneration;
 using NanopaintHub.Application.Features.SdsGeneration;
+using NanopaintHub.Application.Contracts;
 
 namespace NanopaintHub_WinUIClient;
 
@@ -39,13 +40,16 @@ public partial class App : Application
 
         var builder = Host.CreateApplicationBuilder();
 
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
         // Register Core/Infrastructure Services
         builder.Services.AddNanopaintHubPersistence(connectionString);
-        builder.Services.AddNanopaintHubDocuments();
+        builder.Services.AddNanopaintHubDocuments(builder.Configuration);
 
         // Register App Services
         builder.Services.AddSingleton<INavigationService, NavigationService>();
-
+        builder.Services.AddSingleton<IHtmlToPdfGenerator, WinUiWebView2PdfGenerator>();
+builder.Services.AddSingleton<PdfPreviewService>();
         // Register ViewModels
         builder.Services.AddTransient<ShellViewModel>();
         builder.Services.AddTransient<ProductsViewModel>();
