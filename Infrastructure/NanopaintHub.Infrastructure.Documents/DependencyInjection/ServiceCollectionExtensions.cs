@@ -20,9 +20,13 @@ public static class NanopaintHubDocumentsServiceCollectionExtensions
         services.AddSingleton<ITdsChartRenderer, TdsChartSvgBuilder>();
         services.AddSingleton<ITdsHtmlGenerator, TdsHtmlGenerator>();
         services.AddScoped<IPdfLayoutService, TdsPdfLayoutService>();
+        services.AddScoped<TdsDataGatherer>();
+        services.AddScoped<SdsDataGatherer>();
         services.AddScoped<DocumentGeneratorService>();
         services.AddScoped<QuestPdfDocumentGeneratorService>();
+        services.AddScoped<ITextDocumentGeneratorService>();
         services.AddScoped<IDocumentGeneratorService, DocumentGeneratorRouter>();
+        services.AddScoped<IHtmlEngineService>(sp => sp.GetRequiredService<DocumentGeneratorService>());
         return services;
     }
 }

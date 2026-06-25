@@ -432,19 +432,83 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         });
     }
 
-    public Task<byte[]> GenerateSdsAsync(Product product, DocumentTemplate template, PdfGenerationSettings? settings = null)
+    public async Task<byte[]> GenerateSdsAsync(Product product, DocumentTemplate template, PdfGenerationSettings? settings = null)
     {
-        throw new NotImplementedException("QuestPDF generator currently only supports TDS generation.");
-    }
+        _progress.Report("Carregando componentes para SDS...", 20);
+        var rows = await _supplierComponents.GetAllWithSupplierAsync();
+        var components = rows.Select(r => new { r.SupplierName, r.ComponentName, r.CasNumber }).ToList();
 
-    public Task<string> GenerateHtmlAsync(Product product, DocumentTemplate template, bool isForPdf, TestBatch? testBatch = null)
-    {
-        throw new NotImplementedException("QuestPDF generator does not support HTML generation.");
-    }
+        _progress.Report("Gerando matriz GHS SDS com QuestPDF...", 50);
 
-    public Task<byte[]> GeneratePdfFromHtmlAsync(string html, DocumentTemplate template, PdfGenerationSettings? settings = null)
-    {
-        throw new NotImplementedException("QuestPDF generator does not generate PDF from HTML.");
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
+                page.PageColor(Colors.White);
+                page.DefaultTextStyle(x => x.FontSize(10).FontFamily(Fonts.Arial));
+
+                page.Header().Row(row =>
+                {
+                    row.RelativeItem().Text($"Safety Data Sheet (SDS)\n{product.Name}").SemiBold().FontSize(14).FontColor(Colors.Blue.Darken2);
+                    row.ConstantItem(100).AlignRight().Text($"Rev: {product.RevisionDate:dd/MM/yyyy}\nVersion: {product.DocumentVersion}").FontSize(9);
+                });
+
+                page.Content().PaddingVertical(1, Unit.Centimetre).Column(col =>
+                {
+                    col.Spacing(10);
+                    
+                    // Seção 1
+                    col.Item().PaddingBottom(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Text("1. Identification").Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
+                    col.Item().Text($"Product Name: {product.Name}");
+                    col.Item().Text($"Product Code: {product.Code}");
+                    col.Item().Text($"Description: {product.Description}");
+
+                    // Seção 2
+                    col.Item().PaddingTop(10).PaddingBottom(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Text("2. Hazard Identification").Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
+                    col.Item().Text("Classified according to GHS standards.");
+
+                    // Seção 3
+                    col.Item().PaddingTop(10).PaddingBottom(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Text("3. Composition / Information on Ingredients").Bold().FontSize(12).FontColor(Colors.Blue.Darken2);
+                    
+                    col.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
+
+                        table.Header(header =>
+                        {
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Component Name").Bold();
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("CAS Number").Bold();
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Supplier").Bold();
+                        });
+
+                        foreach (var comp in components)
+                        {
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(4).Text(comp.ComponentName);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(4).Text(comp.CasNumber);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(4).Text(comp.SupplierName);
+                        }
+                    });
+                });
+
+                page.Footer().AlignCenter().Text(x =>
+                {
+                    x.CurrentPageNumber();
+                    x.Span(" / ");
+                    x.TotalPages();
+                });
+            });
+        });
+
+        var bytes = document.GeneratePdf();
+        _progress.Report("SDS QuestPDF gerado com sucesso.", 100);
+        return bytes;
     }
 
     private static T SafeDeserialize<T>(string? json, T fallback, string fieldName)

@@ -10,8 +10,4 @@ public interface IDocumentGeneratorService
 
     // Emissão de SDS (Ficha de Segurança) - Consome perigos e propriedades químicas do produto
     Task<byte[]> GenerateSdsAsync(Product product, DocumentTemplate template, PdfGenerationSettings? settings = null);
-
-    // Métodos para permitir visualização e edição intermediária
-    Task<string> GenerateHtmlAsync(Product product, DocumentTemplate template, bool isSds, TestBatch? testBatch = null);
-    Task<byte[]> GeneratePdfFromHtmlAsync(string html, DocumentTemplate template, PdfGenerationSettings? settings = null);
 }

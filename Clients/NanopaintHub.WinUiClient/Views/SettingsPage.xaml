@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="NanopaintHub_WinUIClient.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Padding="24">
+        <StackPanel Spacing="24" MaxWidth="600" HorizontalAlignment="Left">
+            <TextBlock Text="Configurações" Style="{StaticResource TitleTextBlockStyle}" />
+            
+            <StackPanel Spacing="12">
+                <TextBlock Text="Motor de Geração de PDFs" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="Selecione o motor utilizado para renderizar os documentos." TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                
+                <ComboBox Header="Motor para TDS (Ficha Técnica)" 
+                          ItemsSource="{x:Bind ViewModel.AvailableEngines}" 
+                          SelectedItem="{x:Bind ViewModel.TdsEngine, Mode=TwoWay}"
+                          Width="300" />
+                          
+                <ComboBox Header="Motor para SDS (Ficha de Segurança)" 
+                          ItemsSource="{x:Bind ViewModel.AvailableEngines}" 
+                          SelectedItem="{x:Bind ViewModel.SdsEngine, Mode=TwoWay}"
+                          Width="300" />
+            </StackPanel>
+
+            <InfoBar IsOpen="True" Severity="Informational" Title="Multi-Engine" 
+                     Message="As alterações entram em vigor imediatamente na próxima geração." />
+        </StackPanel>
+    </Grid>
+</Page>

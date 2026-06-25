@@ -34,7 +34,7 @@ public sealed partial class ShellPage : Page
     {
         if (args.IsSettingsInvoked)
         {
-            // Settings navigation if needed
+            _navigationService.NavigateTo("Settings");
             return;
         }
 

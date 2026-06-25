@@ -5,6 +5,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NanopaintHub.Application.Contracts;
 using NanopaintHub.Domain.Entities;
+using NanopaintHub_WinUIClient.Services;
+using Microsoft.UI.Xaml.Media.Imaging;
+using System.Collections.ObjectModel;
 using NanopaintHub_WinUIClient.Models;
 using NanopaintHub_WinUIClient.Services;
 
@@ -17,6 +20,8 @@ public partial class TemplateEditorViewModel : ObservableObject
     private readonly IChromiumTinyMceEditorService _editorService;
     private readonly ITdsHtmlGenerator _htmlGenerator;
     private readonly IPdfLayoutService _pdfLayoutService;
+    private readonly IDocumentGeneratorService _documentGeneratorRouter;
+    private readonly PdfPreviewService _pdfPreviewService;
 
     public List<string> HeaderRepeatStyles { get; } = new() { "None", "Minimal", "Original" };
     public List<string> FooterRepeatStyles { get; } = new() { "None", "Original" };
@@ -35,6 +40,15 @@ public partial class TemplateEditorViewModel : ObservableObject
     private bool _isCustomizedHtml;
 
     [ObservableProperty]
+    private ObservableCollection<BitmapImage> _pdfPreviewImages = new();
+
+    [ObservableProperty]
+    private bool _isPdfPreviewVisible;
+
+    [ObservableProperty]
+    private bool _isLoadingPreview;
+
+    [ObservableProperty]
     private string _pageTitle = "Novo Template";
 
     public TemplateEditorViewModel(
@@ -42,13 +56,17 @@ public partial class TemplateEditorViewModel : ObservableObject
         INavigationService navigationService, 
         IChromiumTinyMceEditorService editorService,
         ITdsHtmlGenerator htmlGenerator,
-        IPdfLayoutService pdfLayoutService)
+        IPdfLayoutService pdfLayoutService,
+        IDocumentGeneratorService documentGeneratorRouter,
+        PdfPreviewService pdfPreviewService)
     {
         _templateRepository = templateRepository;
         _navigationService = navigationService;
         _editorService = editorService;
         _htmlGenerator = htmlGenerator;
         _pdfLayoutService = pdfLayoutService;
+        _documentGeneratorRouter = documentGeneratorRouter;
+        _pdfPreviewService = pdfPreviewService;
     }
 
     public async Task InitializeAsync(Guid? templateId)
@@ -161,6 +179,78 @@ public partial class TemplateEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public async Task GeneratePreviewPdfAsync()
+    {
+        if (Template == null) return;
+        
+        IsLoadingPreview = true;
+        try
+        {
+            if (!IsCustomizedHtml)
+            {
+                SyncBuilderToHtml();
+            }
+
+            var dummyProduct = new Product
+            {
+                Name = "Produto Exemplo Preview",
+                Code = "PRV-001",
+                Description = "Este é um produto fictício gerado apenas para pré-visualização do template.",
+                RevisionDate = DateTime.Today,
+                DocumentVersion = 1,
+                FeaturesJson = "[\"Resistência alta\", \"Flexível\", \"Durável\"]",
+                LiquidPropertiesJson = "{\"Viscosidade\":\"100 cP\"}",
+                MechanicalPropertiesJson = "{\"Dureza\":\"60 Shore A\"}",
+                FunctionalPropertiesJson = "{\"Resistência\":\"1 kOhm\"}"
+            };
+
+            var tempTemplate = new DocumentTemplate
+            {
+                DocumentType = Template.DocumentType,
+                TemplateName = Template.TemplateName,
+                TopMargin = Template.TopMargin,
+                BottomMargin = Template.BottomMargin,
+                HtmlStructure = Template.HtmlStructure ?? string.Empty,
+                CssStructure = Template.CssStructure ?? string.Empty,
+                BuilderJson = Template.BuilderJson
+            };
+
+            byte[] pdfBytes;
+            if (tempTemplate.DocumentType == "SDS")
+            {
+                pdfBytes = await _documentGeneratorRouter.GenerateSdsAsync(dummyProduct, tempTemplate);
+            }
+            else
+            {
+                pdfBytes = await _documentGeneratorRouter.GenerateTdsAsync(dummyProduct, tempTemplate, null);
+            }
+            
+            var tempPdfPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + ".pdf");
+            await System.IO.File.WriteAllBytesAsync(tempPdfPath, pdfBytes);
+            
+            var imagePaths = await _pdfPreviewService.RenderPdfToImagesAsync(tempPdfPath);
+            PdfPreviewImages.Clear();
+            foreach (var imgPath in imagePaths)
+            {
+                var bitmap = new BitmapImage(new Uri(imgPath));
+                PdfPreviewImages.Add(bitmap);
+            }
+            
+            IsPdfPreviewVisible = true;
+        }
+        catch (Exception)
+        {
+            // Ignorar em caso de erro na pré-visualização
+        }
+        finally
+        {
+            IsLoadingPreview = false;
+        }
+    }
+
+
+
+    [RelayCommand]
     private async Task SaveAsync()
     {
         if (Template == null) return;
@@ -232,15 +322,18 @@ public partial class TemplateEditorViewModel : ObservableObject
         SyncBuilderToHtml();
 
         var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
-        var result = await _editorService.OpenEditorAsync(
-            Template.HtmlStructure, 
-            assetsPath, 
-            Template.CssStructure,
-            ChromiumTemplateEditorMode.WordLike);
+        var window = new Views.TinyMceEditorWindow(
+            Template.HtmlStructure,
+            assetsPath,
+            Template.CssStructure);
 
-        if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+        window.Activate();
+        
+        var resultHtml = await window.WaitForResultAsync();
+
+        if (resultHtml != null && !string.IsNullOrWhiteSpace(resultHtml))
         {
-            Template.HtmlStructure = result.Html;
+            Template.HtmlStructure = resultHtml;
             IsCustomizedHtml = true;
             
             // WE NO LONGER DO SyncHtmlToBuilder() HERE!
@@ -261,15 +354,18 @@ public partial class TemplateEditorViewModel : ObservableObject
         SyncBuilderToHtml();
 
         var assetsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
-        var result = await _editorService.OpenEditorAsync(
-            section.Content, 
-            assetsPath, 
-            Template.CssStructure,
-            ChromiumTemplateEditorMode.WordLike);
+        var window = new Views.TinyMceEditorWindow(
+            section.Content,
+            assetsPath,
+            Template.CssStructure);
 
-        if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+        window.Activate();
+
+        var resultHtml = await window.WaitForResultAsync();
+
+        if (resultHtml != null && !string.IsNullOrWhiteSpace(resultHtml))
         {
-            section.Content = result.Html;
+            section.Content = resultHtml;
             SyncBuilderToHtml();
         }
     }

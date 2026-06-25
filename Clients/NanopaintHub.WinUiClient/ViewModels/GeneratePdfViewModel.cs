@@ -50,7 +50,6 @@ public partial class GeneratePdfViewModel : ObservableObject
         _pdfPreviewService = pdfPreviewService;
     }
 
-    private string? _customPreviewHtml;
 
     public List<string> DocumentTypes { get; } = new() { "TDS", "SDS" };
     public List<string> PageFormats { get; } = new() { "A4", "Carta" };
@@ -120,20 +119,7 @@ public partial class GeneratePdfViewModel : ObservableObject
             };
 
             byte[] pdfBytes;
-            if (!string.IsNullOrWhiteSpace(_customPreviewHtml))
-            {
-                var htmlToRender = _customPreviewHtml;
-                if (!string.IsNullOrWhiteSpace(SelectedTemplate.CssStructure))
-                {
-                    var styleTag = $"<style>\n{SelectedTemplate.CssStructure}\n</style>";
-                    if (htmlToRender.Contains("</head>", StringComparison.OrdinalIgnoreCase))
-                        htmlToRender = htmlToRender.Replace("</head>", styleTag + "\n</head>", StringComparison.OrdinalIgnoreCase);
-                    else
-                        htmlToRender = $"<!doctype html>\n<html>\n<head>{styleTag}\n</head>\n<body>\n{htmlToRender}\n</body>\n</html>";
-                }
-                pdfBytes = await _documentGeneratorService.GeneratePdfFromHtmlAsync(htmlToRender, SelectedTemplate, settings);
-            }
-            else if (DocumentType == "TDS")
+            if (DocumentType == "TDS")
             {
                 pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
             }
@@ -192,20 +178,8 @@ public partial class GeneratePdfViewModel : ObservableObject
                 PageFormat = PageFormat == "Carta" ? "Letter" : "A4",
                 PageOrientation = PageOrientation == "Paisagem" ? "Landscape" : "Portrait"
             };
-            if (!string.IsNullOrWhiteSpace(_customPreviewHtml))
-            {
-                var htmlToRender = _customPreviewHtml;
-                if (!string.IsNullOrWhiteSpace(SelectedTemplate.CssStructure))
-                {
-                    var styleTag = $"<style>\n{SelectedTemplate.CssStructure}\n</style>";
-                    if (htmlToRender.Contains("</head>", StringComparison.OrdinalIgnoreCase))
-                        htmlToRender = htmlToRender.Replace("</head>", styleTag + "\n</head>", StringComparison.OrdinalIgnoreCase);
-                    else
-                        htmlToRender = $"<!doctype html>\n<html>\n<head>{styleTag}\n</head>\n<body>\n{htmlToRender}\n</body>\n</html>";
-                }
-                pdfBytes = await _documentGeneratorService.GeneratePdfFromHtmlAsync(htmlToRender, SelectedTemplate, settings);
-            }
-            else if (DocumentType == "TDS")
+
+            if (DocumentType == "TDS")
             {
                 pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
             }
@@ -248,20 +222,8 @@ public partial class GeneratePdfViewModel : ObservableObject
                 PageFormat = PageFormat == "Carta" ? "Letter" : "A4",
                 PageOrientation = PageOrientation == "Paisagem" ? "Landscape" : "Portrait"
             };
-            if (!string.IsNullOrWhiteSpace(_customPreviewHtml))
-            {
-                var htmlToRender = _customPreviewHtml;
-                if (!string.IsNullOrWhiteSpace(SelectedTemplate.CssStructure))
-                {
-                    var styleTag = $"<style>\n{SelectedTemplate.CssStructure}\n</style>";
-                    if (htmlToRender.Contains("</head>", StringComparison.OrdinalIgnoreCase))
-                        htmlToRender = htmlToRender.Replace("</head>", styleTag + "\n</head>", StringComparison.OrdinalIgnoreCase);
-                    else
-                        htmlToRender = $"<!doctype html>\n<html>\n<head>{styleTag}\n</head>\n<body>\n{htmlToRender}\n</body>\n</html>";
-                }
-                pdfBytes = await _documentGeneratorService.GeneratePdfFromHtmlAsync(htmlToRender, SelectedTemplate, settings);
-            }
-            else if (DocumentType == "TDS")
+
+            if (DocumentType == "TDS")
             {
                 pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
             }

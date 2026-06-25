@@ -16,6 +16,7 @@ public class WinUiWebView2PdfGenerator : IHtmlToPdfGenerator
         var tcs = new TaskCompletionSource<byte[]>();
 
         // Ensure we execute on the UI Thread since WebView2 is a UI control
+        Console.WriteLine("[DEBUG] WinUiWebView2PdfGenerator: Started GeneratePdfAsync");
         var app = (App)Microsoft.UI.Xaml.Application.Current;
         var dispatcher = app.MainWindow?.DispatcherQueue;
         
@@ -27,6 +28,7 @@ public class WinUiWebView2PdfGenerator : IHtmlToPdfGenerator
 
         dispatcher.TryEnqueue(async () =>
         {
+            Console.WriteLine("[DEBUG] WinUiWebView2PdfGenerator: Inside TryEnqueue");
             try
             {
                 // Create an invisible WebView2 control
@@ -34,11 +36,18 @@ public class WinUiWebView2PdfGenerator : IHtmlToPdfGenerator
                 {
                     Width = 800,
                     Height = 600,
-                    Opacity = 0 // Invisible
+                    Opacity = 0, // Invisible
+                    IsHitTestVisible = false
                 };
 
+                // Add to visual tree to allow initialization
+                var rootGrid = (Grid)app.MainWindow.Content;
+                rootGrid.Children.Add(webView);
+
                 // Initialize CoreWebView2
+                Console.WriteLine("[DEBUG] WinUiWebView2PdfGenerator: Awaiting EnsureCoreWebView2Async");
                 await webView.EnsureCoreWebView2Async();
+                Console.WriteLine("[DEBUG] WinUiWebView2PdfGenerator: EnsureCoreWebView2Async completed");
 
                 // Listen for NavigationCompleted to know when it's fully loaded and rendered
                 webView.NavigationCompleted += async (s, e) =>
@@ -102,20 +111,29 @@ public class WinUiWebView2PdfGenerator : IHtmlToPdfGenerator
                             {
                                 tcs.SetException(pdfEx);
                             }
+                            finally
+                            {
+                                // Clean up
+                                rootGrid.Children.Remove(webView);
+                            }
                         }
                         catch (Exception ex)
                         {
                             tcs.SetException(ex);
+                            rootGrid.Children.Remove(webView);
                         }
                     }
                     else
                     {
                         tcs.SetException(new Exception("WebView2 Navigation failed: " + e.WebErrorStatus));
+                        rootGrid.Children.Remove(webView);
                     }
                 };
 
                 // Load the HTML string
+                Console.WriteLine("[DEBUG] WinUiWebView2PdfGenerator: Navigating to string");
                 webView.NavigateToString(html);
+                Console.WriteLine("[DEBUG] WinUiWebView2PdfGenerator: Navigation invoked");
             }
             catch (Exception ex)
             {

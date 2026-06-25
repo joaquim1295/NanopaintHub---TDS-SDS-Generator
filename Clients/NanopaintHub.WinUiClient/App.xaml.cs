@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.UI.Xaml;
 using NanopaintHub.Infrastructure.LocalData.Persistence;
 using NanopaintHub_WinUIClient.Services;
@@ -40,6 +41,8 @@ public partial class App : Application
 
         var builder = Host.CreateApplicationBuilder();
 
+        builder.Configuration.AddJsonFile(Path.Combine(dataDir, "appsettings.user.json"), optional: true, reloadOnChange: true);
+
         QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
         // Register Core/Infrastructure Services
@@ -57,6 +60,7 @@ builder.Services.AddSingleton<PdfPreviewService>();
         builder.Services.AddTransient<TemplatesViewModel>();
         builder.Services.AddTransient<TemplateEditorViewModel>();
         builder.Services.AddTransient<GeneratePdfViewModel>();
+        builder.Services.AddTransient<SettingsViewModel>();
 
         // Register Use Cases
         builder.Services.AddTransient<GenerateTdsUseCase>();

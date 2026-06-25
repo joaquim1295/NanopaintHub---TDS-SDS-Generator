@@ -400,6 +400,44 @@
                             </Grid>
                         </StackPanel>
                     </PivotItem>
+
+                    <PivotItem Header="Pré-visualização PDF" Margin="0">
+                        <Grid Margin="0,16,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
+                                <Button Content="Atualizar Pré-visualização" Command="{x:Bind ViewModel.GeneratePreviewPdfCommand}" Style="{ThemeResource AccentButtonStyle}" />
+                                <ProgressRing IsActive="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay}" 
+                                              Visibility="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                              VerticalAlignment="Center" Width="24" Height="24" />
+                            </StackPanel>
+
+                            <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#f3f4f6">
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.PdfPreviewImages, Mode=OneWay}" 
+                                                  Visibility="{x:Bind ViewModel.IsPdfPreviewVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Vertical" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Image Source="{Binding}" MaxWidth="794" Stretch="Uniform" Margin="0,16,0,16">
+                                                    <Image.Shadow>
+                                                        <ThemeShadow />
+                                                    </Image.Shadow>
+                                                </Image>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+                        </Grid>
+                    </PivotItem>
                 </Pivot>
             </Grid>
         </Grid>

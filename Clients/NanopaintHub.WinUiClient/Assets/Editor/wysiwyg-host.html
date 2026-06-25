@@ -119,6 +119,10 @@
     }
 
     async function postHostMessage(payload) {
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage(payload);
+        return;
+      }
       if (chromiumMode && sessionId) {
         try {
           await fetch("/api/event", {
@@ -188,13 +192,13 @@
       return data.html || "";
     }
 
-    async function initializeEditor() {
+    async function initializeEditor(initialHtmlOverride = null) {
       if (editorInstance) {
         return editorInstance;
       }
 
       await ensureTinyMceLoaded();
-      const initialHtml = await loadInitialHtmlFromServer();
+      const initialHtml = initialHtmlOverride !== null ? initialHtmlOverride : await loadInitialHtmlFromServer();
 
       await tinymce.init({
         selector: "#tinymce-editor",
@@ -249,6 +253,13 @@
 
     async function applyToApp() {
       const html = await getTemplateHtml();
+      
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage({ type: "apply", html: html });
+        setStatus("Conteúdo enviado para a NanopaintHub. A fechar...");
+        return;
+      }
+      
       if (chromiumMode && window.applyChanges) {
         await window.applyChanges(html);
         setStatus("Conteúdo enviado para a NanopaintHub. A fechar...");
@@ -268,6 +279,11 @@
     }
 
     async function cancelEdit() {
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage({ type: "cancel" });
+        return;
+      }
+      
       if (chromiumMode && window.cancelEdit) {
         await window.cancelEdit();
         window.close();
@@ -288,7 +304,21 @@
       reportError("Erro JavaScript: " + (e.message || "desconhecido"));
     });
 
-    initializeEditor().catch(err => reportError(String(err)));
+    if (window.chrome && window.chrome.webview) {
+      document.body.classList.add("chromium-mode");
+      document.getElementById("chromium-toolbar").classList.add("visible");
+      
+      window.chrome.webview.addEventListener('message', async event => {
+        const msg = event.data;
+        if (msg && msg.type === 'init-data') {
+          initialCss = msg.cssTheme || "";
+          await initializeEditor(msg.html || "");
+        }
+      });
+      postHostMessage({ type: "editor-ready" });
+    } else {
+      initializeEditor().catch(err => reportError(String(err)));
+    }
   </script>
 </body>
 
