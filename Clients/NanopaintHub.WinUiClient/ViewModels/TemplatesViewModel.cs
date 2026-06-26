@@ -26,6 +26,8 @@ public partial class TemplatesViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<DocumentTemplate> _filteredTemplates = new();
 
+    private static bool _isGlobalCardView = true;
+
     private string _searchText = string.Empty;
     public string SearchText
     {
@@ -43,12 +45,7 @@ public partial class TemplatesViewModel : ObservableObject
     {
         _templateRepository = templateRepository;
         _navigationService = navigationService;
-
-        var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-        if (localSettings.Values.TryGetValue("IsTemplatesCardView", out var value) && value is bool isCard)
-        {
-            _isCardView = isCard;
-        }
+        _isCardView = _isGlobalCardView;
     }
 
     [RelayCommand]
@@ -75,7 +72,7 @@ public partial class TemplatesViewModel : ObservableObject
     private void ToggleViewMode()
     {
         IsCardView = !IsCardView;
-        Windows.Storage.ApplicationData.Current.LocalSettings.Values["IsTemplatesCardView"] = IsCardView;
+        _isGlobalCardView = IsCardView;
     }
 
     private void ApplyFilter()

@@ -26,6 +26,8 @@ public partial class ProductsViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<Product> _filteredProducts = new();
 
+    private static bool _isGlobalCardView = true;
+
     private string _searchText = string.Empty;
     public string SearchText
     {
@@ -43,12 +45,7 @@ public partial class ProductsViewModel : ObservableObject
     {
         _productRepository = productRepository;
         _navigationService = navigationService;
-
-        var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-        if (localSettings.Values.TryGetValue("IsProductsCardView", out var value) && value is bool isCard)
-        {
-            _isCardView = isCard;
-        }
+        _isCardView = _isGlobalCardView;
     }
 
     [RelayCommand]
@@ -75,7 +72,7 @@ public partial class ProductsViewModel : ObservableObject
     private void ToggleViewMode()
     {
         IsCardView = !IsCardView;
-        Windows.Storage.ApplicationData.Current.LocalSettings.Values["IsProductsCardView"] = IsCardView;
+        _isGlobalCardView = IsCardView;
     }
 
     private void ApplyFilter()
