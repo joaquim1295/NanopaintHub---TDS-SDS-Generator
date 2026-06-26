@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="Transparent">
 
@@ -277,6 +278,7 @@
                                                                                  Command="{Binding ElementName=RootGrid, Path=DataContext.EditSectionContentCommand}"
                                                                                  CommandParameter="{Binding}"
                                                                                  Visibility="{Binding Type, Converter={StaticResource StringEqualityToVisibilityConverter}, ConverterParameter='RichText'}"
+                                                                                 IsEnabled="{Binding ElementName=RootGrid, Path=DataContext.IsNotQuestPdfSelected}"
                                                                                  Style="{ThemeResource AccentButtonStyle}"/>
                                                                      </StackPanel>
                                                                      <!-- Coluna 2: Fonte & Cor -->
@@ -401,11 +403,19 @@
         </Grid>
 
         <!-- Actions -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
-            <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
-            <Button Content="Preview e Edição Global (TinyMCE)" Command="{x:Bind ViewModel.EditGlobalHtmlCommand}" />
-            <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center"/>
-            <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+        <StackPanel Grid.Row="2" Orientation="Vertical" Spacing="16" Margin="0,24,0,0">
+            <controls:InfoBar IsOpen="{x:Bind ViewModel.IsQuestPdfSelected, Mode=OneWay}" 
+                              Severity="Informational" 
+                              Title="Edição indisponível" 
+                              Message="A edição HTML livre (via TinyMCE) está desativada porque o motor PDF selecionado (QuestPDF) gera os documentos de forma paramétrica através do Builder." 
+                              IsClosable="False" />
+            
+            <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Left">
+                <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+                <Button Content="Preview e Edição Global (TinyMCE)" Command="{x:Bind ViewModel.EditGlobalHtmlCommand}" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>

@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using System.Collections.ObjectModel;
 using NanopaintHub_WinUIClient.Models;
 using NanopaintHub_WinUIClient.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace NanopaintHub_WinUIClient.ViewModels;
 
@@ -51,6 +52,12 @@ public partial class TemplateEditorViewModel : ObservableObject
     [ObservableProperty]
     private string _pageTitle = "Novo Template";
 
+    [ObservableProperty]
+    private bool _isQuestPdfSelected;
+
+    [ObservableProperty]
+    private bool _isNotQuestPdfSelected;
+
     public TemplateEditorViewModel(
         ITemplateRepository templateRepository, 
         INavigationService navigationService, 
@@ -58,7 +65,8 @@ public partial class TemplateEditorViewModel : ObservableObject
         ITdsHtmlGenerator htmlGenerator,
         IPdfLayoutService pdfLayoutService,
         IDocumentGeneratorService documentGeneratorRouter,
-        PdfPreviewService pdfPreviewService)
+        PdfPreviewService pdfPreviewService,
+        IConfiguration configuration)
     {
         _templateRepository = templateRepository;
         _navigationService = navigationService;
@@ -67,6 +75,10 @@ public partial class TemplateEditorViewModel : ObservableObject
         _pdfLayoutService = pdfLayoutService;
         _documentGeneratorRouter = documentGeneratorRouter;
         _pdfPreviewService = pdfPreviewService;
+
+        var engine = configuration["PdfEngine"] ?? "questpdf";
+        IsQuestPdfSelected = string.Equals(engine, "questpdf", StringComparison.OrdinalIgnoreCase);
+        IsNotQuestPdfSelected = !IsQuestPdfSelected;
     }
 
     public async Task InitializeAsync(Guid? templateId)
