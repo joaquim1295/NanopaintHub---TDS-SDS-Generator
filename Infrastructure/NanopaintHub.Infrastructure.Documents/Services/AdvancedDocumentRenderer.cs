@@ -288,54 +288,57 @@ public static class AdvancedDocumentRenderer
             sb.AppendLine($"        {{{{#if {sec.DataSource}}}}}");
         }
 
-        sb.AppendLine($"        <section class=\"{cssClass}\"{secStyle}>");
-        sb.AppendLine($"          <h2 class=\"section-title\">{sec.Title}</h2>");
+        // Make the section draggable as a block in TinyMCE by wrapping in contenteditable="false"
+        sb.AppendLine($"        <section class=\"{cssClass} mceNonEditable\"{secStyle}>");
+        sb.AppendLine($"          <div class=\"mceEditable\">");
+        sb.AppendLine($"            <h2 class=\"section-title\">{sec.Title}</h2>");
 
         if (sec.Type == "RichText")
         {
-            sb.AppendLine($"          {sec.Content}");
+            sb.AppendLine($"            {sec.Content}");
         }
         else if (sec.Type == "BulletPoints")
         {
-            sb.AppendLine("          <div class=\"features-grid\">");
+            sb.AppendLine("            <div class=\"features-grid\">");
             if (!string.IsNullOrWhiteSpace(sec.DataSource))
             {
-                sb.AppendLine($"            {{{{#each {sec.DataSource}}}}}");
-                sb.AppendLine("            <div class=\"feature-item\"><span class=\"feature-check\">✓</span><span>{{this}}</span></div>");
-                sb.AppendLine("            {{/each}}");
+                sb.AppendLine($"              {{{{#each {sec.DataSource}}}}}");
+                sb.AppendLine("              <div class=\"feature-item\"><span class=\"feature-check\">✓</span><span>{{this}}</span></div>");
+                sb.AppendLine("              {{/each}}");
             }
-            sb.AppendLine("          </div>");
+            sb.AppendLine("            </div>");
         }
         else if (sec.Type == "Table")
         {
-            sb.AppendLine("          <table class=\"data-table\">");
-            sb.AppendLine("            <tbody>");
+            sb.AppendLine("            <table class=\"data-table\">");
+            sb.AppendLine("              <tbody>");
             if (!string.IsNullOrWhiteSpace(sec.DataSource))
             {
-                sb.AppendLine($"              <!-- {{{{#each {sec.DataSource}}}}} -->");
-                sb.AppendLine("              <tr><th>{{@key}}</th><td>{{this}}</td></tr>");
-                sb.AppendLine("              <!-- {{/each}} -->");
+                sb.AppendLine($"                <!-- {{{{#each {sec.DataSource}}}}} -->");
+                sb.AppendLine("                <tr><th>{{@key}}</th><td>{{this}}</td></tr>");
+                sb.AppendLine("                <!-- {{/each}} -->");
             }
-            sb.AppendLine("            </tbody>");
-            sb.AppendLine("          </table>");
+            sb.AppendLine("              </tbody>");
+            sb.AppendLine("            </table>");
         }
         else if (sec.Type == "Charts")
         {
-            sb.AppendLine("          {{#if Charts}}");
-            sb.AppendLine("          <div class=\"chart-grid\">");
-            sb.AppendLine("            {{#if Charts.HasLinearity}}");
-            sb.AppendLine("            <div class=\"chart-block\"><h4>Linearity</h4>{{{Charts.LinearitySvg}}}</div>");
+            sb.AppendLine("            {{#if Charts}}");
+            sb.AppendLine("            <div class=\"chart-grid\">");
+            sb.AppendLine("              {{#if Charts.HasLinearity}}");
+            sb.AppendLine("              <div class=\"chart-block\"><h4>Linearity</h4>{{{Charts.LinearitySvg}}}</div>");
+            sb.AppendLine("              {{/if}}");
+            sb.AppendLine("              {{#if Charts.HasResistance}}");
+            sb.AppendLine("              <div class=\"chart-block\"><h4>Resistance vs Force</h4>{{{Charts.ResistanceSvg}}}</div>");
+            sb.AppendLine("              {{/if}}");
+            sb.AppendLine("              {{#if Charts.HasHysteresis}}");
+            sb.AppendLine("              <div class=\"chart-block\"><h4>Hysteresis</h4>{{{Charts.HysteresisSvg}}}</div>");
+            sb.AppendLine("              {{/if}}");
+            sb.AppendLine("            </div>");
             sb.AppendLine("            {{/if}}");
-            sb.AppendLine("            {{#if Charts.HasResistance}}");
-            sb.AppendLine("            <div class=\"chart-block\"><h4>Resistance vs Force</h4>{{{Charts.ResistanceSvg}}}</div>");
-            sb.AppendLine("            {{/if}}");
-            sb.AppendLine("            {{#if Charts.HasHysteresis}}");
-            sb.AppendLine("            <div class=\"chart-block\"><h4>Hysteresis</h4>{{{Charts.HysteresisSvg}}}</div>");
-            sb.AppendLine("            {{/if}}");
-            sb.AppendLine("          </div>");
-            sb.AppendLine("          {{/if}}");
         }
 
+        sb.AppendLine($"          </div>");
         sb.AppendLine("        </section>");
 
         if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")

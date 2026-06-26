@@ -26,8 +26,10 @@ public partial class GeneratePdfViewModel : ObservableObject
     private readonly GenerateTdsUseCase _generateTdsUseCase;
     private readonly GenerateSdsUseCase _generateSdsUseCase;
     private readonly IDocumentGeneratorService _documentGeneratorService;
+    private readonly IHtmlEngineService _htmlEngineService;
     private readonly IChromiumTinyMceEditorService _editorService;
     private readonly PdfPreviewService _pdfPreviewService;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Infrastructure.Documents.DependencyInjection.PdfGeneratorOptions> _pdfOptions;
 
     // Constructor for DI
     public GeneratePdfViewModel(
@@ -37,8 +39,10 @@ public partial class GeneratePdfViewModel : ObservableObject
         GenerateTdsUseCase generateTdsUseCase,
         GenerateSdsUseCase generateSdsUseCase,
         IDocumentGeneratorService documentGeneratorService,
+        IHtmlEngineService htmlEngineService,
         IChromiumTinyMceEditorService editorService,
-        PdfPreviewService pdfPreviewService)
+        PdfPreviewService pdfPreviewService,
+        Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Infrastructure.Documents.DependencyInjection.PdfGeneratorOptions> pdfOptions)
     {
         _productRepository = productRepository;
         _templateRepository = templateRepository;
@@ -46,8 +50,10 @@ public partial class GeneratePdfViewModel : ObservableObject
         _generateTdsUseCase = generateTdsUseCase;
         _generateSdsUseCase = generateSdsUseCase;
         _documentGeneratorService = documentGeneratorService;
+        _htmlEngineService = htmlEngineService;
         _editorService = editorService;
         _pdfPreviewService = pdfPreviewService;
+        _pdfOptions = pdfOptions;
     }
 
 
@@ -67,11 +73,45 @@ public partial class GeneratePdfViewModel : ObservableObject
     [ObservableProperty]
     private Product? _selectedProduct;
 
+    partial void OnSelectedProductChanged(Product? value) => EditedHtmlContent = null;
+
     [ObservableProperty]
     private DocumentTemplate? _selectedTemplate;
 
+    partial void OnSelectedTemplateChanged(DocumentTemplate? value) => EditedHtmlContent = null;
+
     [ObservableProperty]
     private string _documentType = "TDS";
+
+    partial void OnDocumentTypeChanged(string value)
+    {
+        EditedHtmlContent = null;
+        if (Templates != null)
+        {
+            var filtered = Templates.Where(t => t.DocumentType == value);
+            FilteredTemplates = new ObservableCollection<DocumentTemplate>(filtered);
+        }
+        EvaluateQuestPdfEngine();
+    }
+
+    [ObservableProperty]
+    private bool _isQuestPdfSelected;
+
+    [ObservableProperty]
+    private bool _isNotQuestPdfSelected;
+
+    private void EvaluateQuestPdfEngine()
+    {
+        var engine = DocumentType == "SDS" 
+            ? _pdfOptions.CurrentValue.SdsEngine 
+            : _pdfOptions.CurrentValue.TdsEngine;
+        
+        IsQuestPdfSelected = string.Equals(engine, "questpdf", StringComparison.OrdinalIgnoreCase);
+        IsNotQuestPdfSelected = !IsQuestPdfSelected;
+    }
+
+    [ObservableProperty]
+    private string? _editedHtmlContent;
 
     [ObservableProperty]
     private string _pageFormat = "A4";
@@ -121,7 +161,14 @@ public partial class GeneratePdfViewModel : ObservableObject
             byte[] pdfBytes;
             if (DocumentType == "TDS")
             {
-                pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
+                if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
+                {
+                    pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
+                }
+                else
+                {
+                    pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
+                }
             }
             else
             {
@@ -181,7 +228,14 @@ public partial class GeneratePdfViewModel : ObservableObject
 
             if (DocumentType == "TDS")
             {
-                pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
+                if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
+                {
+                    pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
+                }
+                else
+                {
+                    pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
+                }
             }
             else
             {
@@ -225,7 +279,14 @@ public partial class GeneratePdfViewModel : ObservableObject
 
             if (DocumentType == "TDS")
             {
-                pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
+                if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
+                {
+                    pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
+                }
+                else
+                {
+                    pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
+                }
             }
             else
             {
@@ -254,6 +315,64 @@ public partial class GeneratePdfViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task EditContentWithTinyMceAsync()
+    {
+        if (SelectedProduct == null || SelectedTemplate == null)
+        {
+            StatusMessage = "Selecione um produto e um template antes de ajustar o conteúdo.";
+            return;
+        }
+
+        if (DocumentType != "TDS")
+        {
+            StatusMessage = "A edição de conteúdo só está disponível para documentos TDS.";
+            return;
+        }
+
+        IsLoading = true;
+        StatusMessage = "A preparar editor de conteúdo...";
+
+        try
+        {
+            string htmlToEdit;
+            if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
+            {
+                htmlToEdit = EditedHtmlContent;
+            }
+            else
+            {
+                // We use the raw body so TinyMCE doesn't mangle <head> or PagedJs scripts
+                htmlToEdit = await _htmlEngineService.GenerateRawBodyHtmlAsync(SelectedProduct, SelectedTemplate, false, null);
+            }
+
+            var assetsDir = Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");
+            StatusMessage = "A abrir editor...";
+
+            var result = await _editorService.OpenEditorAsync(htmlToEdit, assetsDir, string.Empty);
+
+            if (result.Applied && !string.IsNullOrWhiteSpace(result.Html))
+            {
+                EditedHtmlContent = result.Html;
+                StatusMessage = "Alterações aplicadas. A atualizar pré-visualização...";
+                // Automagically trigger preview to show changes
+                await PreviewPdfImageAsync();
+            }
+            else
+            {
+                StatusMessage = "Edição cancelada.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Erro ao abrir editor: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     // Initialize the ViewModel by loading products and templates
     public async Task InitializeAsync()
     {
@@ -272,6 +391,8 @@ public partial class GeneratePdfViewModel : ObservableObject
             // Initialize filtered templates based on current document type
             var filtered = templates.Where(t => t.DocumentType == DocumentType);
             FilteredTemplates = new ObservableCollection<DocumentTemplate>(filtered);
+            
+            EvaluateQuestPdfEngine();
         }
         catch (Exception ex)
         {

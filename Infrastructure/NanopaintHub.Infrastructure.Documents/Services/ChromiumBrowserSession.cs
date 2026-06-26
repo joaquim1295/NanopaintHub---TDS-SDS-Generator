@@ -17,13 +17,13 @@ internal static class ChromiumBrowserSession
         {
             if (!_browserDownloaded)
             {
-                await ChromiumBrowserBootstrap.EnsureDownloadedAsync(cancellationToken);
+                await Task.Run(async () => await ChromiumBrowserBootstrap.EnsureDownloadedAsync(cancellationToken));
                 _browserDownloaded = true;
             }
 
-            await using var browser = await ChromiumBrowserBootstrap.LaunchAsync(
+            await using var browser = await Task.Run(async () => await ChromiumBrowserBootstrap.LaunchAsync(
                 headless: true,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken));
 
             return await action(browser);
         }

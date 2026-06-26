@@ -28,18 +28,21 @@ public sealed class ChromiumTinyMceEditorService : IChromiumTinyMceEditorService
 
         try
         {
-            await ChromiumBrowserBootstrap.EnsureDownloadedAsync(cancellationToken);
+            await Task.Run(async () => 
+            {
+                await ChromiumBrowserBootstrap.EnsureDownloadedAsync(cancellationToken);
 
-            browser = await ChromiumBrowserBootstrap.LaunchAsync(
-                headless: false,
-                extraArgs:
-                [
-                    "--app=data:text/html,<html><head><title>A carregar NanopaintHub Editor...</title></head><body style=\"background-color:%231f2937\"></body></html>",
-                    "--window-size=1024,768",
-                    "--disable-web-security",
-                    "--allow-file-access-from-files"
-                ],
-                cancellationToken);
+                browser = await ChromiumBrowserBootstrap.LaunchAsync(
+                    headless: false,
+                    extraArgs:
+                    [
+                        "--app=data:text/html,<html><head><title>A carregar NanopaintHub Editor...</title></head><body style=\"background-color:%231f2937\"></body></html>",
+                        "--window-size=1024,768",
+                        "--disable-web-security",
+                        "--allow-file-access-from-files"
+                    ],
+                    cancellationToken);
+            }, cancellationToken);
 
             browser.Disconnected += (_, _) => tcs.TrySetResult(null);
 

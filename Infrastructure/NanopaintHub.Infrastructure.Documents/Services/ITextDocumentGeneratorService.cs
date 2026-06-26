@@ -54,6 +54,12 @@ public sealed class ITextDocumentGeneratorService : IDocumentGeneratorService
 
             using var memoryStream = new MemoryStream();
             var converterProperties = new iText.Html2pdf.ConverterProperties();
+            
+            // Registar as fontes do sistema para que o iText não reverta para fontes Serifadas (Times New Roman)
+            // ao tentar renderizar Arial, Segoe UI, etc.
+            var fontProvider = new iText.Html2pdf.Resolver.Font.DefaultFontProvider(true, true, true);
+            converterProperties.SetFontProvider(fontProvider);
+
             iText.Html2pdf.HtmlConverter.ConvertToPdf(htmlString, memoryStream, converterProperties);
             return memoryStream.ToArray();
         }

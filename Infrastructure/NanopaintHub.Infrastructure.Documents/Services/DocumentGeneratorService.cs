@@ -37,23 +37,32 @@ public sealed class DocumentGeneratorService : IHtmlEngineService, IDocumentGene
         return await GeneratePdfFromHtmlAsync(html, template, settings);
     }
 
+    public async Task<string> GenerateRawBodyHtmlAsync(Product product, DocumentTemplate template, bool isSds = false, TestBatch? testBatch = null)
+    {
+        if (isSds)
+        {
+            return await _sdsDataGatherer.GatherHtmlAsync(product, template);
+        }
+        else
+        {
+            return await _tdsDataGatherer.GatherHtmlAsync(product, template, testBatch);
+        }
+    }
+
     public async Task<string> GenerateHtmlAsync(Product product, DocumentTemplate template, bool isSds = false, TestBatch? testBatch = null)
     {
         var kind = isSds ? "SDS" : "TDS";
         Report($"Iniciando pipeline {kind}...", 5);
 
-        string innerHtml;
-        if (isSds)
-        {
-            innerHtml = await _sdsDataGatherer.GatherHtmlAsync(product, template);
-        }
-        else
-        {
-            innerHtml = await _tdsDataGatherer.GatherHtmlAsync(product, template, testBatch);
-        }
+        string innerHtml = await GenerateRawBodyHtmlAsync(product, template, isSds, testBatch);
 
         Report("HTML convertido e pronto para renderizacao.", 60);
 
+        return WrapHtmlWithAssets(innerHtml, template);
+    }
+
+    private string WrapHtmlWithAssets(string innerHtml, DocumentTemplate template)
+    {
         // Inject CSS from the template if present
         if (!string.IsNullOrWhiteSpace(template.CssStructure))
         {
@@ -106,6 +115,12 @@ public sealed class DocumentGeneratorService : IHtmlEngineService, IDocumentGene
         });
 
         return finalHtml;
+    }
+
+    public async Task<byte[]> GeneratePdfFromRawBodyAsync(string bodyHtml, DocumentTemplate template, PdfGenerationSettings? settings = null)
+    {
+        var finalHtml = WrapHtmlWithAssets(bodyHtml, template);
+        return await GeneratePdfFromHtmlAsync(finalHtml, template, settings);
     }
 
     public async Task<byte[]> GeneratePdfFromHtmlAsync(string html, DocumentTemplate template, PdfGenerationSettings? settings = null)

@@ -51,7 +51,7 @@ public partial class App : Application
 
         // Register App Services
         builder.Services.AddSingleton<INavigationService, NavigationService>();
-        builder.Services.AddSingleton<IHtmlToPdfGenerator, WinUiWebView2PdfGenerator>();
+        builder.Services.AddSingleton<IHtmlToPdfGenerator, NanopaintHub.Infrastructure.Documents.Services.PuppeteerHtmlToPdfGenerator>();
 builder.Services.AddSingleton<PdfPreviewService>();
         // Register ViewModels
         builder.Services.AddTransient<ShellViewModel>();

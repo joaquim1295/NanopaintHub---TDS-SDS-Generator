@@ -36,7 +36,7 @@ public class WinUiWebView2PdfGenerator : IHtmlToPdfGenerator
                 {
                     Width = 800,
                     Height = 600,
-                    Opacity = 0, // Invisible
+                    Margin = new Microsoft.UI.Xaml.Thickness(-2000, -2000, 0, 0), // Moves it out of screen
                     IsHitTestVisible = false
                 };
 
@@ -137,8 +137,16 @@ public class WinUiWebView2PdfGenerator : IHtmlToPdfGenerator
             }
             catch (Exception ex)
             {
-                tcs.SetException(ex);
+                tcs.TrySetException(ex);
             }
+        });
+
+        // Prevent infinite hangs
+        var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(20));
+        cts.Token.Register(() => 
+        {
+            tcs.TrySetException(new TimeoutException("A geração de PDF excedeu o tempo limite de 20 segundos. A janela do WebView2 pode não ter respondido."));
+            // Note: cleaning up the control from the UI thread would require another TryEnqueue here
         });
 
         return await tcs.Task;
