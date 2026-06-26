@@ -221,4 +221,7 @@ public partial class TemplateSection : ObservableObject
 
     [ObservableProperty]
     private double _minHeight = 0;
+
+    [ObservableProperty]
+    private bool _isExpanded = false;
 }

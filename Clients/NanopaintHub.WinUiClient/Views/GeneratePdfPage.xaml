@@ -13,7 +13,12 @@
 
     <Grid RowDefinitions="Auto,*" Padding="0">
         <!-- Header -->
-        <TextBlock Grid.Row="0" Text="Gerador de PDF" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" VerticalAlignment="Center">
+            <Button Command="{x:Bind ViewModel.GoBackCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
+                <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
+            </Button>
+            <TextBlock Text="Gerador de PDF" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
+        </StackPanel>
 
         <!-- Form Content -->
         <Grid Grid.Row="1" ColumnSpacing="24">

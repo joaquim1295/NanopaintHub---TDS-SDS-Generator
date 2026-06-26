@@ -108,4 +108,22 @@ public sealed partial class TemplateEditorPage : Page
         }
     }
 
+    private void VisualBuilderNav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    {
+        if (args.SelectedItem is NavigationViewItem item)
+        {
+            var tag = item.Tag?.ToString();
+            if (tag == "Settings")
+            {
+                SettingsScrollViewer.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+                SectionsScrollViewer.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            }
+            else if (tag == "Sections")
+            {
+                SettingsScrollViewer.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+                SectionsScrollViewer.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            }
+        }
+    }
+
 }

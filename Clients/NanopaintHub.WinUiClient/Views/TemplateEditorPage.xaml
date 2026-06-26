@@ -11,7 +11,12 @@
 
     <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0">
         <!-- Header -->
-        <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" VerticalAlignment="Center">
+            <Button Command="{x:Bind ViewModel.CancelCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
+                <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
+            </Button>
+            <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
+        </StackPanel>
 
         <!-- Form -->
         <Grid Grid.Row="1">
@@ -35,245 +40,173 @@
                 
                 <Pivot Grid.Row="1" SelectionChanged="Pivot_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <PivotItem Header="Visual Builder" Margin="0">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,16,16,16">
+                        <NavigationView PaneDisplayMode="Top" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" SelectionChanged="VisualBuilderNav_SelectionChanged" Background="Transparent" Margin="0,16,0,0">
+                            <NavigationView.MenuItems>
+                                <NavigationViewItem Content="Definições do Layout" Tag="Settings">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE713;" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                                <NavigationViewItem Content="Secções de Conteúdo" Tag="Sections">
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE8FD;" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                            </NavigationView.MenuItems>
                             
-                            <StackPanel Spacing="16" HorizontalAlignment="Stretch">
-                                
-                                <!-- TOP AREA: 2 COLUMNS ENCAPSULADOS NO EXPANDER DEFINIÇÕES -->
-                                <Expander Header="Definições" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-                                    
-                                    <!-- COLUNA ESQUERDA -->
-                                    <StackPanel Grid.Column="0" Spacing="16">
-                                        <!-- Tema Global -->
-                                        <Expander Header="Tema Global" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="16">
+                            <Grid Margin="0,16,0,0">
+                                <!-- Aba: DEFINIÇÕES DO LAYOUT -->
+                                <ScrollViewer x:Name="SettingsScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,16,16" Visibility="Visible">
+                                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="24" RowSpacing="24">
+                                        
+                                        <!-- Card: Tema Global -->
+                                        <Border Grid.Row="0" Grid.Column="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="20">
+                                            <StackPanel Spacing="16">
+                                                <TextBlock Text="Tema Global" Style="{ThemeResource SubtitleTextBlockStyle}" />
                                                 
-                                                <!-- Primary Color -->
-                                                <StackPanel Grid.Row="0" Grid.Column="0" Spacing="8">
-                                                    <TextBlock Text="Cor Primária" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
-                                                        <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
-                                                            <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
-                                                            <Button.Flyout>
-                                                                <Flyout>
-                                                                    <StackPanel Spacing="8">
-                                                                        <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" 
-                                                                                     IsColorChannelTextInputVisible="True" 
-                                                                                     IsHexInputVisible="True" 
-                                                                                     IsAlphaEnabled="False" />
-                                                                        <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
-                                                                    </StackPanel>
-                                                                </Flyout>
-                                                            </Button.Flyout>
-                                                        </Button>
-                                                        <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
-                                                    </Grid>
-                                                </StackPanel>
-
-                                                <!-- Secondary Color -->
-                                                <StackPanel Grid.Row="0" Grid.Column="1" Spacing="8">
-                                                    <TextBlock Text="Cor Secundária" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
-                                                        <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
-                                                            <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
-                                                            <Button.Flyout>
-                                                                <Flyout>
-                                                                    <StackPanel Spacing="8">
-                                                                        <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" 
-                                                                                     IsColorChannelTextInputVisible="True" 
-                                                                                     IsHexInputVisible="True" 
-                                                                                     IsAlphaEnabled="False" />
-                                                                        <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
-                                                                    </StackPanel>
-                                                                </Flyout>
-                                                            </Button.Flyout>
-                                                        </Button>
-                                                        <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
-                                                    </Grid>
-                                                </StackPanel>
-
-                                                <!-- Global Font -->
-                                                <StackPanel Grid.Row="1" Grid.Column="0" Spacing="8">
-                                                    <TextBlock Text="Tipo de Fonte Global" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" 
-                                                              SelectedItem="{x:Bind ViewModel.BuilderModel.Theme.FontFamily, Mode=TwoWay}" 
-                                                              Width="250" HorizontalAlignment="Left" />
-                                                </StackPanel>
-
-                                                <!-- Base Font Size and Scale -->
-                                                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="8">
-                                                    <TextBlock Text="Tipografia Base" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="16">
-                                                        <NumberBox Grid.Column="0" Header="Tamanho da Fonte (pt)" Value="{x:Bind ViewModel.BuilderModel.Theme.BaseFontSize, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="0.5" LargeChange="1" 
-                                                                   Minimum="5" Maximum="30" Width="120" HorizontalAlignment="Left" />
-                                                        <NumberBox Grid.Column="1" Header="Escala das Secções (%)" Value="{Binding BuilderModel.Layout.SectionBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="5" LargeChange="10" 
-                                                                   Minimum="50" Maximum="200" Width="140" HorizontalAlignment="Left" />
-                                                    </Grid>
-                                                </StackPanel>
-
-                                                <!-- Content Spacings -->
-                                                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="8">
-                                                    <TextBlock Text="Espaçamentos de Conteúdo (mm)" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="16">
-                                                        <NumberBox Grid.Column="0" Header="Distância Cabeçalho -> Conteúdo" Value="{x:Bind ViewModel.BuilderModel.Layout.ContentPaddingTop, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="200" />
-                                                        <NumberBox Grid.Column="1" Header="Distância Lote -> Secções" Value="{x:Bind ViewModel.BuilderModel.Layout.BatchNotePaddingBottom, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="180" />
-                                                        <NumberBox Grid.Column="2" Header="Espaçamento entre Secções" Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="180" />
-                                                    </Grid>
-                                                </StackPanel>
-
-                                                <!-- Page Margins -->
-                                                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Spacing="8">
-                                                    <TextBlock Text="Margens da Página (mm)" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16">
-                                                        <NumberBox Grid.Column="0" Header="Topo" Value="{x:Bind ViewModel.BuilderModel.Layout.TopMargin, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="100"
-                                                                   ToolTipService.ToolTip="Mínimo de 12mm forçado pelo gerador se houver cabeçalho" />
-                                                        <NumberBox Grid.Column="1" Header="Fundo" Value="{x:Bind ViewModel.BuilderModel.Layout.BottomMargin, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="100"
-                                                                   ToolTipService.ToolTip="Mínimo de 15mm forçado pelo gerador se houver rodapé" />
-                                                        <NumberBox Grid.Column="2" Header="Esquerda" Value="{x:Bind ViewModel.BuilderModel.Layout.LeftMargin, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="100" />
-                                                        <NumberBox Grid.Column="3" Header="Direita" Value="{x:Bind ViewModel.BuilderModel.Layout.RightMargin, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="100" />
-                                                    </Grid>
-                                                </StackPanel>
-
-                                            </Grid>
-                                        </Expander>
-
-                                        <!-- Cabeçalho -->
-                                        <Expander Header="Cabeçalho (Informação &amp; Identificação)" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-                                                <!-- Logo & Repeat Style -->
-                                                <StackPanel Grid.Column="0" Spacing="12">
-                                                    <TextBlock Text="Logotipo &amp; Geral" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="8" HorizontalAlignment="Left">
-                                                        <TextBox Grid.Column="0" Header="URL do Logotipo" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay}" Width="220" />
-                                                        <Button Grid.Column="1" Content="..." Click="PickLogo_Click" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
-                                                        <CheckBox Grid.Column="2" Content="Mostrar Logo" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
-                                                    </Grid>
-                                                    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" HorizontalAlignment="Left">
-                                                        <TextBox Grid.Column="0" Header="Altura do Logotipo (px)" Text="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" Width="120" />
-                                                        <NumberBox Grid.Column="1" Header="Escala do Cabeçalho (%)" Value="{Binding BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="5" LargeChange="10" Minimum="50" Maximum="200" Width="140" />
-                                                        <NumberBox Grid.Column="2" Header="Espaço Topo (mm)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="140" />
-                                                        <NumberBox Grid.Column="3" Header="Espaço Fundo (mm)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" 
-                                                                   SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="5" Minimum="0" Maximum="100" Width="140" />
-                                                    </Grid>
-                                                    <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" Width="200" HorizontalAlignment="Left" />
+                                                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="16">
                                                     
-                                                    <TextBlock Text="Informação do Documento" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,12,0,0" />
-                                                    <TextBox Header="Tipo de Documento (ex: Technical Data Sheet)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay}" Width="350" HorizontalAlignment="Left" />
-                                                    <TextBox Header="Subtítulo / Categoria (ex: Functional Ink)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay}" Width="350" HorizontalAlignment="Left" />
-                                                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="16" HorizontalAlignment="Left">
-                                                        <TextBox Grid.Column="0" Header="Versão (ex: Version 3)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay}" Width="150" />
-                                                        <CalendarDatePicker Grid.Column="1" Header="Data de Revisão" Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" Width="180" HorizontalAlignment="Stretch" />
-                                                    </Grid>
-
-                                                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="16" HorizontalAlignment="Left">
-                                                        <ComboBox Grid.Column="0" Header="Tipo de Fonte" ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.FontFamily, Mode=TwoWay}" Width="200" />
-                                                        
-                                                        <!-- TextColor Picker -->
-                                                        <StackPanel Grid.Column="1" Spacing="8">
-                                                            <TextBlock Text="Cor do Texto" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                            <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
-                                                                <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
-                                                                    <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Header.TextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
-                                                                    <Button.Flyout>
-                                                                        <Flyout>
-                                                                            <StackPanel Spacing="8">
-                                                                                <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Header.TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
-                                                                                <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
-                                                                            </StackPanel>
-                                                                        </Flyout>
-                                                                    </Button.Flyout>
-                                                                </Button>
-                                                                <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.TextColor, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
-                                                            </Grid>
-                                                        </StackPanel>
-                                                        
-                                                        <NumberBox Grid.Column="2" Header="Tamanho da Fonte (pt)" Value="{Binding BuilderModel.Header.FontSize, Mode=TwoWay}" SmallChange="1" LargeChange="2" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Padrão (-1)" Width="150" />
-                                                    </Grid>
-                                                </StackPanel>
-
-                                                <!-- Identification -->
-                                                <StackPanel Grid.Column="1" Spacing="12">
-                                                    <TextBlock Text="Identificação (Cabeçalho)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                    <TextBox Header="Tipo (ex: Piezoresistive Ink)" Text="{x:Bind ViewModel.BuilderModel.Header.IdentType, Mode=TwoWay}" Width="350" HorizontalAlignment="Left" />
-                                                    <TextBox Header="Nome Registado (ex: NP-PI-1000)" Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay}" Width="350" HorizontalAlignment="Left" />
-                                                    <TextBox Header="Descrição / Resumo" Text="{x:Bind ViewModel.BuilderModel.Header.IdentDesc, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="140" HorizontalAlignment="Stretch" />
-                                                </StackPanel>
-                                            </Grid>
-                                        </Expander>
-                                    </StackPanel>
-
-                                    <!-- COLUNA DIREITA -->
-                                    <StackPanel Grid.Column="1" Spacing="16">
-                                        <!-- Batch (Lote) -->
-                                        <Expander Header="Configuração de Lote (Batch)" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                            <StackPanel Spacing="12">
-                                                <CheckBox Content="Mostrar nota de aplicação de lote (Se houver)" IsChecked="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=TwoWay}" />
-                                                <TextBox Header="Formato da Nota" Text="{x:Bind ViewModel.BuilderModel.Batch.BatchNoteFormat, Mode=TwoWay}" 
-                                                         PlaceholderText="Ex: Batch data applied: {batch} (merged with product specifications where applicable)."
-                                                         IsEnabled="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=OneWay}"
-                                                         MaxWidth="500" HorizontalAlignment="Stretch" />
-                                            </StackPanel>
-                                        </Expander>
-
-                                        <!-- Rodapé -->
-                                        <Expander Header="Rodapé" IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                            <StackPanel Spacing="12">
-                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-                                                    <StackPanel Grid.Column="0" Spacing="8">
-                                                        <TextBlock Text="Endereço / Empresa (Coluna 1)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="100" HorizontalAlignment="Stretch" />
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="1" Spacing="8">
-                                                        <TextBlock Text="Contactos / Website (Coluna 2)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="100" HorizontalAlignment="Stretch" />
-                                                    </StackPanel>
-                                                </Grid>
-                                                <TextBox Header="Trademark / Direitos e Avisos (Texto Legal)" Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="80" HorizontalAlignment="Stretch" />
-                                                <ComboBox Header="Estilo em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" Width="200" HorizontalAlignment="Left" />
-                                                
-                                                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="16" HorizontalAlignment="Left">
-                                                    <ComboBox Grid.Column="0" Header="Tipo de Fonte" ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FontFamily, Mode=TwoWay}" Width="200" />
-                                                    
-                                                    <!-- TextColor Picker -->
-                                                    <StackPanel Grid.Column="1" Spacing="8">
-                                                        <TextBlock Text="Cor do Texto" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                    <!-- Primary Color -->
+                                                    <StackPanel Grid.Row="0" Grid.Column="0" Spacing="8">
+                                                        <TextBlock Text="Cor Primária" Style="{ThemeResource BodyTextBlockStyle}" />
                                                         <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
                                                             <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
-                                                                <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Footer.TextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                                <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
                                                                 <Button.Flyout>
                                                                     <Flyout>
                                                                         <StackPanel Spacing="8">
-                                                                            <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Footer.TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
+                                                                            <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
                                                                             <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
                                                                         </StackPanel>
                                                                     </Flyout>
                                                                 </Button.Flyout>
                                                             </Button>
-                                                            <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Footer.TextColor, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
+                                                            <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
+                                                        </Grid>
+                                                    </StackPanel>
+                                                    
+                                                    <!-- Secondary Color -->
+                                                    <StackPanel Grid.Row="0" Grid.Column="1" Spacing="8">
+                                                        <TextBlock Text="Cor Secundária" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                        <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                                                            <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
+                                                                <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                                <Button.Flyout>
+                                                                    <Flyout>
+                                                                        <StackPanel Spacing="8">
+                                                                            <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
+                                                                            <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                                        </StackPanel>
+                                                                    </Flyout>
+                                                                </Button.Flyout>
+                                                            </Button>
+                                                            <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
+                                                        </Grid>
+                                                    </StackPanel>
+
+                                                    <!-- Global Font -->
+                                                    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="8">
+                                                        <TextBlock Text="Tipo de Fonte Global" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Theme.FontFamily, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                                                    </StackPanel>
+
+                                                    <!-- Base Font Size and Scale -->
+                                                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="8">
+                                                        <TextBlock Text="Tipografia Base" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                                            <NumberBox Grid.Column="0" Header="Fonte (pt)" Value="{x:Bind ViewModel.BuilderModel.Theme.BaseFontSize, Mode=TwoWay}" SpinButtonPlacementMode="Inline" SmallChange="0.5" LargeChange="1" Minimum="5" Maximum="30" HorizontalAlignment="Stretch" />
+                                                            <NumberBox Grid.Column="1" Header="Escala Secções (%)" Value="{Binding BuilderModel.Layout.SectionBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SpinButtonPlacementMode="Inline" SmallChange="5" LargeChange="10" Minimum="50" Maximum="200" HorizontalAlignment="Stretch" />
+                                                        </Grid>
+                                                    </StackPanel>
+
+                                                    <!-- Page Margins -->
+                                                    <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Spacing="8">
+                                                        <TextBlock Text="Margens da Página (mm)" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                                                            <NumberBox Grid.Column="0" Header="T" Value="{x:Bind ViewModel.BuilderModel.Layout.TopMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ToolTipService.ToolTip="Mínimo 12mm c/ cabeçalho" />
+                                                            <NumberBox Grid.Column="1" Header="B" Value="{x:Bind ViewModel.BuilderModel.Layout.BottomMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ToolTipService.ToolTip="Mínimo 15mm c/ rodapé" />
+                                                            <NumberBox Grid.Column="2" Header="L" Value="{x:Bind ViewModel.BuilderModel.Layout.LeftMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                                            <NumberBox Grid.Column="3" Header="R" Value="{x:Bind ViewModel.BuilderModel.Layout.RightMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
                                                         </Grid>
                                                     </StackPanel>
                                                 </Grid>
                                             </StackPanel>
-                                        </Expander>
-                                    </StackPanel>
+                                        </Border>
 
+                                        <!-- Card: Cabeçalho -->
+                                        <Border Grid.Row="0" Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="20">
+                                            <StackPanel Spacing="16">
+                                                <TextBlock Text="Cabeçalho &amp; Informação" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                                
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="16" RowSpacing="12">
+                                                    <StackPanel Grid.Column="0" Spacing="8">
+                                                        <TextBox Header="URL do Logotipo" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay}" />
+                                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                            <Button Grid.Column="0" Content="Procurar Imagem" Click="PickLogo_Click" HorizontalAlignment="Stretch"/>
+                                                            <CheckBox Grid.Column="1" Content="Mostrar" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" />
+                                                        </Grid>
+                                                        <NumberBox Header="Altura Logo (px)" Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" />
+                                                    </StackPanel>
+                                                    
+                                                    <StackPanel Grid.Column="1" Spacing="8">
+                                                        <TextBox Header="Tipo (ex: TDS)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay}" />
+                                                        <TextBox Header="Subtítulo (ex: Ink)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay}" />
+                                                        <TextBox Header="Versão" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay}" />
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <TextBlock Text="Identificação e Espaçamentos" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,8,0,0" />
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                                    <StackPanel Grid.Column="0" Spacing="8">
+                                                        <TextBox Header="Nome Produto (Cabeçalho)" Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay}" />
+                                                        <ComboBox Header="Repetir em Páginas Seguintes" ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Spacing="8">
+                                                        <NumberBox Header="Escala (%)" Value="{Binding BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SpinButtonPlacementMode="Compact" Minimum="50" Maximum="200" />
+                                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                                            <NumberBox Grid.Column="0" Header="Pad Top" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                                            <NumberBox Grid.Column="1" Header="Pad Bot" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Card: Rodapé -->
+                                        <Border Grid.Row="1" Grid.Column="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="20">
+                                            <StackPanel Spacing="16">
+                                                <TextBlock Text="Rodapé &amp; Texto Legal" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                                    <TextBox Grid.Column="0" Header="Endereço / Empresa" Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="100" HorizontalAlignment="Stretch" />
+                                                    <TextBox Grid.Column="1" Header="Contactos / Website" Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="100" HorizontalAlignment="Stretch" />
+                                                </Grid>
+                                                <TextBox Header="Trademark / Texto Legal" Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" HorizontalAlignment="Stretch" />
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                                    <ComboBox Grid.Column="0" Header="Repetição" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                                                    <ComboBox Grid.Column="1" Header="Fonte Rodapé" ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FontFamily, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                        
+                                        <!-- Card: Configurações de Espaçamento Extra & Batch -->
+                                        <Border Grid.Row="1" Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="20">
+                                            <StackPanel Spacing="16">
+                                                <TextBlock Text="Configurações de Lote e Espaços" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                                <CheckBox Content="Mostrar nota de aplicação de lote" IsChecked="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=TwoWay}" />
+                                                <TextBox Header="Formato da Nota de Lote" Text="{x:Bind ViewModel.BuilderModel.Batch.BatchNoteFormat, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=OneWay}" HorizontalAlignment="Stretch" />
+                                                
+                                                <TextBlock Text="Espaçamentos entre Blocos (mm)" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                                    <NumberBox Grid.Column="0" Header="Cabeçalho -> Conteúdo" Value="{x:Bind ViewModel.BuilderModel.Layout.ContentPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Inline" />
+                                                    <NumberBox Grid.Column="1" Header="Entre Secções" Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Inline" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
                                     </Grid>
-                                </Expander>
+                                </ScrollViewer>
 
-                                <!-- BOTTOM AREA: SECÇÕES (1 COLUMN) -->
-                                <Expander Header="Secções de Conteúdo" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <!-- Aba: SECÇÕES DE CONTEÚDO -->
+                                <ScrollViewer x:Name="SectionsScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,16,16" Visibility="Collapsed">
                                     <ListView ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}"
                                               CanReorderItems="True"
                                               AllowDrop="True"
@@ -288,89 +221,114 @@
                                         </ListView.ItemContainerStyle>
                                         <ListView.ItemTemplate>
                                             <DataTemplate x:DataType="models:TemplateSection">
-                                                <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                                      Padding="16" Margin="0,0,0,12" CornerRadius="8">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                     <StackPanel Grid.Column="0" Spacing="16">
-                                                         <TextBox Header="Título da Secção" Text="{x:Bind Title, Mode=TwoWay}" HorizontalAlignment="Stretch" />
-                                                         
-                                                         <Grid ColumnDefinitions="*,*,*" ColumnSpacing="24" HorizontalAlignment="Stretch">
-                                                             <!-- Coluna 1: Tipo & Layout -->
-                                                             <StackPanel Grid.Column="0" Spacing="8" VerticalAlignment="Top">
-                                                                 <ComboBox Header="Tipo de Secção" SelectedValue="{x:Bind Type, Mode=TwoWay}" SelectedValuePath="Content" HorizontalAlignment="Stretch">
-                                                                     <ComboBoxItem Content="RichText" />
-                                                                     <ComboBoxItem Content="Text" />
-                                                                     <ComboBoxItem Content="Table" />
-                                                                     <ComboBoxItem Content="BulletPoints" />
-                                                                     <ComboBoxItem Content="Charts" />
-                                                                 </ComboBox>
-                                                                 <ComboBox Header="Layout" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" HorizontalAlignment="Stretch">
-                                                                     <ComboBoxItem Content="1 Coluna">
-                                                                         <ComboBoxItem.Tag>
-                                                                             <x:Boolean>False</x:Boolean>
-                                                                         </ComboBoxItem.Tag>
-                                                                     </ComboBoxItem>
-                                                                     <ComboBoxItem Content="2 Colunas">
-                                                                         <ComboBoxItem.Tag>
-                                                                             <x:Boolean>True</x:Boolean>
-                                                                         </ComboBoxItem.Tag>
-                                                                     </ComboBoxItem>
-                                                                 </ComboBox>
-                                                                 <Button Content="Editar Conteúdo" 
-                                                                         Margin="0,8,0,0"
-                                                                         HorizontalAlignment="Stretch"
-                                                                         Command="{Binding ElementName=RootGrid, Path=DataContext.EditSectionContentCommand}"
-                                                                         CommandParameter="{Binding}"
-                                                                         Visibility="{Binding Type, Converter={StaticResource StringEqualityToVisibilityConverter}, ConverterParameter='RichText'}"
-                                                                         Style="{ThemeResource AccentButtonStyle}"/>
-                                                             </StackPanel>
+                                                <Grid Margin="0,0,0,16">
+                                                    <Grid.Shadow>
+                                                        <ThemeShadow />
+                                                    </Grid.Shadow>
+                                                    <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                                          CornerRadius="8"
+                                                          Translation="0,0,32">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        
+                                                        <!-- Left Grabber Handle -->
+                                                        <Border Grid.Column="0" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Width="32" CornerRadius="8,0,0,8">
+                                                            <FontIcon Glyph="&#xE76F;" FontFamily="{ThemeResource SymbolThemeFontFamily}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" ToolTipService.ToolTip="Arraste para reordenar" />
+                                                        </Border>
 
-                                                             <!-- Coluna 2: Fonte & Cor -->
-                                                             <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Top">
-                                                                 <ComboBox Header="Tipo de Fonte" ItemsSource="{Binding ElementName=RootGrid, Path=DataContext.AvailableFonts}" SelectedItem="{x:Bind FontFamily, Mode=TwoWay}" HorizontalAlignment="Stretch" />
-                                                                 
-                                                                 <StackPanel Spacing="4">
-                                                                     <TextBlock Text="Cor do Texto" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                                                         <Button Grid.Column="0" Width="36" Height="36" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="18">
-                                                                             <Rectangle Width="26" Height="26" RadiusX="13" RadiusY="13" Fill="{x:Bind TextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
-                                                                             <Button.Flyout>
-                                                                                 <Flyout>
-                                                                                     <StackPanel Spacing="8">
-                                                                                         <ColorPicker Color="{x:Bind TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
-                                                                                         <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
-                                                                                     </StackPanel>
-                                                                                 </Flyout>
-                                                                             </Button.Flyout>
-                                                                         </Button>
-                                                                         <TextBox Grid.Column="1" Text="{x:Bind TextColor, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                                                                     </Grid>
-                                                                 </StackPanel>
-                                                                 <NumberBox Header="Tamanho da Fonte (pt)" Value="{x:Bind FontSize, Mode=TwoWay}" SmallChange="0.5" LargeChange="2" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Padrão (-1)" Margin="0,4,0,0" />
-                                                             </StackPanel>
-
-                                                             <!-- Coluna 3: Quebras e Spacing -->
-                                                             <StackPanel Grid.Column="2" Spacing="8" VerticalAlignment="Top">
-                                                                 <NumberBox Header="Margem Inferior (px)" Value="{x:Bind MarginBottom, Mode=TwoWay}" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Padrão (-1)" />
-                                                                 <NumberBox Header="Altura Mínima (px)" Value="{x:Bind MinHeight, Mode=TwoWay}" SmallChange="10" LargeChange="50" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Nenhuma (0)" />
-                                                                 <CheckBox Content="Quebra de Página Antes" IsChecked="{x:Bind PageBreakBefore, Mode=TwoWay}" Margin="0,8,0,0"/>
-                                                             </StackPanel>
-                                                         </Grid>
-                                                     </StackPanel>
-                                                    <!-- Reorder Icon -->
-                                                    <FontIcon Grid.Column="1" Glyph="&#xE700;" FontFamily="{ThemeResource SymbolThemeFontFamily}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="16,0,0,0" ToolTipService.ToolTip="Arraste para reordenar" />
+                                                         <StackPanel Grid.Column="1" Spacing="0">
+                                                             <Grid Padding="16">
+                                                                 <Grid.ColumnDefinitions>
+                                                                     <ColumnDefinition Width="*" />
+                                                                 </Grid.ColumnDefinitions>
+                                                                 <TextBox Text="{x:Bind Title, Mode=TwoWay}" HorizontalAlignment="Stretch" PlaceholderText="Título da Secção" />
+                                                             </Grid>
+                                                             
+                                                             <Grid Padding="16,0,16,16" Visibility="{x:Bind IsExpanded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                 <Grid ColumnDefinitions="*,*,*" ColumnSpacing="24" HorizontalAlignment="Stretch">
+                                                                     <!-- Coluna 1: Tipo & Layout -->
+                                                                     <StackPanel Grid.Column="0" Spacing="8" VerticalAlignment="Top">
+                                                                         <ComboBox Header="Tipo de Secção" SelectedValue="{x:Bind Type, Mode=TwoWay}" SelectedValuePath="Content" HorizontalAlignment="Stretch">
+                                                                             <ComboBoxItem Content="RichText" />
+                                                                             <ComboBoxItem Content="Text" />
+                                                                             <ComboBoxItem Content="Table" />
+                                                                             <ComboBoxItem Content="BulletPoints" />
+                                                                             <ComboBoxItem Content="Charts" />
+                                                                         </ComboBox>
+                                                                         <ComboBox Header="Layout" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" HorizontalAlignment="Stretch">
+                                                                             <ComboBoxItem Content="1 Coluna">
+                                                                                 <ComboBoxItem.Tag>
+                                                                                     <x:Boolean>False</x:Boolean>
+                                                                                 </ComboBoxItem.Tag>
+                                                                             </ComboBoxItem>
+                                                                             <ComboBoxItem Content="2 Colunas">
+                                                                                 <ComboBoxItem.Tag>
+                                                                                     <x:Boolean>True</x:Boolean>
+                                                                                 </ComboBoxItem.Tag>
+                                                                             </ComboBoxItem>
+                                                                         </ComboBox>
+                                                                         <Button Content="Editar Conteúdo" 
+                                                                                 Margin="0,8,0,0"
+                                                                                 HorizontalAlignment="Stretch"
+                                                                                 Command="{Binding ElementName=RootGrid, Path=DataContext.EditSectionContentCommand}"
+                                                                                 CommandParameter="{Binding}"
+                                                                                 Visibility="{Binding Type, Converter={StaticResource StringEqualityToVisibilityConverter}, ConverterParameter='RichText'}"
+                                                                                 Style="{ThemeResource AccentButtonStyle}"/>
+                                                                     </StackPanel>
+                                                                     <!-- Coluna 2: Fonte & Cor -->
+                                                                     <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Top">
+                                                                         <ComboBox Header="Tipo de Fonte" ItemsSource="{Binding ElementName=RootGrid, Path=DataContext.AvailableFonts}" SelectedItem="{x:Bind FontFamily, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                                                                         
+                                                                         <StackPanel Spacing="4">
+                                                                             <TextBlock Text="Cor do Texto" Style="{ThemeResource BodyTextBlockStyle}" />
+                                                                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                                                 <Button Grid.Column="0" Width="36" Height="36" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="18">
+                                                                                     <Rectangle Width="26" Height="26" RadiusX="13" RadiusY="13" Fill="{x:Bind TextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                                                     <Button.Flyout>
+                                                                                         <Flyout>
+                                                                                             <StackPanel Spacing="8">
+                                                                                                 <ColorPicker Color="{x:Bind TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
+                                                                                                 <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                                                             </StackPanel>
+                                                                                         </Flyout>
+                                                                                     </Button.Flyout>
+                                                                                 </Button>
+                                                                                 <TextBox Grid.Column="1" Text="{x:Bind TextColor, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                                                             </Grid>
+                                                                         </StackPanel>
+                                                                         <NumberBox Header="Tamanho da Fonte (pt)" Value="{x:Bind FontSize, Mode=TwoWay}" SmallChange="0.5" LargeChange="2" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Padrão (-1)" Margin="0,4,0,0" />
+                                                                     </StackPanel>
+                                                                     <!-- Coluna 3: Quebras e Spacing -->
+                                                                     <StackPanel Grid.Column="2" Spacing="8" VerticalAlignment="Top">
+                                                                         <NumberBox Header="Margem Inferior (px)" Value="{x:Bind MarginBottom, Mode=TwoWay}" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Padrão (-1)" />
+                                                                         <NumberBox Header="Altura Mínima (px)" Value="{x:Bind MinHeight, Mode=TwoWay}" SmallChange="10" LargeChange="50" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Nenhuma (0)" />
+                                                                         <CheckBox Content="Quebra de Página Antes" IsChecked="{x:Bind PageBreakBefore, Mode=TwoWay}" Margin="0,8,0,0"/>
+                                                                     </StackPanel>
+                                                                 </Grid>
+                                                             </Grid>
+                                                         </StackPanel>
+                                                        
+                                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,12,12,0" Spacing="4">
+                                                             <ToggleButton IsChecked="{x:Bind IsExpanded, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Expandir/Recolher Definições">
+                                                                 <FontIcon Glyph="&#xE713;" FontFamily="{ThemeResource SymbolThemeFontFamily}" />
+                                                             </ToggleButton>
+                                                             <Button Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Remover Secção">
+                                                                 <!-- Note: Delete action would be bound here if implemented -->
+                                                                 <FontIcon Glyph="&#xE74D;" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                             </Button>
+                                                         </StackPanel>
+                                                    </Grid>
                                                 </Grid>
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
                                     </ListView>
-                                </Expander>
-
-                            </StackPanel>
-                        </ScrollViewer>
+                                </ScrollViewer>
+                            </Grid>
+                        </NavigationView>
                     </PivotItem>
                     
                     <PivotItem Header="HTML Avançado (Under the Hood)" Margin="0">

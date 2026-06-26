@@ -12,7 +12,12 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0" Margin="0,0,0,24">
             <!-- Header -->
-            <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" VerticalAlignment="Center">
+            <Button Command="{x:Bind ViewModel.CancelCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
+                <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
+            </Button>
+            <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
+        </StackPanel>
 
             <!-- Form -->
             <StackPanel Grid.Row="1" Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch">

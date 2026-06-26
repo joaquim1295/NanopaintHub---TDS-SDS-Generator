@@ -30,6 +30,7 @@ public partial class GeneratePdfViewModel : ObservableObject
     private readonly IChromiumTinyMceEditorService _editorService;
     private readonly PdfPreviewService _pdfPreviewService;
     private readonly Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Infrastructure.Documents.DependencyInjection.PdfGeneratorOptions> _pdfOptions;
+    private readonly INavigationService _navigationService;
 
     // Constructor for DI
     public GeneratePdfViewModel(
@@ -42,7 +43,8 @@ public partial class GeneratePdfViewModel : ObservableObject
         IHtmlEngineService htmlEngineService,
         IChromiumTinyMceEditorService editorService,
         PdfPreviewService pdfPreviewService,
-        Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Infrastructure.Documents.DependencyInjection.PdfGeneratorOptions> pdfOptions)
+        Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Infrastructure.Documents.DependencyInjection.PdfGeneratorOptions> pdfOptions,
+        INavigationService navigationService)
     {
         _productRepository = productRepository;
         _templateRepository = templateRepository;
@@ -54,6 +56,13 @@ public partial class GeneratePdfViewModel : ObservableObject
         _editorService = editorService;
         _pdfPreviewService = pdfPreviewService;
         _pdfOptions = pdfOptions;
+        _navigationService = navigationService;
+    }
+
+    [RelayCommand]
+    private void GoBack()
+    {
+        _navigationService.GoBack();
     }
 
 
