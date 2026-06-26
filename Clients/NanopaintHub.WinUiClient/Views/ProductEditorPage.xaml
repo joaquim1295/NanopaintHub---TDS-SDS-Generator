@@ -12,12 +12,15 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0" Margin="0,0,0,24">
             <!-- Header -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" VerticalAlignment="Center">
-            <Button Command="{x:Bind ViewModel.CancelCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
-                <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
-            </Button>
-            <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
-        </StackPanel>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" VerticalAlignment="Center">
+                <Button Command="{x:Bind ViewModel.CancelCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
+                    <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
+                </Button>
+                <Border Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}" CornerRadius="6" Padding="8">
+                    <FontIcon Glyph="&#xE768;" FontSize="18" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                </Border>
+                <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
+            </StackPanel>
 
             <!-- Form -->
             <StackPanel Grid.Row="1" Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch">
@@ -27,7 +30,13 @@
                 <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
                     <StackPanel Spacing="16">
                         
-                        <Expander Header="Informação Geral" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Informação Geral" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                </StackPanel>
+                            </Expander.Header>
                             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="12" Margin="0,12,0,0">
                                 <TextBox Grid.Row="0" Grid.Column="0" Header="Nome do Produto" Text="{x:Bind ViewModel.Product.Name, Mode=TwoWay}" />
                                 <TextBox Grid.Row="0" Grid.Column="1" Header="Código" Text="{x:Bind ViewModel.Product.Code, Mode=TwoWay}" />
@@ -35,7 +44,13 @@
                             </Grid>
                         </Expander>
 
-                        <Expander Header="Características (Ink Features)" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Características (Ink Features)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                </StackPanel>
+                            </Expander.Header>
                             <StackPanel Spacing="12" Margin="0,12,0,0">
                                 <Button Content="Adicionar Característica" Command="{x:Bind ViewModel.AddFeatureCommand}" />
                                 <ItemsControl ItemsSource="{x:Bind ViewModel.Features}">
@@ -53,7 +68,13 @@
                             </StackPanel>
                         </Expander>
 
-                        <Expander Header="Propriedades da Tinta (Liquid Properties)" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="&#xE433;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Propriedades da Tinta (Liquid Properties)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                </StackPanel>
+                            </Expander.Header>
                             <StackPanel Spacing="12" Margin="0,12,0,0">
                                 <Button Content="Adicionar Propriedade" Command="{x:Bind ViewModel.AddLiquidPropertyCommand}" />
                                 <ItemsControl ItemsSource="{x:Bind ViewModel.LiquidProperties}">
@@ -72,7 +93,13 @@
                             </StackPanel>
                         </Expander>
 
-                        <Expander Header="Handling Guidelines (Mechanical Properties)" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="&#xE90F;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Handling Guidelines (Mechanical Properties)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                </StackPanel>
+                            </Expander.Header>
                             <StackPanel Spacing="12" Margin="0,12,0,0">
                                 <Button Content="Adicionar Guideline" Command="{x:Bind ViewModel.AddMechanicalPropertyCommand}" />
                                 <ItemsControl ItemsSource="{x:Bind ViewModel.MechanicalProperties}">
@@ -91,7 +118,13 @@
                             </StackPanel>
                         </Expander>
 
-                        <Expander Header="Especificações do Sensor" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="&#xE9A6;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Especificações do Sensor" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                </StackPanel>
+                            </Expander.Header>
                             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12" Margin="0,12,0,0">
                                 <TextBox Grid.Row="0" Grid.Column="0" Header="Unidade de Força (Force Unit)" Text="{x:Bind ViewModel.SensorSpecs.ForceUnit, Mode=TwoWay}" PlaceholderText="N ou Pa" />
                                 <TextBox Grid.Row="0" Grid.Column="1" Header="Sensibilidade (Volts)" Text="{x:Bind ViewModel.SensorSpecs.SensitivityVolts, Mode=TwoWay}" PlaceholderText="Ex: 0.87" />

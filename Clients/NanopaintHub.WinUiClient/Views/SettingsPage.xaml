@@ -9,26 +9,73 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Padding="24">
-        <StackPanel Spacing="24" MaxWidth="600" HorizontalAlignment="Left">
-            <TextBlock Text="Configurações" Style="{StaticResource TitleTextBlockStyle}" />
+        <StackPanel Spacing="24" MaxWidth="800" HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                <FontIcon Glyph="&#xE713;" FontSize="24" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                <TextBlock Text="Configurações" Style="{StaticResource TitleTextBlockStyle}" Margin="0" />
+            </StackPanel>
             
-            <StackPanel Spacing="12">
-                <TextBlock Text="Motor de Geração de PDFs" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBlock Text="Selecione o motor utilizado para renderizar os documentos." TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <StackPanel Spacing="16">
+                <!-- Group Header -->
+                <TextBlock Text="Motores de Geração (PDF Engine)" Style="{StaticResource SubtitleTextBlockStyle}" />
                 
-                <ComboBox Header="Motor para TDS (Ficha Técnica)" 
-                          ItemsSource="{x:Bind ViewModel.AvailableEngines}" 
-                          SelectedItem="{x:Bind ViewModel.TdsEngine, Mode=TwoWay}"
-                          Width="300" />
-                          
-                <ComboBox Header="Motor para SDS (Ficha de Segurança)" 
-                          ItemsSource="{x:Bind ViewModel.AvailableEngines}" 
-                          SelectedItem="{x:Bind ViewModel.SdsEngine, Mode=TwoWay}"
-                          Width="300" />
+                <!-- Card 1: TDS Engine -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE9F9;" FontSize="20" VerticalAlignment="Center" Margin="0,0,16,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                            <TextBlock Text="Motor para TDS (Ficha Técnica)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Define qual biblioteca renderiza nativamente as fichas técnicas" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        
+                        <ComboBox Grid.Column="2" 
+                                  ItemsSource="{x:Bind ViewModel.AvailableEngines}" 
+                                  SelectedItem="{x:Bind ViewModel.TdsEngine, Mode=TwoWay}"
+                                  Width="200" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+                
+                <!-- Card 2: SDS Engine -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE8D1;" FontSize="20" VerticalAlignment="Center" Margin="0,0,16,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                            <TextBlock Text="Motor para SDS (Ficha de Segurança)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Define a biblioteca usada para renderizar fichas de segurança" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        
+                        <ComboBox Grid.Column="2" 
+                                  ItemsSource="{x:Bind ViewModel.AvailableEngines}" 
+                                  SelectedItem="{x:Bind ViewModel.SdsEngine, Mode=TwoWay}"
+                                  Width="200" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
             </StackPanel>
 
-            <InfoBar IsOpen="True" Severity="Informational" Title="Multi-Engine" 
-                     Message="As alterações entram em vigor imediatamente na próxima geração." />
+            <InfoBar IsOpen="True" Severity="Informational" Title="Multi-Engine Architecture" 
+                     Message="A sua escolha entra em vigor imediatamente para as próximas gerações. Pode usar QuestPDF para elevada performance." />
         </StackPanel>
     </Grid>
 </Page>
