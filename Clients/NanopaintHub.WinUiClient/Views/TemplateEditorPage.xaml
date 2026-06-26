@@ -333,7 +333,7 @@
                         </NavigationView>
                     </PivotItem>
                     
-                    <PivotItem Header="HTML Avançado (Under the Hood)" Margin="0" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <PivotItem x:Name="HtmlPivotItem" Header="Edição Manual (HTML/CSS)" Margin="0" x:Load="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay}">
                         <StackPanel Spacing="16" Margin="0,16,0,0">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <Button Content="Gerar Layout Padrão" Command="{x:Bind ViewModel.GenerateDefaultTdsLayoutCommand}" Style="{ThemeResource AccentButtonStyle}" />

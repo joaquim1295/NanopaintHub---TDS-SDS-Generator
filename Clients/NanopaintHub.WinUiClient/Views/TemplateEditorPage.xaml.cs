@@ -40,10 +40,6 @@ public sealed partial class TemplateEditorPage : Page
         {
             ViewModel.SyncHtmlToBuilder();
         }
-        else if (pivot?.SelectedIndex == 2) // Preview Tab
-        {
-            _ = ViewModel.GeneratePreviewPdfAsync();
-        }
     }
 
     private async void PickLogo_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
