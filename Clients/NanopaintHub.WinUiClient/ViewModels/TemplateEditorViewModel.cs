@@ -203,17 +203,20 @@ public partial class TemplateEditorViewModel : ObservableObject
                 SyncBuilderToHtml();
             }
 
+            string loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in odio in metus consequat aliquet. Phasellus eget nunc sit amet metus aliquet varius. Sed et felis et ante luctus dignissim vel ac ex. Vivamus varius ex id velit vulputate, sed consequat tellus pulvinar. Maecenas bibendum magna nisi, non tristique nisl mattis vitae. Cras in nulla quis justo tincidunt faucibus eu nec mi. Vestibulum tristique sapien vitae dui vulputate volutpat.\n\nPhasellus id fermentum metus, eget euismod nunc. Quisque id ligula nisl. In eleifend odio nisi, id condimentum orci scelerisque id. Curabitur vel leo id urna hendrerit aliquet vel et mi. Nunc lacinia metus id est gravida fermentum. Mauris egestas magna lectus, a sagittis risus sollicitudin imperdiet. Nullam tempor massa id arcu cursus porttitor.";
+
             var dummyProduct = new Product
             {
                 Name = "Produto Exemplo Preview",
                 Code = "PRV-001",
-                Description = "Este é um produto fictício gerado apenas para pré-visualização do template.",
+                Description = loremIpsum,
                 RevisionDate = DateTime.Today,
                 DocumentVersion = 1,
-                FeaturesJson = "[\"Resistência alta\", \"Flexível\", \"Durável\"]",
-                LiquidPropertiesJson = "{\"Viscosidade\":\"100 cP\"}",
-                MechanicalPropertiesJson = "{\"Dureza\":\"60 Shore A\"}",
-                FunctionalPropertiesJson = "{\"Resistência\":\"1 kOhm\"}"
+                FeaturesJson = "[\"Resistência alta (Lorem ipsum dolor sit amet)\", \"Flexível (Consectetur adipiscing elit)\", \"Durável (Phasellus eget nunc sit amet metus aliquet)\", \"Ecológico (Sed et felis et ante luctus dignissim)\"]",
+                LiquidPropertiesJson = $"{{\"Viscosidade\":\"100 cP\", \"Densidade\":\"1.2 g/cm³\", \"Sólidos\":\"45%\", \"Ph\":\"7.2\"}}",
+                MechanicalPropertiesJson = $"{{\"Dureza\":\"60 Shore A\", \"Alongamento\":\"300%\", \"Tração\":\"5 MPa\"}}",
+                FunctionalPropertiesJson = $"{{\"Resistência\":\"1 kOhm\", \"Sensibilidade\":\"0.87 V/N\"}}",
+                TdsSensorSpecsJson = $"{{\"ForceUnit\":\"N\", \"SensitivityVolts\":0.87, \"SensitivityPerUnit\":0.082, \"ResponseTimeSec\":0.018, \"RecoveryTimeSec\":0.025, \"RepeatabilityPercent\":2.1, \"RestResistanceOhms\":118000, \"HysteresisPercent\":4.2, \"OperatingTempMinC\":-10, \"OperatingTempMaxC\":85, \"RangeMin\":0, \"RangeMax\":50}}"
             };
 
             var tempTemplate = new DocumentTemplate
@@ -250,9 +253,9 @@ public partial class TemplateEditorViewModel : ObservableObject
             
             IsPdfPreviewVisible = true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Ignorar em caso de erro na pré-visualização
+            // Omit error handling for now or handle as needed
         }
         finally
         {
@@ -260,7 +263,11 @@ public partial class TemplateEditorViewModel : ObservableObject
         }
     }
 
-
+    [RelayCommand]
+    private void ClosePreview()
+    {
+        IsPdfPreviewVisible = false;
+    }
 
     [RelayCommand]
     private async Task SaveAsync()

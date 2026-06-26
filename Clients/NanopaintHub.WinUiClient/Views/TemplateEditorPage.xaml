@@ -333,7 +333,7 @@
                         </NavigationView>
                     </PivotItem>
                     
-                    <PivotItem Header="HTML Avançado (Under the Hood)" Margin="0">
+                    <PivotItem Header="HTML Avançado (Under the Hood)" Margin="0" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel Spacing="16" Margin="0,16,0,0">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <Button Content="Gerar Layout Padrão" Command="{x:Bind ViewModel.GenerateDefaultTdsLayoutCommand}" Style="{ThemeResource AccentButtonStyle}" />
@@ -361,43 +361,6 @@
                         </StackPanel>
                     </PivotItem>
 
-                    <PivotItem Header="Pré-visualização PDF" Margin="0">
-                        <Grid Margin="0,16,0,0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
-                                <Button Content="Atualizar Pré-visualização" Command="{x:Bind ViewModel.GeneratePreviewPdfCommand}" Style="{ThemeResource AccentButtonStyle}" />
-                                <ProgressRing IsActive="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay}" 
-                                              Visibility="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                              VerticalAlignment="Center" Width="24" Height="24" />
-                            </StackPanel>
-
-                            <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#f3f4f6">
-                                    <ItemsControl ItemsSource="{x:Bind ViewModel.PdfPreviewImages, Mode=OneWay}" 
-                                                  Visibility="{x:Bind ViewModel.IsPdfPreviewVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Vertical" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Image Source="{Binding}" MaxWidth="794" Stretch="Uniform" Margin="0,16,0,16">
-                                                    <Image.Shadow>
-                                                        <ThemeShadow />
-                                                    </Image.Shadow>
-                                                </Image>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-                            </Border>
-                        </Grid>
-                    </PivotItem>
                 </Pivot>
             </Grid>
         </Grid>
@@ -412,10 +375,51 @@
             
             <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Left">
                 <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+                <Button Content="Pré-visualizar PDF" Command="{x:Bind ViewModel.GeneratePreviewPdfCommand}" />
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay}" 
+                              Visibility="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                              VerticalAlignment="Center" Width="24" Height="24" />
                 <Button Content="Preview e Edição Global (TinyMCE)" Command="{x:Bind ViewModel.EditGlobalHtmlCommand}" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
             </StackPanel>
         </StackPanel>
+        <!-- Overlay Grid para Preview -->
+        <Grid x:Name="PreviewOverlay" Grid.RowSpan="3" Canvas.ZIndex="100" 
+              Visibility="{x:Bind ViewModel.IsPdfPreviewVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+              Background="#CC000000">
+            <Grid MaxWidth="900" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="8" Margin="40">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Overlay Header -->
+                <Grid Grid.Row="0" Padding="16" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                    <TextBlock Text="Pré-visualização do Documento" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
+                    <Button Content="Fechar Preview" Command="{x:Bind ViewModel.ClosePreviewCommand}" HorizontalAlignment="Right" Style="{ThemeResource AccentButtonStyle}" />
+                </Grid>
+                
+                <!-- Overlay Content -->
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#f3f4f6" Padding="24">
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.PdfPreviewImages, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical" Spacing="24" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding}" MaxWidth="794" Stretch="Uniform" HorizontalAlignment="Center">
+                                    <Image.Shadow>
+                                        <ThemeShadow />
+                                    </Image.Shadow>
+                                </Image>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
     </Grid>
 </Page>
