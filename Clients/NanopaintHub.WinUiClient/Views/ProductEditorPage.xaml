@@ -16,9 +16,6 @@
                 <Button Command="{x:Bind ViewModel.CancelCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
                     <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
                 </Button>
-                <Border Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}" CornerRadius="6" Padding="8">
-                    <FontIcon Glyph="&#xE768;" FontSize="18" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                </Border>
                 <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
             </StackPanel>
 
@@ -33,7 +30,7 @@
                         <Expander IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" Spacing="12">
-                                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     <TextBlock Text="Informação Geral" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
                                 </StackPanel>
                             </Expander.Header>
@@ -47,7 +44,7 @@
                         <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" Spacing="12">
-                                    <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     <TextBlock Text="Características (Ink Features)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
                                 </StackPanel>
                             </Expander.Header>
@@ -71,7 +68,7 @@
                         <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" Spacing="12">
-                                    <FontIcon Glyph="&#xE433;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <FontIcon Glyph="&#xE433;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     <TextBlock Text="Propriedades da Tinta (Liquid Properties)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
                                 </StackPanel>
                             </Expander.Header>
@@ -96,7 +93,7 @@
                         <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" Spacing="12">
-                                    <FontIcon Glyph="&#xE90F;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <FontIcon Glyph="&#xE90F;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     <TextBlock Text="Handling Guidelines (Mechanical Properties)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
                                 </StackPanel>
                             </Expander.Header>
@@ -121,7 +118,7 @@
                         <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                             <Expander.Header>
                                 <StackPanel Orientation="Horizontal" Spacing="12">
-                                    <FontIcon Glyph="&#xE9A6;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <FontIcon Glyph="&#xE9A6;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     <TextBlock Text="Especificações do Sensor" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
                                 </StackPanel>
                             </Expander.Header>

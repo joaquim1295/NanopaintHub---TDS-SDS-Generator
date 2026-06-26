@@ -20,6 +20,9 @@ public partial class ProductsViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private bool _isCardView = true;
+
     public ProductsViewModel(IProductRepository productRepository, INavigationService navigationService)
     {
         _productRepository = productRepository;
@@ -43,6 +46,12 @@ public partial class ProductsViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    private void ToggleViewMode()
+    {
+        IsCardView = !IsCardView;
     }
 
     [RelayCommand]

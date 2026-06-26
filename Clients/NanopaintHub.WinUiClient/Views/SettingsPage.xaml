@@ -10,10 +10,7 @@
 
     <Grid Padding="24">
         <StackPanel Spacing="24" MaxWidth="800" HorizontalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-                <FontIcon Glyph="&#xE713;" FontSize="24" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
-                <TextBlock Text="Configurações" Style="{StaticResource TitleTextBlockStyle}" Margin="0" />
-            </StackPanel>
+            <TextBlock Text="Configurações" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,8" />
             
             <StackPanel Spacing="16">
                 <!-- Group Header -->

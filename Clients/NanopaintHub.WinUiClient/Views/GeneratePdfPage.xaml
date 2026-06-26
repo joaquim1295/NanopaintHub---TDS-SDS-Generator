@@ -17,9 +17,6 @@
             <Button Command="{x:Bind ViewModel.GoBackCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
                 <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
             </Button>
-            <Border Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}" CornerRadius="6" Padding="8">
-                <FontIcon Glyph="&#xE8A5;" FontSize="18" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-            </Border>
             <TextBlock Text="Gerador de PDF" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
         </StackPanel>
 
@@ -39,7 +36,7 @@
                     Padding="24">
                 <StackPanel Spacing="20">
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE8D3;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                        <FontIcon Glyph="&#xE8D3;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <TextBlock Text="Dados do Documento" Style="{ThemeResource SubtitleTextBlockStyle}" />
                     </StackPanel>
                     
@@ -84,7 +81,7 @@
                     Padding="24">
                 <StackPanel Spacing="20">
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE740;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                        <FontIcon Glyph="&#xE740;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <TextBlock Text="Configurações de Impressão" Style="{ThemeResource SubtitleTextBlockStyle}" />
                     </StackPanel>
                     

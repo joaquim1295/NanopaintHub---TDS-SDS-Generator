@@ -20,6 +20,9 @@ public partial class TemplatesViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private bool _isCardView = true;
+
     public TemplatesViewModel(ITemplateRepository templateRepository, INavigationService navigationService)
     {
         _templateRepository = templateRepository;
@@ -43,6 +46,12 @@ public partial class TemplatesViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    private void ToggleViewMode()
+    {
+        IsCardView = !IsCardView;
     }
 
     [RelayCommand]
