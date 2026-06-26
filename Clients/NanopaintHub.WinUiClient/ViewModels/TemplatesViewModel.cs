@@ -23,10 +23,32 @@ public partial class TemplatesViewModel : ObservableObject
     [ObservableProperty]
     private bool _isCardView = true;
 
+    [ObservableProperty]
+    private ObservableCollection<DocumentTemplate> _filteredTemplates = new();
+
+    private string _searchText = string.Empty;
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (SetProperty(ref _searchText, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
+
     public TemplatesViewModel(ITemplateRepository templateRepository, INavigationService navigationService)
     {
         _templateRepository = templateRepository;
         _navigationService = navigationService;
+
+        var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+        if (localSettings.Values.TryGetValue("IsTemplatesCardView", out var value) && value is bool isCard)
+        {
+            _isCardView = isCard;
+        }
     }
 
     [RelayCommand]
@@ -41,6 +63,7 @@ public partial class TemplatesViewModel : ObservableObject
             {
                 Templates.Add(item);
             }
+            ApplyFilter();
         }
         finally
         {
@@ -52,6 +75,22 @@ public partial class TemplatesViewModel : ObservableObject
     private void ToggleViewMode()
     {
         IsCardView = !IsCardView;
+        Windows.Storage.ApplicationData.Current.LocalSettings.Values["IsTemplatesCardView"] = IsCardView;
+    }
+
+    private void ApplyFilter()
+    {
+        FilteredTemplates.Clear();
+        var lowerSearch = SearchText?.ToLowerInvariant() ?? string.Empty;
+        foreach (var p in Templates)
+        {
+            if (string.IsNullOrWhiteSpace(lowerSearch) || 
+                (p.TemplateName != null && p.TemplateName.ToLowerInvariant().Contains(lowerSearch)) || 
+                (p.DocumentType != null && p.DocumentType.ToLowerInvariant().Contains(lowerSearch)))
+            {
+                FilteredTemplates.Add(p);
+            }
+        }
     }
 
     [RelayCommand]
@@ -76,6 +115,7 @@ public partial class TemplatesViewModel : ObservableObject
         {
             await _templateRepository.DeleteAsync(template.Id);
             Templates.Remove(template);
+            ApplyFilter();
         }
     }
 }

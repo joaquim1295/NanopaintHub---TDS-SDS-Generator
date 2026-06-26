@@ -23,10 +23,32 @@ public partial class ProductsViewModel : ObservableObject
     [ObservableProperty]
     private bool _isCardView = true;
 
+    [ObservableProperty]
+    private ObservableCollection<Product> _filteredProducts = new();
+
+    private string _searchText = string.Empty;
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (SetProperty(ref _searchText, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
+
     public ProductsViewModel(IProductRepository productRepository, INavigationService navigationService)
     {
         _productRepository = productRepository;
         _navigationService = navigationService;
+
+        var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+        if (localSettings.Values.TryGetValue("IsProductsCardView", out var value) && value is bool isCard)
+        {
+            _isCardView = isCard;
+        }
     }
 
     [RelayCommand]
@@ -41,6 +63,7 @@ public partial class ProductsViewModel : ObservableObject
             {
                 Products.Add(item);
             }
+            ApplyFilter();
         }
         finally
         {
@@ -52,6 +75,22 @@ public partial class ProductsViewModel : ObservableObject
     private void ToggleViewMode()
     {
         IsCardView = !IsCardView;
+        Windows.Storage.ApplicationData.Current.LocalSettings.Values["IsProductsCardView"] = IsCardView;
+    }
+
+    private void ApplyFilter()
+    {
+        FilteredProducts.Clear();
+        var lowerSearch = SearchText?.ToLowerInvariant() ?? string.Empty;
+        foreach (var p in Products)
+        {
+            if (string.IsNullOrWhiteSpace(lowerSearch) || 
+                (p.Name != null && p.Name.ToLowerInvariant().Contains(lowerSearch)) || 
+                (p.Code != null && p.Code.ToLowerInvariant().Contains(lowerSearch)))
+            {
+                FilteredProducts.Add(p);
+            }
+        }
     }
 
     [RelayCommand]
@@ -76,6 +115,7 @@ public partial class ProductsViewModel : ObservableObject
         {
             await _productRepository.DeleteAsync(product.Id);
             Products.Remove(product);
+            ApplyFilter();
         }
     }
 }

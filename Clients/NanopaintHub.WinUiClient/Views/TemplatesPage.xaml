@@ -21,10 +21,12 @@
             <TextBlock Grid.Column="0" Text="Templates" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
             
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                <TextBox PlaceholderText="Pesquisar Template..." Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="250" VerticalAlignment="Center" />
+
                 <Button Command="{x:Bind ViewModel.ToggleViewModeCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Alternar vista">
                     <Grid>
-                        <FontIcon Glyph="&#xE8A4;" FontSize="16" Visibility="{x:Bind ViewModel.IsCardView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                        <FontIcon Glyph="&#xE8A3;" FontSize="16" Visibility="{x:Bind ViewModel.IsCardView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}" />
+                        <FontIcon Glyph="&#xE14C;" FontSize="16" Visibility="{x:Bind ViewModel.IsCardView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <FontIcon Glyph="&#xF0E2;" FontSize="16" Visibility="{x:Bind ViewModel.IsCardView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}" />
                     </Grid>
                 </Button>
 
@@ -47,7 +49,7 @@
                 
                 <!-- Card View -->
                 <GridView
-                    ItemsSource="{x:Bind ViewModel.Templates, Mode=OneWay}"
+                    ItemsSource="{x:Bind ViewModel.FilteredTemplates, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.IsCardView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                     SelectionMode="None"
                     Padding="0,0,0,24">
@@ -87,7 +89,7 @@
 
                 <!-- List View -->
                 <ListView
-                    ItemsSource="{x:Bind ViewModel.Templates, Mode=OneWay}"
+                    ItemsSource="{x:Bind ViewModel.FilteredTemplates, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.IsCardView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}"
                     SelectionMode="None"
                     Padding="0,0,0,24">
