@@ -41,7 +41,7 @@ public class WinUiWebView2PdfGenerator : IHtmlToPdfGenerator
                 };
 
                 // Add to visual tree to allow initialization
-                var rootGrid = (Grid)app.MainWindow.Content;
+                var rootGrid = (Grid)app.MainWindow!.Content;
                 rootGrid.Children.Add(webView);
 
                 // Initialize CoreWebView2

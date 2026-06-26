@@ -9,7 +9,7 @@ using NanopaintHub_WinUIClient.Services;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System.Collections.ObjectModel;
 using NanopaintHub_WinUIClient.Models;
-using NanopaintHub_WinUIClient.Services;
+
 using Microsoft.Extensions.Configuration;
 
 namespace NanopaintHub_WinUIClient.ViewModels;
@@ -253,7 +253,7 @@ public partial class TemplateEditorViewModel : ObservableObject
             
             IsPdfPreviewVisible = true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Omit error handling for now or handle as needed
         }

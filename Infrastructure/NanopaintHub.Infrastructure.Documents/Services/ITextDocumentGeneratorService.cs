@@ -57,7 +57,9 @@ public sealed class ITextDocumentGeneratorService : IDocumentGeneratorService
             
             // Registar as fontes do sistema para que o iText não reverta para fontes Serifadas (Times New Roman)
             // ao tentar renderizar Arial, Segoe UI, etc.
+#pragma warning disable CS0612 // Type or member is obsolete
             var fontProvider = new iText.Html2pdf.Resolver.Font.DefaultFontProvider(true, true, true);
+#pragma warning restore CS0612 // Type or member is obsolete
             converterProperties.SetFontProvider(fontProvider);
 
             iText.Html2pdf.HtmlConverter.ConvertToPdf(htmlString, memoryStream, converterProperties);

@@ -24,7 +24,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <!-- WinUI + CsWinRT: field-backed [ObservableProperty] triggers MVVMTK0045; suppress until partial-property migration is viable. -->
-    <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
+    <NoWarn>$(NoWarn);MVVMTK0045;NU1701;MSB3277</NoWarn>
   </PropertyGroup>
 
 

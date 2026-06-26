@@ -27,7 +27,7 @@ public class TdsDataGatherer
         _pdfLayout = pdfLayout;
     }
 
-    public async Task<string> GatherHtmlAsync(Product product, DocumentTemplate template, TestBatch? testBatch = null)
+    public Task<string> GatherHtmlAsync(Product product, DocumentTemplate template, TestBatch? testBatch = null)
     {
         var featuresList = SafeDeserialize(product.FeaturesJson, new List<string>(), "FeaturesJson");
         var liquidProps = SafeDeserialize(product.LiquidPropertiesJson, new Dictionary<string, string>(), "LiquidPropertiesJson");
@@ -80,7 +80,7 @@ public class TdsDataGatherer
             throw new InvalidOperationException($"Handlebars render devolveu HTML vazio para TDS.");
         }
 
-        return innerHtml;
+        return Task.FromResult(innerHtml);
     }
 
     private static T SafeDeserialize<T>(string? json, T fallback, string fieldName)

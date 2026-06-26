@@ -44,7 +44,7 @@ public sealed class ChromiumTinyMceEditorService : IChromiumTinyMceEditorService
                     cancellationToken);
             }, cancellationToken);
 
-            browser.Disconnected += (_, _) => tcs.TrySetResult(null);
+            browser!.Disconnected += (_, _) => tcs.TrySetResult(null);
 
             var pages = await browser.PagesAsync();
             var page = pages.FirstOrDefault() ?? await browser.NewPageAsync();
