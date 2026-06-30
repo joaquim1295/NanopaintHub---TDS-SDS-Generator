@@ -17,6 +17,8 @@ public partial class ProductEditorViewModel : ObservableObject
 {
     private readonly IProductRepository _productRepository;
     private readonly INavigationService _navigationService;
+    private readonly ISubstanceSearchService _searchService;
+    private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcherQueue;
 
     [ObservableProperty]
     private Product? _product;
@@ -31,14 +33,24 @@ public partial class ProductEditorViewModel : ObservableObject
     public ObservableCollection<StringItem> Features { get; } = new();
     public ObservableCollection<KeyValuePairItem> LiquidProperties { get; } = new();
     public ObservableCollection<KeyValuePairItem> MechanicalProperties { get; } = new();
+    public ObservableCollection<KeyValuePairItem> CustomSensorSpecs { get; } = new();
+    public ObservableCollection<ProductComposition> Compositions { get; } = new();
+
+    [ObservableProperty]
+    private IEnumerable<EchaSubstance> _substanceSearchResults = Array.Empty<EchaSubstance>();
 
     [ObservableProperty]
     private TdsSensorSpecs _sensorSpecs = new();
 
-    public ProductEditorViewModel(IProductRepository productRepository, INavigationService navigationService)
+    public ProductEditorViewModel(
+        IProductRepository productRepository, 
+        INavigationService navigationService,
+        ISubstanceSearchService searchService)
     {
+        _dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
         _productRepository = productRepository;
         _navigationService = navigationService;
+        _searchService = searchService;
     }
 
     public async Task InitializeAsync(Guid? productId)
@@ -80,6 +92,16 @@ public partial class ProductEditorViewModel : ObservableObject
         Features.Clear();
         LiquidProperties.Clear();
         MechanicalProperties.Clear();
+        CustomSensorSpecs.Clear();
+        Compositions.Clear();
+
+        if (Product.Compositions != null)
+        {
+            foreach (var comp in Product.Compositions)
+            {
+                Compositions.Add(comp);
+            }
+        }
 
         try
         {
@@ -113,6 +135,11 @@ public partial class ProductEditorViewModel : ObservableObject
             SensorSpecs = string.IsNullOrWhiteSpace(Product.TdsSensorSpecsJson)
                 ? new TdsSensorSpecs()
                 : JsonSerializer.Deserialize<TdsSensorSpecs>(Product.TdsSensorSpecsJson) ?? new TdsSensorSpecs();
+            
+            if (SensorSpecs.ExtraSpecs != null)
+            {
+                foreach (var kvp in SensorSpecs.ExtraSpecs) CustomSensorSpecs.Add(new KeyValuePairItem(kvp.Key, kvp.Value));
+            }
         }
         catch (Exception ex)
         {
@@ -136,8 +163,17 @@ public partial class ProductEditorViewModel : ObservableObject
             .Where(p => !string.IsNullOrWhiteSpace(p.Key))
             .ToDictionary(p => p.Key, p => p.Value);
         Product.MechanicalPropertiesJson = JsonSerializer.Serialize(mechDict);
+        
+        var customSensorDict = CustomSensorSpecs
+            .Where(p => !string.IsNullOrWhiteSpace(p.Key))
+            .ToDictionary(p => p.Key, p => p.Value);
+        
+        if (SensorSpecs == null) SensorSpecs = new TdsSensorSpecs();
+        SensorSpecs.ExtraSpecs = customSensorDict;
 
         Product.TdsSensorSpecsJson = JsonSerializer.Serialize(SensorSpecs);
+
+        Product.Compositions = Compositions.ToList();
     }
 
     [RelayCommand]
@@ -165,6 +201,55 @@ public partial class ProductEditorViewModel : ObservableObject
     private void RemoveMechanicalProperty(KeyValuePairItem item)
     {
         if (item != null) MechanicalProperties.Remove(item);
+    }
+
+    [RelayCommand]
+    private void AddCustomSensorSpec() => CustomSensorSpecs.Add(new KeyValuePairItem("", ""));
+
+    [RelayCommand]
+    private void RemoveCustomSensorSpec(KeyValuePairItem item)
+    {
+        if (item != null) CustomSensorSpecs.Remove(item);
+    }
+
+    [RelayCommand]
+    private async Task SearchSubstancesAsync(string query)
+    {
+        try
+        {
+            var results = await _searchService.SearchAsync(query);
+            
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                SubstanceSearchResults = results;
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao pesquisar substâncias: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void AddComposition(EchaSubstance substance)
+    {
+        if (substance == null) return;
+        if (Compositions.Any(c => c.EchaSubstanceId == substance.Id)) return; // Já existe
+
+        Compositions.Add(new ProductComposition
+        {
+            EchaSubstanceId = substance.Id,
+            EchaSubstance = substance,
+            ProductId = Product?.Id ?? Guid.Empty,
+            Percentage = 0,
+            ExtraMetadataJson = "{}"
+        });
+    }
+
+    [RelayCommand]
+    private void RemoveComposition(ProductComposition comp)
+    {
+        if (comp != null) Compositions.Remove(comp);
     }
 
     [RelayCommand]

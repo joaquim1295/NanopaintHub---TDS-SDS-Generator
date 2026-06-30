@@ -22,11 +22,25 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Name="ProductsItem" Content="Produtos" Tag="Products" Icon="Library" />
                 <NavigationViewItem x:Name="TemplatesItem" Content="Templates" Tag="Templates" Icon="Document" />
+                <NavigationViewItem x:Name="SearchDiagnosticsItem" Content="Sandbox Pesquisa" Tag="SearchDiagnostics" Icon="Find" />
                 <NavigationViewItem x:Name="PdfGeneratorItem" Content="Gerar PDF" Tag="GeneratePdf" Icon="Print" />
             </NavigationView.MenuItems>
             
             <Grid>
-                <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="24" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <InfoBar Grid.Row="0"
+                         IsOpen="{x:Bind ViewModel.ShowEchaAlert, Mode=OneWay}" 
+                         Severity="Warning" 
+                         Title="Atualização da Base de Dados REACH/CLP" 
+                         Message="Os dados químicos locais não são sincronizados há mais de 6 meses. Por favor, descarregue o ficheiro atualizado da Agência Europeia dos Produtos Químicos (ECHA) e importe-o nas Configurações.">
+                    <InfoBar.ActionButton>
+                        <HyperlinkButton Content="Ir para o portal da ECHA" NavigateUri="https://chem.echa.europa.eu/obligation-lists/clhList" />
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <Frame Grid.Row="1" x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="24" />
             </Grid>
         </NavigationView>
     </Grid>

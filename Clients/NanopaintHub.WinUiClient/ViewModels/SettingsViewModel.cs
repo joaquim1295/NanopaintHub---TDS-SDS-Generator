@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Options;
+using NanopaintHub.Application.Contracts;
 using NanopaintHub.Infrastructure.Documents.DependencyInjection;
 
 namespace NanopaintHub_WinUIClient.ViewModels;
@@ -14,6 +15,7 @@ namespace NanopaintHub_WinUIClient.ViewModels;
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly string _appSettingsPath;
+    private readonly IEchaImportService _echaImportService;
 
     public List<string> AvailableEngines { get; } = new() { "QuestPDF", "WebView2", "iText7" };
 
@@ -23,14 +25,53 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string _sdsEngine;
 
-    public SettingsViewModel(IOptionsMonitor<PdfGeneratorOptions> options)
+    [ObservableProperty]
+    private string _importStatusMessage = "";
+
+    [ObservableProperty]
+    private int _alertThresholdMonths;
+
+    [ObservableProperty]
+    private int _alertDurationSeconds;
+
+    public SettingsViewModel(IOptionsMonitor<PdfGeneratorOptions> options, IEchaImportService echaImportService)
     {
+        _echaImportService = echaImportService;
         _tdsEngine = options.CurrentValue.TdsEngine;
         _sdsEngine = options.CurrentValue.SdsEngine;
         
         // Use local app data for user settings
         var localFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
         _appSettingsPath = Path.Combine(localFolder, "appsettings.user.json");
+
+        LoadSettings();
+    }
+
+    private void LoadSettings()
+    {
+        AlertThresholdMonths = 6;
+        AlertDurationSeconds = 15;
+
+        if (File.Exists(_appSettingsPath))
+        {
+            try
+            {
+                var json = File.ReadAllText(_appSettingsPath);
+                var root = JsonNode.Parse(json)?.AsObject();
+                if (root != null && root.ContainsKey("EchaDatabase") && root["EchaDatabase"] is JsonObject echaNode)
+                {
+                    if (echaNode.ContainsKey("AlertThresholdMonths") && int.TryParse(echaNode["AlertThresholdMonths"]?.ToString(), out int threshold))
+                    {
+                        AlertThresholdMonths = threshold;
+                    }
+                    if (echaNode.ContainsKey("AlertDurationSeconds") && int.TryParse(echaNode["AlertDurationSeconds"]?.ToString(), out int duration))
+                    {
+                        AlertDurationSeconds = duration;
+                    }
+                }
+            }
+            catch { }
+        }
     }
 
     partial void OnTdsEngineChanged(string value)
@@ -39,6 +80,16 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     partial void OnSdsEngineChanged(string value)
+    {
+        SaveSettingsAsync();
+    }
+
+    partial void OnAlertThresholdMonthsChanged(int value)
+    {
+        SaveSettingsAsync();
+    }
+
+    partial void OnAlertDurationSecondsChanged(int value)
     {
         SaveSettingsAsync();
     }
@@ -68,12 +119,84 @@ public partial class SettingsViewModel : ObservableObject
             pdfGen["TdsEngine"] = TdsEngine;
             pdfGen["SdsEngine"] = SdsEngine;
 
+            if (!root.ContainsKey("EchaDatabase"))
+            {
+                root["EchaDatabase"] = new JsonObject();
+            }
+            var echaNode = root["EchaDatabase"]!.AsObject();
+            echaNode["AlertThresholdMonths"] = AlertThresholdMonths;
+            echaNode["AlertDurationSeconds"] = AlertDurationSeconds;
+
             var options = new JsonSerializerOptions { WriteIndented = true };
             await File.WriteAllTextAsync(_appSettingsPath, root.ToJsonString(options));
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error saving settings: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportEchaCsvAsync()
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        
+        // This is needed for WinUI 3 desktop apps
+        var app = (Microsoft.UI.Xaml.Application.Current as App);
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(app?.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+        picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+        picker.FileTypeFilter.Add(".csv");
+        picker.FileTypeFilter.Add(".xls");
+        picker.FileTypeFilter.Add(".xlsx");
+
+        var file = await picker.PickSingleFileAsync();
+        if (file != null)
+        {
+            ImportStatusMessage = "A importar dados... Por favor, aguarde.";
+            try
+            {
+                var count = await _echaImportService.ImportCsvAsync(file.Path);
+                ImportStatusMessage = $"Importação concluída com sucesso! {count} substâncias adicionadas.";
+                SaveLastImportDate();
+            }
+            catch (Exception ex)
+            {
+                ImportStatusMessage = $"Erro na importação: {ex.Message}";
+            }
+        }
+    }
+
+    private void SaveLastImportDate()
+    {
+        try
+        {
+            JsonObject root;
+            if (File.Exists(_appSettingsPath))
+            {
+                var json = File.ReadAllText(_appSettingsPath);
+                root = JsonNode.Parse(json)?.AsObject() ?? new JsonObject();
+            }
+            else
+            {
+                root = new JsonObject();
+            }
+
+            if (!root.ContainsKey("EchaDatabase"))
+            {
+                root["EchaDatabase"] = new JsonObject();
+            }
+
+            root["EchaDatabase"]!["LastImportDate"] = DateTime.UtcNow.ToString("O");
+            
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            File.WriteAllText(_appSettingsPath, root.ToJsonString(options));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error saving EchaDatabase settings: {ex.Message}");
         }
     }
 }

@@ -17,6 +17,24 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.28");
 
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.ClpPhrase", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhraseType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("ClpPhrases");
+                });
+
             modelBuilder.Entity("NanopaintHub.Domain.Entities.DocumentTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -62,6 +80,39 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DocumentTemplates");
+                });
+
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.EchaSubstance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CasNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ChemicalName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EcNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CasNumber");
+
+                    b.HasIndex("ChemicalName");
+
+                    b.ToTable("EchaSubstances");
                 });
 
             modelBuilder.Entity("NanopaintHub.Domain.Entities.Product", b =>
@@ -155,6 +206,57 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.ProductComposition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("EchaSubstanceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExtraMetadataJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("{}");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Percentage")
+                        .HasColumnType("REAL");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EchaSubstanceId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductCompositions");
+                });
+
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.SubstanceHazard", b =>
+                {
+                    b.Property<Guid>("SubstanceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhraseCode")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("SubstanceId", "PhraseCode");
+
+                    b.HasIndex("PhraseCode");
+
+                    b.ToTable("SubstanceHazards");
                 });
 
             modelBuilder.Entity("NanopaintHub.Domain.Entities.Supplier", b =>
@@ -269,6 +371,44 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.ProductComposition", b =>
+                {
+                    b.HasOne("NanopaintHub.Domain.Entities.EchaSubstance", "EchaSubstance")
+                        .WithMany()
+                        .HasForeignKey("EchaSubstanceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NanopaintHub.Domain.Entities.Product", "Product")
+                        .WithMany("Compositions")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EchaSubstance");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.SubstanceHazard", b =>
+                {
+                    b.HasOne("NanopaintHub.Domain.Entities.ClpPhrase", "Phrase")
+                        .WithMany()
+                        .HasForeignKey("PhraseCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NanopaintHub.Domain.Entities.EchaSubstance", "Substance")
+                        .WithMany("Hazards")
+                        .HasForeignKey("SubstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Phrase");
+
+                    b.Navigation("Substance");
+                });
+
             modelBuilder.Entity("NanopaintHub.Domain.Entities.SupplierComponent", b =>
                 {
                     b.HasOne("NanopaintHub.Domain.Entities.Supplier", null)
@@ -285,6 +425,16 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.EchaSubstance", b =>
+                {
+                    b.Navigation("Hazards");
+                });
+
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("Compositions");
                 });
 #pragma warning restore 612, 618
         }

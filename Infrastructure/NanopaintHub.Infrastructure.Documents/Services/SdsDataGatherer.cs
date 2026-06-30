@@ -13,14 +13,11 @@ using NanopaintHub.Infrastructure.Documents.Tds;
 
 public class SdsDataGatherer
 {
-    private readonly ISupplierComponentRepository _supplierComponents;
-
-    public SdsDataGatherer(ISupplierComponentRepository supplierComponents)
+    public SdsDataGatherer()
     {
-        _supplierComponents = supplierComponents;
     }
 
-    public async Task<string> GatherHtmlAsync(Product product, DocumentTemplate template)
+    public Task<string> GatherHtmlAsync(Product product, DocumentTemplate template)
     {
         var featuresList = SafeDeserialize(product.FeaturesJson, new List<string>(), "FeaturesJson");
         var liquidProps = SafeDeserialize(product.LiquidPropertiesJson, new Dictionary<string, string>(), "LiquidPropertiesJson");
@@ -28,18 +25,15 @@ public class SdsDataGatherer
         var functionalProps = SafeDeserialize(product.FunctionalPropertiesJson, new Dictionary<string, string>(), "FunctionalPropertiesJson");
         var jsonExtendedSpecs = TdsSensorDataMerger.ParseProductSpecs(product.TdsSensorSpecsJson);
 
-        var rows = await _supplierComponents.GetAllWithSupplierAsync();
-        var components = rows
-            .Select(r => new
+        var components = product.Compositions?
+            .Select(c => (object)new
             {
-                r.SupplierName,
-                r.ComponentName,
-                r.CasNumber,
-                SdsPropertiesJson = r.SdsPropertiesJson,
-                SdsProperties = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(r.SdsPropertiesJson) ??
-                                new Dictionary<string, JsonElement>()
+                ChemicalName = c.EchaSubstance?.ChemicalName,
+                CasNumber = c.EchaSubstance?.CasNumber,
+                EcNumber = c.EchaSubstance?.EcNumber,
+                Percentage = $"{c.Percentage}%"
             })
-            .ToList();
+            .ToList() ?? new List<object>();
 
         var templateData = new
         {
@@ -66,25 +60,22 @@ public class SdsDataGatherer
             throw new InvalidOperationException($"Handlebars render devolveu HTML vazio para SDS.");
         }
 
-        return innerHtml;
+        return Task.FromResult(innerHtml);
     }
 
-    public async Task<object> GatherDataRawAsync(Product product)
+    public Task<object> GatherDataRawAsync(Product product)
     {
-        var rows = await _supplierComponents.GetAllWithSupplierAsync();
-        var components = rows
-            .Select(r => new
+        var components = product.Compositions?
+            .Select(c => (object)new
             {
-                r.SupplierName,
-                r.ComponentName,
-                r.CasNumber,
-                SdsPropertiesJson = r.SdsPropertiesJson,
-                SdsProperties = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(r.SdsPropertiesJson) ??
-                                new Dictionary<string, JsonElement>()
+                ChemicalName = c.EchaSubstance?.ChemicalName,
+                CasNumber = c.EchaSubstance?.CasNumber,
+                EcNumber = c.EchaSubstance?.EcNumber,
+                Percentage = $"{c.Percentage}%"
             })
-            .ToList();
+            .ToList() ?? new List<object>();
 
-        return new { Product = product, Components = components };
+        return Task.FromResult<object>(new { Product = product, Components = components });
     }
 
     private static T SafeDeserialize<T>(string? json, T fallback, string fieldName)

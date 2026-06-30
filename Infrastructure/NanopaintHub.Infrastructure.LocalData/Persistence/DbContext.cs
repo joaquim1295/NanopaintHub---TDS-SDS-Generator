@@ -11,7 +11,12 @@ public class NanopaintHubDbContext : DbContext
     public DbSet<TestBatch> TestBatches { get; set; } = null!;
     public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
     public DbSet<Supplier> Suppliers { get; set; } = null!;
-    public DbSet<SupplierComponent> SupplierComponents { get; set; } = null!;
+
+    // SDS Database (ECHA / CLP)
+    public DbSet<EchaSubstance> EchaSubstances { get; set; } = null!;
+    public DbSet<ClpPhrase> ClpPhrases { get; set; } = null!;
+    public DbSet<SubstanceHazard> SubstanceHazards { get; set; } = null!;
+    public DbSet<ProductComposition> ProductCompositions { get; set; } = null!;
 
     // O Construtor obrigatório do EF Core
     public NanopaintHubDbContext(DbContextOptions<NanopaintHubDbContext> options) 
@@ -53,10 +58,42 @@ public class NanopaintHubDbContext : DbContext
             .HasForeignKey(tb => tb.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<SupplierComponent>()
-            .HasOne<Supplier>()
+        // SDS Config
+        modelBuilder.Entity<EchaSubstance>()
+            .HasIndex(e => e.ChemicalName);
+            
+        modelBuilder.Entity<EchaSubstance>()
+            .HasIndex(e => e.CasNumber);
+
+        modelBuilder.Entity<SubstanceHazard>()
+            .HasKey(sh => new { sh.SubstanceId, sh.PhraseCode });
+
+        modelBuilder.Entity<SubstanceHazard>()
+            .HasOne(sh => sh.Substance)
+            .WithMany(s => s.Hazards)
+            .HasForeignKey(sh => sh.SubstanceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SubstanceHazard>()
+            .HasOne(sh => sh.Phrase)
             .WithMany()
-            .HasForeignKey(sc => sc.SupplierId)
+            .HasForeignKey(sh => sh.PhraseCode)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ProductComposition>()
+            .HasOne(pc => pc.Product)
+            .WithMany(p => p.Compositions)
+            .HasForeignKey(pc => pc.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ProductComposition>()
+            .HasOne(pc => pc.EchaSubstance)
+            .WithMany()
+            .HasForeignKey(pc => pc.EchaSubstanceId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<ProductComposition>()
+            .Property(pc => pc.ExtraMetadataJson)
+            .HasDefaultValue("{}");
     }
 }

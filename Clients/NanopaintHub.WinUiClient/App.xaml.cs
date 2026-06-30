@@ -11,6 +11,7 @@ using NanopaintHub_WinUIClient.ViewModels;
 using NanopaintHub.Application.Features.TdsGeneration;
 using NanopaintHub.Application.Features.SdsGeneration;
 using NanopaintHub.Application.Contracts;
+using NanopaintHub.Application.Services;
 
 namespace NanopaintHub_WinUIClient;
 
@@ -61,10 +62,13 @@ builder.Services.AddSingleton<PdfPreviewService>();
         builder.Services.AddTransient<TemplateEditorViewModel>();
         builder.Services.AddTransient<GeneratePdfViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<SearchDiagnosticsViewModel>();
 
-        // Register Use Cases
+        // Register Use Cases and Services
         builder.Services.AddTransient<GenerateTdsUseCase>();
         builder.Services.AddTransient<GenerateSdsUseCase>();
+        builder.Services.AddTransient<IEchaImportService, EchaImportService>();
+        builder.Services.AddTransient<ISubstanceSearchService, SubstanceSearchService>();
 
         _host = builder.Build();
 

@@ -15,13 +15,17 @@ public static class NanopaintHubPersistenceServiceCollectionExtensions
         string sqliteConnectionString)
     {
         services.AddDbContext<NanopaintHubDbContext>(options =>
-            options.UseSqlite(sqliteConnectionString));
+        {
+            options.UseSqlite(sqliteConnectionString);
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
+        });
 
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ITemplateRepository, TemplateRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<ISupplierComponentRepository, SupplierComponentRepository>();
         services.AddScoped<ITestBatchRepository, TestBatchRepository>();
+        services.AddScoped<IEchaSubstanceRepository, EchaSubstanceRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

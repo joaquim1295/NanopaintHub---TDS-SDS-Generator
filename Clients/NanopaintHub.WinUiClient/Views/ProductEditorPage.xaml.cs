@@ -28,4 +28,21 @@ public sealed partial class ProductEditorPage : Page
         
         _ = ViewModel.InitializeAsync(productId);
     }
+
+    private void SubstanceSearchBox_TextChanged(Microsoft.UI.Xaml.Controls.AutoSuggestBox sender, Microsoft.UI.Xaml.Controls.AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == Microsoft.UI.Xaml.Controls.AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            _ = ViewModel.SearchSubstancesCommand.ExecuteAsync(sender.Text);
+        }
+    }
+
+    private void SubstanceSearchBox_SuggestionChosen(Microsoft.UI.Xaml.Controls.AutoSuggestBox sender, Microsoft.UI.Xaml.Controls.AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        if (args.SelectedItem is NanopaintHub.Domain.Entities.EchaSubstance substance)
+        {
+            ViewModel.AddCompositionCommand.Execute(substance);
+            sender.Text = string.Empty;
+        }
+    }
 }

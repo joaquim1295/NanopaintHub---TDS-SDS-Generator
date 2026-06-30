@@ -69,6 +69,66 @@
                                   Width="200" VerticalAlignment="Center" />
                     </Grid>
                 </Border>
+                <!-- Card 3: ECHA Database -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE81C;" FontSize="20" VerticalAlignment="Center" Margin="0,0,16,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                            <TextBlock Text="Base de Dados ECHA (REACH &amp; CLP)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Importe o ficheiro CSV (Anexo VI do CLP) transferido do site da ECHA CHEM para atualizar as frases de perigo e propriedades GHS das Fichas de Segurança." Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                            <TextBlock Text="{x:Bind ViewModel.ImportStatusMessage, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        </StackPanel>
+                        
+                        <Button Grid.Column="2" 
+                                Content="Importar CSV da ECHA" 
+                                Command="{x:Bind ViewModel.ImportEchaCsvCommand}"
+                                VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Card 4: Notification Settings -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xEA8F;" FontSize="20" VerticalAlignment="Center" Margin="0,0,16,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                            <TextBlock Text="Configurações do Alerta REACH/CLP" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Ajuste de quanto em quanto tempo e durante quanto tempo o sistema alerta sobre ficheiros desatualizados." Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2" Orientation="Vertical" Margin="0,0,16,0">
+                            <TextBlock Text="Aparece após (Meses)" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
+                            <NumberBox Value="{x:Bind ViewModel.AlertThresholdMonths, Mode=TwoWay}" Minimum="1" Maximum="60" Width="120" SpinButtonPlacementMode="Compact" />
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="3" Orientation="Vertical">
+                            <TextBlock Text="Duração (Segundos)" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
+                            <NumberBox Value="{x:Bind ViewModel.AlertDurationSeconds, Mode=TwoWay}" Minimum="0" Maximum="120" Width="120" SpinButtonPlacementMode="Compact" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </StackPanel>
 
             <InfoBar IsOpen="True" Severity="Informational" Title="Multi-Engine Architecture" 
