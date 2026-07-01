@@ -2,6 +2,7 @@ namespace NanopaintHub.Infrastructure.Documents.Services;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ public class SdsDataGatherer
     {
     }
 
-    public Task<string> GatherHtmlAsync(Product product, DocumentTemplate template)
+    public async Task<string> GatherHtmlAsync(Product product, DocumentTemplate template)
     {
         var featuresList = SafeDeserialize(product.FeaturesJson, new List<string>(), "FeaturesJson");
         var liquidProps = SafeDeserialize(product.LiquidPropertiesJson, new Dictionary<string, string>(), "LiquidPropertiesJson");
@@ -69,6 +70,22 @@ public class SdsDataGatherer
         bool isToxic = hazardCodes.Any(h => h.StartsWith("H30") || h.StartsWith("H31") || h.StartsWith("H33"));
         bool isEcoToxic = hazardCodes.Any(h => h.StartsWith("H4"));
 
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var schema = string.IsNullOrWhiteSpace(template.BuilderJson) 
+            ? new TemplateBuilderSchema() 
+            : JsonSerializer.Deserialize<TemplateBuilderSchema>(template.BuilderJson, options) ?? new TemplateBuilderSchema();
+
+        string logoBase64 = string.Empty;
+        if (schema.Header.ShowLogo)
+        {
+            var logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Nanopaint_logo.png");
+            if (File.Exists(logoPath))
+            {
+                var bytes = await File.ReadAllBytesAsync(logoPath);
+                logoBase64 = Convert.ToBase64String(bytes);
+            }
+        }
+
         var templateData = new
         {
             product.Name,
@@ -84,6 +101,8 @@ public class SdsDataGatherer
             DocumentKind = "SDS",
             Placeholders = jsonExtendedSpecs.PlaceholderValues,
             Assets = jsonExtendedSpecs.TemplateAssets,
+            Schema = schema,
+            LogoBase64 = logoBase64,
             
             // New GHS Intel:
             UniqueHazards = hazardPhrases,
@@ -107,7 +126,7 @@ public class SdsDataGatherer
             throw new InvalidOperationException($"Handlebars render devolveu HTML vazio para SDS.");
         }
 
-        return Task.FromResult(innerHtml);
+        return innerHtml;
     }
 
     public Task<object> GatherDataRawAsync(Product product)
