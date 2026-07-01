@@ -435,7 +435,6 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         
         var compositions = product.Compositions?.ToList() ?? new List<ProductComposition>();
         
-        // Coletar as frases H associadas às substâncias deste produto
         var uniqueHazards = compositions
             .Where(c => c.EchaSubstance?.Hazards != null)
             .SelectMany(c => c.EchaSubstance!.Hazards!)
@@ -447,7 +446,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             .Select(h => $"{h.PhraseCode} {(h.Phrase?.Description ?? "Hazard description not available")}")
             .ToList();
             
-        var hasPictogramGhs07 = hazardPhrases.Any(h => h.Contains("H315") || h.Contains("H319") || h.Contains("H335"));
+        var hazardCodes = uniqueHazards.Select(h => h.PhraseCode ?? "").ToHashSet();
 
         var liquidProps = SafeDeserialize(product.LiquidPropertiesJson, new Dictionary<string, string>(), "LiquidPropertiesJson");
 
@@ -472,139 +471,22 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                 {
                     col.Spacing(8);
                     
-                    // SECTION 1
-                    DrawSectionTitle(col, "SECTION 1: Identification of the substance/mixture and of the company/undertaking");
-                    col.Item().Text("1.1 Product identifier").Bold();
-                    col.Item().PaddingLeft(10).Text($"Product name: {product.Name}");
-                    col.Item().PaddingTop(4).Text("1.2 Relevant identified uses of the substance or mixture and uses advised against").Bold();
-                    col.Item().PaddingLeft(10).Text("Use of the Substance/Mixture: Industrial and research");
-                    col.Item().PaddingTop(4).Text("1.3 Details of the supplier of the safety data sheet").Bold();
-                    col.Item().PaddingLeft(10).Text("Company: Nanopaint, Lda\nAddress: IBS – Institute of Science and Innovation, Braga, Portugal");
-                    col.Item().PaddingTop(4).Text("1.4 Emergency telephone number").Bold();
-                    col.Item().PaddingLeft(10).Text("+351 253 601 681");
-
-                    // SECTION 2
-                    DrawSectionTitle(col, "SECTION 2: Hazards identification");
-                    col.Item().Text("2.1 Classification of the substance or mixture").Bold();
-                    col.Item().Text("Classification (REGULATION (EC) No 1272/2008)");
-                    
-                    if (uniqueHazards.Any())
-                    {
-                        foreach (var h in uniqueHazards)
-                        {
-                            col.Item().PaddingLeft(10).Text($"{h.PhraseCode}: {h.Phrase?.Description}");
-                        }
-                    }
-                    else
-                    {
-                        col.Item().PaddingLeft(10).Text("Not classified as a hazardous mixture.");
-                    }
-
-                    col.Item().PaddingTop(4).Text("2.2 Label elements").Bold();
-                    if (hasPictogramGhs07)
-                    {
-                        col.Item().PaddingLeft(10).Text("Warning Pictograms: GHS07 (Exclamation mark)");
-                    }
-                    else
-                    {
-                        col.Item().PaddingLeft(10).Text("No label elements required.");
-                    }
-
-                    // SECTION 3
-                    DrawSectionTitle(col, "SECTION 3: Composition/information on ingredients");
-                    col.Item().Text("3.2 Mixtures").Bold();
-                    col.Item().Text("Dangerous Components:");
-                    
-                    col.Item().PaddingTop(4).Table(table =>
-                    {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.RelativeColumn(2); // Identifiers
-                            columns.RelativeColumn(3); // Name
-                            columns.RelativeColumn(3); // Hazards
-                            columns.RelativeColumn(1); // Percentage
-                        });
-
-                        table.Header(header =>
-                        {
-                            header.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Background(Colors.Grey.Lighten3).Padding(4).Text("Identifiers").Bold();
-                            header.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Background(Colors.Grey.Lighten3).Padding(4).Text("Chemical Name").Bold();
-                            header.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Background(Colors.Grey.Lighten3).Padding(4).Text("Classification (1272/2008)").Bold();
-                            header.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Background(Colors.Grey.Lighten3).Padding(4).Text("% Weight").Bold();
-                        });
-
-                        foreach (var comp in compositions)
-                        {
-                            var substance = comp.EchaSubstance;
-                            if (substance == null) continue;
-
-                            var subHazards = string.Join("; ", substance.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>());
-                            
-                            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"CAS: {substance.CasNumber}\nEC: {substance.EcNumber}");
-                            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(substance.ChemicalName);
-                            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(subHazards);
-                            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{comp.Percentage}%");
-                        }
-                    });
-
-                    // SECTION 4 - 8 (Summarized for PoC)
-                    DrawSectionTitle(col, "SECTION 4: First aid measures");
-                    col.Item().Text("General advice: Get medical attention if irritation occurs.\nIf inhaled: Remove to fresh air.\nIn case of contact with skin: Clean with water and soap.");
-
-                    DrawSectionTitle(col, "SECTION 5: Firefighting measures");
-                    col.Item().Text("Suitable extinguishing media: Use fire extinguishing methods suitable to surrounding conditions.");
-
-                    DrawSectionTitle(col, "SECTION 6: Accidental release measures");
-                    col.Item().Text("Do not allow to enter sewers. Absorb with liquid-binding material.");
-
-                    DrawSectionTitle(col, "SECTION 7: Handling and storage");
-                    col.Item().Text("Ensure good ventilation. Keep container tightly closed in a dry place.");
-
-                    DrawSectionTitle(col, "SECTION 8: Exposure controls/personal protection");
-                    col.Item().Text("Wear protective gloves/eye protection. Avoid breathing vapours.");
-
-                    // SECTION 9
-                    DrawSectionTitle(col, "SECTION 9: Physical and chemical properties");
-                    col.Item().Text("9.1 Information on basic physical and chemical properties").Bold();
-                    
-                    var state = liquidProps.TryGetValue("Physical form", out var phys) ? phys : "Liquid";
-                    var color = liquidProps.TryGetValue("Appearance", out var app) ? app : "Not specified";
-                    var visco = liquidProps.TryGetValue("Viscosity", out var vis) ? vis : "No data available";
-                    
-                    col.Item().PaddingLeft(10).Text($"Physical state: {state}");
-                    col.Item().PaddingLeft(10).Text($"Colour: {color}");
-                    col.Item().PaddingLeft(10).Text($"Viscosity: {visco}");
-                    col.Item().PaddingLeft(10).Text("Odour: Characteristic");
-                    col.Item().PaddingLeft(10).Text("Flash point: No data available");
-
-                    // SECTION 10 - 15 (Summarized)
-                    DrawSectionTitle(col, "SECTION 10: Stability and reactivity");
-                    col.Item().Text("Stable under recommended storage conditions.");
-
-                    DrawSectionTitle(col, "SECTION 11: Toxicological information");
-                    col.Item().Text("Based on available data, standard classification criteria may not be met unless specified in Section 2.");
-
-                    DrawSectionTitle(col, "SECTION 12: Ecological information");
-                    col.Item().Text("No further relevant information available.");
-
-                    DrawSectionTitle(col, "SECTION 13: Disposal considerations");
-                    col.Item().Text("Disposal must be made according to official regulations.");
-
-                    DrawSectionTitle(col, "SECTION 14: Transport information");
-                    col.Item().Text("Not regulated as a dangerous good (unless specified).");
-
-                    DrawSectionTitle(col, "SECTION 15: Regulatory information");
-                    col.Item().Text("This safety datasheet complies with the requirements of Regulation (EC) No. 1907/2006.");
-
-                    // SECTION 16
-                    DrawSectionTitle(col, "SECTION 16: Other information");
-                    col.Item().Text("Phrases from sections 2 and 3:").Bold();
-                    foreach (var phrase in hazardPhrases)
-                    {
-                        col.Item().PaddingLeft(10).Text(phrase);
-                    }
-                    col.Item().PaddingTop(10).Text("The information contained herein is based on the present state of our knowledge. However, this shall not constitute a guarantee for any specific product features...").FontSize(8).FontColor(Colors.Grey.Medium);
-
+                    ComposeSdsSection1(col, product);
+                    ComposeSdsSection2(col, uniqueHazards, hazardCodes);
+                    ComposeSdsSection3(col, compositions);
+                    ComposeSdsSection4(col, hazardCodes);
+                    ComposeSdsSection5(col, hazardCodes);
+                    ComposeSdsSection6(col);
+                    ComposeSdsSection7(col, hazardCodes);
+                    ComposeSdsSection8(col);
+                    ComposeSdsSection9(col, liquidProps);
+                    ComposeSdsSection10(col);
+                    ComposeSdsSection11(col, hazardCodes);
+                    ComposeSdsSection12(col, hazardCodes);
+                    ComposeSdsSection13(col);
+                    ComposeSdsSection14(col);
+                    ComposeSdsSection15(col);
+                    ComposeSdsSection16(col, hazardPhrases);
                 });
 
                 page.Footer().AlignCenter().Text(x =>
@@ -619,6 +501,260 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         var bytes = document.GeneratePdf();
         _progress.Report("SDS QuestPDF gerado com sucesso.", 100);
         return Task.FromResult(bytes);
+    }
+
+    private void ComposeSdsSection1(ColumnDescriptor col, Product product)
+    {
+        DrawSectionTitle(col, "SECTION 1: Identification of the substance/mixture and of the company/undertaking");
+        col.Item().Text("1.1 Product identifier").Bold();
+        col.Item().PaddingLeft(10).Text($"Product name: {product.Name}");
+        col.Item().PaddingTop(4).Text("1.2 Relevant identified uses of the substance or mixture and uses advised against").Bold();
+        col.Item().PaddingLeft(10).Text("Use of the Substance/Mixture: Industrial and research");
+        col.Item().PaddingTop(4).Text("1.3 Details of the supplier of the safety data sheet").Bold();
+        col.Item().PaddingLeft(10).Text("Company: Nanopaint, Lda\nAddress: IBS – Institute of Science and Innovation, Braga, Portugal");
+        col.Item().PaddingTop(4).Text("1.4 Emergency telephone number").Bold();
+        col.Item().PaddingLeft(10).Text("+351 253 601 681");
+    }
+
+    private void ComposeSdsSection2(ColumnDescriptor col, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes)
+    {
+        DrawSectionTitle(col, "SECTION 2: Hazards identification");
+        col.Item().Text("2.1 Classification of the substance or mixture").Bold();
+        col.Item().Text("Classification (REGULATION (EC) No 1272/2008)");
+        
+        if (uniqueHazards.Any())
+        {
+            foreach (var h in uniqueHazards)
+            {
+                col.Item().PaddingLeft(10).Text($"{h.PhraseCode}: {h.Phrase?.Description}");
+            }
+        }
+        else
+        {
+            col.Item().PaddingLeft(10).Text("Not classified as a hazardous mixture.");
+        }
+
+        col.Item().PaddingTop(4).Text("2.2 Label elements").Bold();
+        
+        var pictograms = new List<string>();
+        if (hazardCodes.Any(h => h.StartsWith("H315") || h.StartsWith("H319") || h.StartsWith("H335"))) pictograms.Add("GHS07 (Exclamation mark)");
+        if (hazardCodes.Any(h => h.StartsWith("H318") || h.StartsWith("H314"))) pictograms.Add("GHS05 (Corrosion)");
+        if (hazardCodes.Any(h => h.StartsWith("H225") || h.StartsWith("H226"))) pictograms.Add("GHS02 (Flame)");
+        if (hazardCodes.Any(h => h.StartsWith("H410") || h.StartsWith("H411"))) pictograms.Add("GHS09 (Environment)");
+        if (hazardCodes.Any(h => h.StartsWith("H301") || h.StartsWith("H311") || h.StartsWith("H331"))) pictograms.Add("GHS06 (Skull and crossbones)");
+        if (hazardCodes.Any(h => h.StartsWith("H350") || h.StartsWith("H340") || h.StartsWith("H360"))) pictograms.Add("GHS08 (Health hazard)");
+
+        if (pictograms.Any())
+        {
+            col.Item().PaddingLeft(10).Text($"Warning Pictograms: {string.Join(", ", pictograms)}");
+        }
+        else
+        {
+            col.Item().PaddingLeft(10).Text("No label elements required.");
+        }
+    }
+
+    private void ComposeSdsSection3(ColumnDescriptor col, List<ProductComposition> compositions)
+    {
+        DrawSectionTitle(col, "SECTION 3: Composition/information on ingredients");
+        col.Item().Text("3.2 Mixtures").Bold();
+        col.Item().Text("Dangerous Components:");
+        
+        col.Item().PaddingTop(4).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(1);
+            });
+
+            table.Header(header =>
+            {
+                header.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Background(Colors.Grey.Lighten3).Padding(4).Text("Identifiers").Bold();
+                header.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Background(Colors.Grey.Lighten3).Padding(4).Text("Chemical Name").Bold();
+                header.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Background(Colors.Grey.Lighten3).Padding(4).Text("Classification (1272/2008)").Bold();
+                header.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Background(Colors.Grey.Lighten3).Padding(4).Text("% Weight").Bold();
+            });
+
+            foreach (var comp in compositions)
+            {
+                var substance = comp.EchaSubstance;
+                if (substance == null) continue;
+
+                var subHazards = string.Join("; ", substance.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>());
+                
+                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"CAS: {substance.CasNumber}\nEC: {substance.EcNumber}");
+                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(substance.ChemicalName);
+                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(subHazards);
+                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{comp.Percentage}%");
+            }
+        });
+    }
+
+    private void ComposeSdsSection4(ColumnDescriptor col, HashSet<string> hazardCodes)
+    {
+        DrawSectionTitle(col, "SECTION 4: First aid measures");
+        col.Item().Text("4.1 Description of first aid measures").Bold();
+        
+        var general = "General advice: Consult a physician. Show this safety data sheet to the doctor in attendance.";
+        var inhalation = hazardCodes.Any(h => h.StartsWith("H33")) 
+            ? "If inhaled: If breathed in, move person into fresh air. If not breathing, give artificial respiration. Consult a physician."
+            : "If inhaled: Remove to fresh air.";
+            
+        var skin = hazardCodes.Any(h => h.StartsWith("H31"))
+            ? "In case of skin contact: Wash off with soap and plenty of water. Consult a physician if irritation develops."
+            : "In case of skin contact: Wash off with soap and plenty of water.";
+            
+        var eye = hazardCodes.Any(h => h == "H319" || h == "H318")
+            ? "In case of eye contact: Rinse thoroughly with plenty of water for at least 15 minutes and consult a physician."
+            : "In case of eye contact: Flush eyes with water as a precaution.";
+            
+        var ingestion = hazardCodes.Any(h => h.StartsWith("H30"))
+            ? "If swallowed: Never give anything by mouth to an unconscious person. Rinse mouth with water. Consult a physician."
+            : "If swallowed: Rinse mouth with water.";
+
+        col.Item().PaddingLeft(10).Text($"{general}\n{inhalation}\n{skin}\n{eye}\n{ingestion}");
+    }
+
+    private void ComposeSdsSection5(ColumnDescriptor col, HashSet<string> hazardCodes)
+    {
+        DrawSectionTitle(col, "SECTION 5: Firefighting measures");
+        var isFlammable = hazardCodes.Any(h => h.StartsWith("H22"));
+        
+        col.Item().Text("5.1 Extinguishing media").Bold();
+        col.Item().PaddingLeft(10).Text(isFlammable 
+            ? "Suitable extinguishing media: Use water spray, alcohol-resistant foam, dry chemical or carbon dioxide." 
+            : "Suitable extinguishing media: Use extinguishing measures that are appropriate to local circumstances and the surrounding environment.");
+            
+        col.Item().PaddingTop(4).Text("5.2 Special hazards arising from the substance or mixture").Bold();
+        col.Item().PaddingLeft(10).Text("Carbon oxides, Nitrogen oxides (NOx).");
+        
+        col.Item().PaddingTop(4).Text("5.3 Advice for firefighters").Bold();
+        col.Item().PaddingLeft(10).Text("Wear self-contained breathing apparatus for firefighting if necessary.");
+    }
+
+    private void ComposeSdsSection6(ColumnDescriptor col)
+    {
+        DrawSectionTitle(col, "SECTION 6: Accidental release measures");
+        col.Item().Text("6.1 Personal precautions, protective equipment and emergency procedures").Bold();
+        col.Item().PaddingLeft(10).Text("Use personal protective equipment. Avoid breathing vapours, mist or gas. Ensure adequate ventilation.");
+        
+        col.Item().PaddingTop(4).Text("6.2 Environmental precautions").Bold();
+        col.Item().PaddingLeft(10).Text("Prevent further leakage or spillage if safe to do so. Do not let product enter drains.");
+        
+        col.Item().PaddingTop(4).Text("6.3 Methods and materials for containment and cleaning up").Bold();
+        col.Item().PaddingLeft(10).Text("Soak up with inert absorbent material and dispose of as hazardous waste. Keep in suitable, closed containers for disposal.");
+    }
+
+    private void ComposeSdsSection7(ColumnDescriptor col, HashSet<string> hazardCodes)
+    {
+        DrawSectionTitle(col, "SECTION 7: Handling and storage");
+        col.Item().Text("7.1 Precautions for safe handling").Bold();
+        col.Item().PaddingLeft(10).Text("Avoid contact with skin and eyes. Avoid inhalation of vapour or mist.");
+        
+        if (hazardCodes.Any(h => h.StartsWith("H22")))
+        {
+            col.Item().PaddingLeft(10).Text("Keep away from sources of ignition - No smoking. Take measures to prevent the build up of electrostatic charge.");
+        }
+        
+        col.Item().PaddingTop(4).Text("7.2 Conditions for safe storage, including any incompatibilities").Bold();
+        col.Item().PaddingLeft(10).Text("Store in cool place. Keep container tightly closed in a dry and well-ventilated place.");
+    }
+
+    private void ComposeSdsSection8(ColumnDescriptor col)
+    {
+        DrawSectionTitle(col, "SECTION 8: Exposure controls/personal protection");
+        col.Item().Text("8.1 Control parameters").Bold();
+        col.Item().PaddingLeft(10).Text("Components with workplace control parameters: No data available.");
+        
+        col.Item().PaddingTop(4).Text("8.2 Exposure controls").Bold();
+        col.Item().PaddingLeft(10).Text("Appropriate engineering controls: Handle in accordance with good industrial hygiene and safety practice.\nPersonal protective equipment: Safety glasses with side-shields, chemical resistant gloves, protective clothing.");
+    }
+
+    private void ComposeSdsSection9(ColumnDescriptor col, Dictionary<string, string> liquidProps)
+    {
+        DrawSectionTitle(col, "SECTION 9: Physical and chemical properties");
+        col.Item().Text("9.1 Information on basic physical and chemical properties").Bold();
+        
+        var state = liquidProps.TryGetValue("Physical form", out var phys) ? phys : "Liquid";
+        var color = liquidProps.TryGetValue("Appearance", out var app) ? app : "Not specified";
+        var visco = liquidProps.TryGetValue("Viscosity", out var vis) ? vis : "No data available";
+        
+        col.Item().PaddingLeft(10).Text($"Physical state: {state}");
+        col.Item().PaddingLeft(10).Text($"Colour: {color}");
+        col.Item().PaddingLeft(10).Text($"Viscosity: {visco}");
+        col.Item().PaddingLeft(10).Text("Odour: Characteristic");
+        col.Item().PaddingLeft(10).Text("Flash point: No data available");
+    }
+
+    private void ComposeSdsSection10(ColumnDescriptor col)
+    {
+        DrawSectionTitle(col, "SECTION 10: Stability and reactivity");
+        col.Item().Text("10.1 Reactivity: No data available");
+        col.Item().Text("10.2 Chemical stability: Stable under recommended storage conditions.");
+        col.Item().Text("10.3 Possibility of hazardous reactions: No data available");
+        col.Item().Text("10.4 Conditions to avoid: Heat, flames and sparks (if flammable).");
+        col.Item().Text("10.5 Incompatible materials: Strong oxidizing agents.");
+    }
+
+    private void ComposeSdsSection11(ColumnDescriptor col, HashSet<string> hazardCodes)
+    {
+        DrawSectionTitle(col, "SECTION 11: Toxicological information");
+        var isToxic = hazardCodes.Any(h => h.StartsWith("H30") || h.StartsWith("H31") || h.StartsWith("H33"));
+        col.Item().Text("11.1 Information on hazard classes as defined in Regulation (EC) No 1272/2008").Bold();
+        col.Item().PaddingLeft(10).Text(isToxic ? "Acute toxicity: Classified based on available ingredients data." : "Acute toxicity: Based on available data, the classification criteria are not met.");
+        col.Item().PaddingLeft(10).Text("Skin corrosion/irritation: Refer to Section 2.");
+        col.Item().PaddingLeft(10).Text("Serious eye damage/eye irritation: Refer to Section 2.");
+    }
+
+    private void ComposeSdsSection12(ColumnDescriptor col, HashSet<string> hazardCodes)
+    {
+        DrawSectionTitle(col, "SECTION 12: Ecological information");
+        var isEcoToxic = hazardCodes.Any(h => h.StartsWith("H4"));
+        col.Item().Text("12.1 Toxicity: " + (isEcoToxic ? "Toxic to aquatic life." : "No data available."));
+        col.Item().Text("12.2 Persistence and degradability: No data available.");
+        col.Item().Text("12.3 Bioaccumulative potential: No data available.");
+    }
+
+    private void ComposeSdsSection13(ColumnDescriptor col)
+    {
+        DrawSectionTitle(col, "SECTION 13: Disposal considerations");
+        col.Item().Text("13.1 Waste treatment methods").Bold();
+        col.Item().PaddingLeft(10).Text("Product: Offer surplus and non-recyclable solutions to a licensed disposal company.\nContaminated packaging: Dispose of as unused product.");
+    }
+
+    private void ComposeSdsSection14(ColumnDescriptor col)
+    {
+        DrawSectionTitle(col, "SECTION 14: Transport information");
+        col.Item().Text("Not regulated as a dangerous good under ADR/RID, IMDG, or IATA unless specifically classified in Section 2.");
+    }
+
+    private void ComposeSdsSection15(ColumnDescriptor col)
+    {
+        DrawSectionTitle(col, "SECTION 15: Regulatory information");
+        col.Item().Text("15.1 Safety, health and environmental regulations/legislation specific for the substance or mixture").Bold();
+        col.Item().PaddingLeft(10).Text("This safety datasheet complies with the requirements of Regulation (EC) No. 1907/2006.");
+    }
+
+    private void ComposeSdsSection16(ColumnDescriptor col, List<string> hazardPhrases)
+    {
+        DrawSectionTitle(col, "SECTION 16: Other information");
+        col.Item().Text("Full text of H-Statements referred to under sections 2 and 3:").Bold();
+        if (hazardPhrases.Any())
+        {
+            foreach (var phrase in hazardPhrases)
+            {
+                col.Item().PaddingLeft(10).Text(phrase);
+            }
+        }
+        else
+        {
+            col.Item().PaddingLeft(10).Text("Not applicable.");
+        }
+        
+        col.Item().PaddingTop(10).Text("The information contained herein is based on the present state of our knowledge and does not therefore guarantee certain properties. Recipients of our product must take responsibility for observing existing laws and regulations.").FontSize(8).FontColor(Colors.Grey.Medium);
     }
     
     private void DrawSectionTitle(ColumnDescriptor col, string title)

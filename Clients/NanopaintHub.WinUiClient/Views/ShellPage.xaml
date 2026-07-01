@@ -22,7 +22,6 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Name="ProductsItem" Content="Produtos" Tag="Products" Icon="Library" />
                 <NavigationViewItem x:Name="TemplatesItem" Content="Templates" Tag="Templates" Icon="Document" />
-                <NavigationViewItem x:Name="SearchDiagnosticsItem" Content="Sandbox Pesquisa" Tag="SearchDiagnostics" Icon="Find" />
                 <NavigationViewItem x:Name="PdfGeneratorItem" Content="Gerar PDF" Tag="GeneratePdf" Icon="Print" />
             </NavigationView.MenuItems>
             

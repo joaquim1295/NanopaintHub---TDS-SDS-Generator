@@ -62,7 +62,6 @@ builder.Services.AddSingleton<PdfPreviewService>();
         builder.Services.AddTransient<TemplateEditorViewModel>();
         builder.Services.AddTransient<GeneratePdfViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
-        builder.Services.AddTransient<SearchDiagnosticsViewModel>();
 
         // Register Use Cases and Services
         builder.Services.AddTransient<GenerateTdsUseCase>();
