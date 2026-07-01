@@ -154,25 +154,29 @@
                                     </StackPanel>
                                 </Expander.Header>
                                 <StackPanel Spacing="16" Margin="0,16,0,0">
-                                    <AutoSuggestBox PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
-                                                    ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
-                                                    TextMemberPath="ChemicalName"
-                                                    DisplayMemberPath="ChemicalName"
-                                                    UpdateTextOnSelect="False"
-                                                    TextChanged="SubstanceSearchBox_TextChanged"
-                                                    SuggestionChosen="SubstanceSearchBox_SuggestionChosen">
-                                        <AutoSuggestBox.ItemTemplate>
-                                            <DataTemplate x:DataType="entities:EchaSubstance">
-                                                <StackPanel Padding="0,4">
-                                                    <TextBlock Text="{Binding ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                        <Run Text="CAS: " />
-                                                        <Run Text="{Binding CasNumber}" />
-                                                    </TextBlock>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </AutoSuggestBox.ItemTemplate>
-                                    </AutoSuggestBox>
+                                    <TextBox x:Name="SubstanceSearchBox" 
+                                             PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
+                                             TextChanged="SubstanceSearchBox_TextChanged" />
+                                    <Border x:Name="SubstanceSearchResultsPopup" 
+                                            Visibility="Collapsed"
+                                            Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                            CornerRadius="4" Margin="0,4,0,16" MaxHeight="200">
+                                        <ListView ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
+                                                  ItemClick="SubstanceSearchResults_ItemClick" IsItemClickEnabled="True" SelectionMode="None">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="entities:EchaSubstance">
+                                                    <StackPanel Padding="0,4">
+                                                        <TextBlock Text="{Binding ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                            <Run Text="CAS: " />
+                                                            <Run Text="{Binding CasNumber}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </Border>
 
                                     <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}">
                                         <ItemsControl.ItemTemplate>
@@ -342,25 +346,29 @@
                                         <FontIcon Glyph="&#xE81C;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Text="Fórmula (Componentes SDS)" Style="{ThemeResource SubtitleTextBlockStyle}" />
                                     </StackPanel>
-                                    <AutoSuggestBox PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
-                                                    ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
-                                                    TextMemberPath="ChemicalName"
-                                                    DisplayMemberPath="ChemicalName"
-                                                    UpdateTextOnSelect="False"
-                                                    TextChanged="SubstanceSearchBox_TextChanged"
-                                                    SuggestionChosen="SubstanceSearchBox_SuggestionChosen">
-                                        <AutoSuggestBox.ItemTemplate>
-                                            <DataTemplate x:DataType="entities:EchaSubstance">
-                                                <StackPanel Padding="0,4">
-                                                    <TextBlock Text="{Binding ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                        <Run Text="CAS: " />
-                                                        <Run Text="{Binding CasNumber}" />
-                                                    </TextBlock>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </AutoSuggestBox.ItemTemplate>
-                                    </AutoSuggestBox>
+                                    <TextBox x:Name="SubstanceSearchBoxWide" 
+                                             PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
+                                             TextChanged="SubstanceSearchBox_TextChanged" />
+                                    <Border x:Name="SubstanceSearchResultsPopupWide" 
+                                            Visibility="Collapsed"
+                                            Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                            CornerRadius="4" Margin="0,4,0,16" MaxHeight="200">
+                                        <ListView ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
+                                                  ItemClick="SubstanceSearchResults_ItemClick" IsItemClickEnabled="True" SelectionMode="None">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="entities:EchaSubstance">
+                                                    <StackPanel Padding="0,4">
+                                                        <TextBlock Text="{Binding ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                            <Run Text="CAS: " />
+                                                            <Run Text="{Binding CasNumber}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </Border>
                                     <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="entities:ProductComposition">
