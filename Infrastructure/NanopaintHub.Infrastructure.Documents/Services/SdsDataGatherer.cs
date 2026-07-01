@@ -31,9 +31,43 @@ public class SdsDataGatherer
                 ChemicalName = c.EchaSubstance?.ChemicalName,
                 CasNumber = c.EchaSubstance?.CasNumber,
                 EcNumber = c.EchaSubstance?.EcNumber,
-                Percentage = $"{c.Percentage}%"
+                Percentage = $"{c.Percentage}%",
+                Hazards = string.Join("; ", c.EchaSubstance?.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>())
             })
             .ToList() ?? new List<object>();
+
+        // 1. Extrair todas as Unique Hazards
+        var compositions = product.Compositions?.ToList() ?? new List<ProductComposition>();
+        var uniqueHazards = compositions
+            .Where(c => c.EchaSubstance?.Hazards != null)
+            .SelectMany(c => c.EchaSubstance!.Hazards!)
+            .GroupBy(h => h.PhraseCode)
+            .Select(g => g.First())
+            .ToList();
+            
+        var hazardPhrases = uniqueHazards
+            .Select(h => $"{h.PhraseCode}: {(h.Phrase?.Description ?? "Hazard description not available")}")
+            .ToList();
+            
+        var hazardCodes = uniqueHazards.Select(h => h.PhraseCode ?? "").ToHashSet();
+
+        // 2. Determinar Pictogramas aplicáveis
+        var pictograms = new List<string>();
+        if (hazardCodes.Any(h => h.StartsWith("H315") || h.StartsWith("H319") || h.StartsWith("H335"))) pictograms.Add("GHS07 (Exclamation mark)");
+        if (hazardCodes.Any(h => h.StartsWith("H318") || h.StartsWith("H314"))) pictograms.Add("GHS05 (Corrosion)");
+        if (hazardCodes.Any(h => h.StartsWith("H225") || h.StartsWith("H226"))) pictograms.Add("GHS02 (Flame)");
+        if (hazardCodes.Any(h => h.StartsWith("H410") || h.StartsWith("H411"))) pictograms.Add("GHS09 (Environment)");
+        if (hazardCodes.Any(h => h.StartsWith("H301") || h.StartsWith("H311") || h.StartsWith("H331"))) pictograms.Add("GHS06 (Skull and crossbones)");
+        if (hazardCodes.Any(h => h.StartsWith("H350") || h.StartsWith("H340") || h.StartsWith("H360"))) pictograms.Add("GHS08 (Health hazard)");
+
+        // 3. Flags Lógicas para o Handlebars
+        bool isFlammable = hazardCodes.Any(h => h.StartsWith("H22"));
+        bool hasInhalationHazard = hazardCodes.Any(h => h.StartsWith("H33"));
+        bool hasSkinHazard = hazardCodes.Any(h => h.StartsWith("H31"));
+        bool hasEyeHazard = hazardCodes.Any(h => h == "H319" || h == "H318");
+        bool hasIngestionHazard = hazardCodes.Any(h => h.StartsWith("H30"));
+        bool isToxic = hazardCodes.Any(h => h.StartsWith("H30") || h.StartsWith("H31") || h.StartsWith("H33"));
+        bool isEcoToxic = hazardCodes.Any(h => h.StartsWith("H4"));
 
         var templateData = new
         {
@@ -49,7 +83,20 @@ public class SdsDataGatherer
             Components = components,
             DocumentKind = "SDS",
             Placeholders = jsonExtendedSpecs.PlaceholderValues,
-            Assets = jsonExtendedSpecs.TemplateAssets
+            Assets = jsonExtendedSpecs.TemplateAssets,
+            
+            // New GHS Intel:
+            UniqueHazards = hazardPhrases,
+            HasHazards = hazardPhrases.Any(),
+            Pictograms = pictograms,
+            HasPictograms = pictograms.Any(),
+            IsFlammable = isFlammable,
+            HasInhalationHazard = hasInhalationHazard,
+            HasSkinHazard = hasSkinHazard,
+            HasEyeHazard = hasEyeHazard,
+            HasIngestionHazard = hasIngestionHazard,
+            IsToxic = isToxic,
+            IsEcoToxic = isEcoToxic
         };
 
         var compiledTemplate = Handlebars.Compile(template.HtmlStructure);
