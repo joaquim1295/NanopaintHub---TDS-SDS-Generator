@@ -193,13 +193,13 @@ public static class DatabaseSeeder
         // 1. Frases H Base (Mock inicial para testar)
         var phrases = new[]
         {
-            new ClpPhrase { Code = "H225", Description = "Líquido e vapor facilmente inflamáveis.", PhraseType = "H" },
-            new ClpPhrase { Code = "H226", Description = "Líquido e vapor inflamáveis.", PhraseType = "H" },
-            new ClpPhrase { Code = "H304", Description = "Pode ser mortal por ingestão e penetração nas vias respiratórias.", PhraseType = "H" },
-            new ClpPhrase { Code = "H315", Description = "Provoca irritação cutânea.", PhraseType = "H" },
-            new ClpPhrase { Code = "H319", Description = "Provoca irritação ocular grave.", PhraseType = "H" },
-            new ClpPhrase { Code = "H335", Description = "Pode provocar irritação das vias respiratórias.", PhraseType = "H" },
-            new ClpPhrase { Code = "H336", Description = "Pode provocar sonolência ou vertigens.", PhraseType = "H" }
+            new ClpPhrase { Code = "H225", Description = "Highly flammable liquid and vapour.", PhraseType = "H" },
+            new ClpPhrase { Code = "H226", Description = "Flammable liquid and vapour.", PhraseType = "H" },
+            new ClpPhrase { Code = "H304", Description = "May be fatal if swallowed and enters airways.", PhraseType = "H" },
+            new ClpPhrase { Code = "H315", Description = "Causes skin irritation.", PhraseType = "H" },
+            new ClpPhrase { Code = "H319", Description = "Causes serious eye irritation.", PhraseType = "H" },
+            new ClpPhrase { Code = "H335", Description = "May cause respiratory irritation.", PhraseType = "H" },
+            new ClpPhrase { Code = "H336", Description = "May cause drowsiness or dizziness.", PhraseType = "H" }
         };
         db.ClpPhrases.AddRange(phrases);
 
