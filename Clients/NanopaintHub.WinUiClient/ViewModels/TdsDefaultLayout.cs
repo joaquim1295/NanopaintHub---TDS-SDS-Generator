@@ -333,7 +333,7 @@ public static class TdsDefaultLayout
       <p class=""batch-note"" data-batch=""{{BatchNumber}}"">Batch data applied: <strong>{{BatchNumber}}</strong> (merged with product specifications where applicable).</p>
 
       <div class=""meta-bar"">
-        <span>NanoPaint, Lda. · Universidade do Minho · Braga, Portugal</span>
+        <span>NanoPaint, Lda. · CIIES – Sala 23/28 · Avenida de Tibães, 1199 · 4770-568 Vale de São Cosme, Portugal</span>
         <span>www.nanopaint-tech.com · info@nanopaint-tech.com</span>
       </div>
 

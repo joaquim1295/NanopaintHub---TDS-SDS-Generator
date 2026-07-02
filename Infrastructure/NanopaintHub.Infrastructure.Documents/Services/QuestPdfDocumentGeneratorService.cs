@@ -408,7 +408,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         {
             col.Item().Row(row =>
             {
-                row.RelativeItem().Text(string.IsNullOrWhiteSpace(schema.Footer.Column1) ? "NanoPaint, Lda.\nUniversidade do Minho\nBraga, Portugal" : schema.Footer.Column1)
+                row.RelativeItem().Text(string.IsNullOrWhiteSpace(schema.Footer.Column1) ? "NanoPaint, Lda.\nCIIES – Sala 23/28\nAvenida de Tibães, 1199\n4770-568 Vale de São Cosme, Portugal" : schema.Footer.Column1)
                    .FontSize((float)schema.Theme.BaseFontSize - 1f).Bold().FontColor(schema.Theme.PrimaryColor);
                 
                 row.RelativeItem().AlignRight().Text(string.IsNullOrWhiteSpace(schema.Footer.Column2) ? "www.nanopaint-tech.com\ninfo@nanopaint-tech.com" : schema.Footer.Column2)
@@ -653,7 +653,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingTop(4).Text("1.2 Relevant identified uses of the substance or mixture and uses advised against").Bold();
         col.Item().PaddingLeft(10).Text("Use of the Substance/Mixture: Industrial and research");
         col.Item().PaddingTop(4).Text("1.3 Details of the supplier of the safety data sheet").Bold();
-        col.Item().PaddingLeft(10).Text("Company: Nanopaint, Lda\nAddress: IBS – Institute of Science and Innovation, Braga, Portugal");
+        col.Item().PaddingLeft(10).Text("Company: Nanopaint, Lda\nAddress: CIIES – Sala 23/28, Avenida de Tibães, 1199, 4770-568 Vale de São Cosme, Portugal");
         col.Item().PaddingTop(4).Text("1.4 Emergency telephone number").Bold();
         col.Item().PaddingLeft(10).Text("+351 253 601 681");
     }

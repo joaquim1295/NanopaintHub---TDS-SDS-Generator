@@ -531,7 +531,7 @@ public partial class TemplateEditorViewModel : ObservableObject
 <p><strong>1.2 Relevant identified uses of the substance or mixture and uses advised against</strong></p>
 <p style=""padding-left:10px"">Use of the Substance/Mixture: Industrial and research</p>
 <p><strong>1.3 Details of the supplier of the safety data sheet</strong></p>
-<p style=""padding-left:10px"">Company: Nanopaint, Lda<br/>Address: IBS – Institute of Science and Innovation, Braga, Portugal</p>
+<p style=""padding-left:10px"">Company: Nanopaint, Lda<br/>Address: CIIES – Sala 23/28, Avenida de Tibães, 1199, 4770-568 Vale de São Cosme, Portugal</p>
 <p><strong>1.4 Emergency telephone number</strong></p>
 <p style=""padding-left:10px"">+351 253 601 681</p>",
             "SdsSection2" => @"<p><strong>2.1 Classification of the substance or mixture</strong></p>

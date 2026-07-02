@@ -155,7 +155,7 @@ public partial class TemplateTheme : ObservableObject
 public partial class TemplateFooter : ObservableObject
 {
     [ObservableProperty]
-    private string _column1 = "NanoPaint, Lda.\nUniversidade do Minho\nBraga, Portugal";
+    private string _column1 = "NanoPaint, Lda.\nCIIES – Sala 23/28\nAvenida de Tibães, 1199\n4770-568 Vale de São Cosme, Portugal";
 
     [ObservableProperty]
     private string _column2 = "www.nanopaint-tech.com\ninfo@nanopaint-tech.com";
