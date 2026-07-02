@@ -146,7 +146,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             });
     }
 
-    private string ReplacePlaceholders(string text, Product product, DocumentTemplate template)
+    private string ReplacePlaceholders(string text, Product product, DocumentTemplate? template = null)
     {
         if (string.IsNullOrWhiteSpace(text)) return string.Empty;
 
@@ -157,7 +157,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             .Replace("{{Product.Code}}", product.Code ?? "")
             .Replace("{{Description}}", product.Description ?? "")
             .Replace("{{Product.Description}}", product.Description ?? "")
-            .Replace("{{TemplateName}}", template.TemplateName ?? "")
+            .Replace("{{TemplateName}}", template?.TemplateName ?? "")
             .Replace("{{RevisionDate}}", product.RevisionDate.ToString("yyyy-MM-dd"))
             .Replace("{{Version}}", product.DocumentVersion.ToString());
     }
@@ -484,26 +484,77 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     col.Item().SkipOnce().Element(c => ComposeMinimalHeader(c, schema, product, template));
                 });
 
-                page.Content().PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre).PaddingTop(5, Unit.Millimetre).Column(col =>
+                page.Content().PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre).PaddingTop((float)schema.Layout.ContentPaddingTop, Unit.Millimetre).Column(col =>
                 {
                     col.Spacing(8);
-                    
-                    ComposeSdsSection1(col, product, schema);
-                    ComposeSdsSection2(col, uniqueHazards, hazardCodes, schema);
-                    ComposeSdsSection3(col, compositions, schema);
-                    ComposeSdsSection4(col, hazardCodes, schema);
-                    ComposeSdsSection5(col, hazardCodes, schema);
-                    ComposeSdsSection6(col, schema);
-                    ComposeSdsSection7(col, hazardCodes, schema);
-                    ComposeSdsSection8(col, schema);
-                    ComposeSdsSection9(col, liquidProps, schema);
-                    ComposeSdsSection10(col, schema);
-                    ComposeSdsSection11(col, hazardCodes, schema);
-                    ComposeSdsSection12(col, hazardCodes, schema);
-                    ComposeSdsSection13(col, schema);
-                    ComposeSdsSection14(col, schema);
-                    ComposeSdsSection15(col, schema);
-                    ComposeSdsSection16(col, hazardPhrases, schema);
+
+                    if (schema.Sections == null || schema.Sections.Count == 0)
+                    {
+                        // Fallback Se o Builder não tiver gerado secções
+                        ComposeSdsSection1(col, product, schema);
+                        ComposeSdsSection2(col, uniqueHazards, hazardCodes, schema);
+                        ComposeSdsSection3(col, compositions, schema);
+                        ComposeSdsSection4(col, hazardCodes, schema);
+                        ComposeSdsSection5(col, hazardCodes, schema);
+                        ComposeSdsSection6(col, schema);
+                        ComposeSdsSection7(col, hazardCodes, schema);
+                        ComposeSdsSection8(col, schema);
+                        ComposeSdsSection9(col, liquidProps, schema);
+                        ComposeSdsSection10(col, schema);
+                        ComposeSdsSection11(col, hazardCodes, schema);
+                        ComposeSdsSection12(col, hazardCodes, schema);
+                        ComposeSdsSection13(col, schema);
+                        ComposeSdsSection14(col, schema);
+                        ComposeSdsSection15(col, schema);
+                        ComposeSdsSection16(col, hazardPhrases, schema);
+                    }
+                    else
+                    {
+                        var halfWidthQueue = new List<TemplateSectionSchema>();
+            
+                        void FlushHalfWidthQueue()
+                        {
+                            if (halfWidthQueue.Count > 0)
+                            {
+                                col.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Column(leftCol =>
+                                    {
+                                        for (int i = 0; i < halfWidthQueue.Count; i += 2)
+                                        {
+                                            var sec = halfWidthQueue[i];
+                                            leftCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases));
+                                        }
+                                    });
+                                    row.ConstantItem(10);
+                                    row.RelativeItem().Column(rightCol =>
+                                    {
+                                        for (int i = 1; i < halfWidthQueue.Count; i += 2)
+                                        {
+                                            var sec = halfWidthQueue[i];
+                                            rightCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases));
+                                        }
+                                    });
+                                });
+                                halfWidthQueue.Clear();
+                            }
+                        }
+            
+                        foreach (var sec in schema.Sections)
+                        {
+                            if (sec.IsHalfWidth)
+                            {
+                                halfWidthQueue.Add(sec);
+                            }
+                            else
+                            {
+                                FlushHalfWidthQueue();
+                                col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases));
+                            }
+                        }
+            
+                        FlushHalfWidthQueue();
+                    }
                 });
 
                 page.Footer()
@@ -514,8 +565,79 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         });
 
         var bytes = document.GeneratePdf();
+        
+        if (!string.IsNullOrWhiteSpace(product.ExposureScenarioPdfPath) && System.IO.File.Exists(product.ExposureScenarioPdfPath))
+        {
+            _progress.Report("Anexando Cenários de Exposição (Merge PDF)...", 90);
+            try
+            {
+                using var sourceStream = new System.IO.MemoryStream(bytes);
+                using var destStream = new System.IO.MemoryStream();
+                
+                using var destPdf = new iText.Kernel.Pdf.PdfDocument(new iText.Kernel.Pdf.PdfWriter(destStream));
+                var merger = new iText.Kernel.Utils.PdfMerger(destPdf);
+                
+                using var sourcePdf = new iText.Kernel.Pdf.PdfDocument(new iText.Kernel.Pdf.PdfReader(sourceStream));
+                merger.Merge(sourcePdf, 1, sourcePdf.GetNumberOfPages());
+                
+                using var annexPdf = new iText.Kernel.Pdf.PdfDocument(new iText.Kernel.Pdf.PdfReader(product.ExposureScenarioPdfPath));
+                merger.Merge(annexPdf, 1, annexPdf.GetNumberOfPages());
+                
+                sourcePdf.Close();
+                annexPdf.Close();
+                destPdf.Close();
+                
+                bytes = destStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to merge PDF: {ex.Message}");
+            }
+        }
+
         _progress.Report("SDS QuestPDF gerado com sucesso.", 100);
         return Task.FromResult(bytes);
+    }
+
+    private void RenderSdsSection(ColumnDescriptor inner, TemplateSectionSchema sec, TemplateBuilderSchema schema, Product product, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes, List<ProductComposition> compositions, Dictionary<string, string> liquidProps, List<string> hazardPhrases)
+    {
+        if (sec.Type == "RichText" || sec.Type == "SdsSectionText")
+        {
+            float scale = schema.Layout.SectionBaseScale > 0 ? (float)schema.Layout.SectionBaseScale : 1.0f;
+            float baseFontSize = sec.FontSize > 0 ? (float)sec.FontSize : (float)schema.Theme.BaseFontSize * scale;
+            if (!string.IsNullOrWhiteSpace(sec.Title))
+            {
+                inner.Item().PaddingBottom(6).Element(c => DrawSectionTitle(c, sec.Title, schema.Theme.SecondaryColor, baseFontSize));
+            }
+            var text = System.Text.RegularExpressions.Regex.Replace(sec.Content ?? "", "<[^>]*>", string.Empty);
+            text = ReplacePlaceholders(text, product, null);
+            inner.Item().Text(text).FontSize(baseFontSize);
+            return;
+        }
+
+        string sectionKey = !string.IsNullOrWhiteSpace(sec.DataSource) && sec.DataSource.StartsWith("SdsSection") 
+            ? sec.DataSource 
+            : sec.Type;
+
+        switch (sectionKey)
+        {
+            case "SdsSection1": ComposeSdsSection1(inner, product, schema, sec.Title); break;
+            case "SdsSection2": ComposeSdsSection2(inner, uniqueHazards, hazardCodes, schema, sec.Title); break;
+            case "SdsSection3": ComposeSdsSection3(inner, compositions, schema, sec.Title); break;
+            case "SdsSection4": ComposeSdsSection4(inner, hazardCodes, schema, sec.Title); break;
+            case "SdsSection5": ComposeSdsSection5(inner, hazardCodes, schema, sec.Title); break;
+            case "SdsSection6": ComposeSdsSection6(inner, schema, sec.Title); break;
+            case "SdsSection7": ComposeSdsSection7(inner, hazardCodes, schema, sec.Title); break;
+            case "SdsSection8": ComposeSdsSection8(inner, schema, sec.Title); break;
+            case "SdsSection9": ComposeSdsSection9(inner, liquidProps, schema, sec.Title); break;
+            case "SdsSection10": ComposeSdsSection10(inner, schema, sec.Title); break;
+            case "SdsSection11": ComposeSdsSection11(inner, hazardCodes, schema, sec.Title); break;
+            case "SdsSection12": ComposeSdsSection12(inner, hazardCodes, schema, sec.Title); break;
+            case "SdsSection13": ComposeSdsSection13(inner, schema, sec.Title); break;
+            case "SdsSection14": ComposeSdsSection14(inner, schema, sec.Title); break;
+            case "SdsSection15": ComposeSdsSection15(inner, schema, sec.Title); break;
+            case "SdsSection16": ComposeSdsSection16(inner, hazardPhrases, schema, sec.Title); break;
+        }
     }
 
     private void DrawSdsTitle(ColumnDescriptor col, string title, TemplateBuilderSchema schema)
@@ -523,9 +645,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingTop(6).Element(c => DrawSectionTitle(c, title, schema.Theme.SecondaryColor, (float)schema.Theme.BaseFontSize));
     }
 
-    private void ComposeSdsSection1(ColumnDescriptor col, Product product, TemplateBuilderSchema schema)
+    private void ComposeSdsSection1(ColumnDescriptor col, Product product, TemplateBuilderSchema schema, string title = "SECTION 1: Identification of the substance/mixture and of the company/undertaking")
     {
-        DrawSdsTitle(col, "SECTION 1: Identification of the substance/mixture and of the company/undertaking", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("1.1 Product identifier").Bold();
         col.Item().PaddingLeft(10).Text($"Product name: {product.Name}");
         col.Item().PaddingTop(4).Text("1.2 Relevant identified uses of the substance or mixture and uses advised against").Bold();
@@ -536,9 +658,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("+351 253 601 681");
     }
 
-    private void ComposeSdsSection2(ColumnDescriptor col, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes, TemplateBuilderSchema schema)
+    private void ComposeSdsSection2(ColumnDescriptor col, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 2: Hazards identification")
     {
-        DrawSdsTitle(col, "SECTION 2: Hazards identification", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("2.1 Classification of the substance or mixture").Bold();
         col.Item().Text("Classification (REGULATION (EC) No 1272/2008)");
         
@@ -574,9 +696,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         }
     }
 
-    private void ComposeSdsSection3(ColumnDescriptor col, List<ProductComposition> compositions, TemplateBuilderSchema schema)
+    private void ComposeSdsSection3(ColumnDescriptor col, List<ProductComposition> compositions, TemplateBuilderSchema schema, string title = "SECTION 3: Composition/information on ingredients")
     {
-        DrawSdsTitle(col, "SECTION 3: Composition/information on ingredients", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("3.2 Mixtures").Bold();
         col.Item().Text("Dangerous Components:");
         
@@ -613,9 +735,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         });
     }
 
-    private void ComposeSdsSection4(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema)
+    private void ComposeSdsSection4(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 4: First aid measures")
     {
-        DrawSdsTitle(col, "SECTION 4: First aid measures", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("4.1 Description of first aid measures").Bold();
         
         var general = "General advice: Consult a physician. Show this safety data sheet to the doctor in attendance.";
@@ -638,9 +760,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text($"{general}\n{inhalation}\n{skin}\n{eye}\n{ingestion}");
     }
 
-    private void ComposeSdsSection5(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema)
+    private void ComposeSdsSection5(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 5: Firefighting measures")
     {
-        DrawSdsTitle(col, "SECTION 5: Firefighting measures", schema);
+        DrawSdsTitle(col, title, schema);
         var isFlammable = hazardCodes.Any(h => h.StartsWith("H22"));
         
         col.Item().Text("5.1 Extinguishing media").Bold();
@@ -655,9 +777,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("Wear self-contained breathing apparatus for firefighting if necessary.");
     }
 
-    private void ComposeSdsSection6(ColumnDescriptor col, TemplateBuilderSchema schema)
+    private void ComposeSdsSection6(ColumnDescriptor col, TemplateBuilderSchema schema, string title = "SECTION 6: Accidental release measures")
     {
-        DrawSdsTitle(col, "SECTION 6: Accidental release measures", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("6.1 Personal precautions, protective equipment and emergency procedures").Bold();
         col.Item().PaddingLeft(10).Text("Use personal protective equipment. Avoid breathing vapours, mist or gas. Ensure adequate ventilation.");
         
@@ -668,9 +790,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("Soak up with inert absorbent material and dispose of as hazardous waste. Keep in suitable, closed containers for disposal.");
     }
 
-    private void ComposeSdsSection7(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema)
+    private void ComposeSdsSection7(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 7: Handling and storage")
     {
-        DrawSdsTitle(col, "SECTION 7: Handling and storage", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("7.1 Precautions for safe handling").Bold();
         col.Item().PaddingLeft(10).Text("Avoid contact with skin and eyes. Avoid inhalation of vapour or mist.");
         
@@ -683,9 +805,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("Store in cool place. Keep container tightly closed in a dry and well-ventilated place.");
     }
 
-    private void ComposeSdsSection8(ColumnDescriptor col, TemplateBuilderSchema schema)
+    private void ComposeSdsSection8(ColumnDescriptor col, TemplateBuilderSchema schema, string title = "SECTION 8: Exposure controls/personal protection")
     {
-        DrawSdsTitle(col, "SECTION 8: Exposure controls/personal protection", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("8.1 Control parameters").Bold();
         col.Item().PaddingLeft(10).Text("Components with workplace control parameters: No data available.");
         
@@ -693,9 +815,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("Appropriate engineering controls: Handle in accordance with good industrial hygiene and safety practice.\nPersonal protective equipment: Safety glasses with side-shields, chemical resistant gloves, protective clothing.");
     }
 
-    private void ComposeSdsSection9(ColumnDescriptor col, Dictionary<string, string> liquidProps, TemplateBuilderSchema schema)
+    private void ComposeSdsSection9(ColumnDescriptor col, Dictionary<string, string> liquidProps, TemplateBuilderSchema schema, string title = "SECTION 9: Physical and chemical properties")
     {
-        DrawSdsTitle(col, "SECTION 9: Physical and chemical properties", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("9.1 Information on basic physical and chemical properties").Bold();
         
         var state = liquidProps.TryGetValue("Physical form", out var phys) ? phys : "Liquid";
@@ -709,9 +831,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("Flash point: No data available");
     }
 
-    private void ComposeSdsSection10(ColumnDescriptor col, TemplateBuilderSchema schema)
+    private void ComposeSdsSection10(ColumnDescriptor col, TemplateBuilderSchema schema, string title = "SECTION 10: Stability and reactivity")
     {
-        DrawSdsTitle(col, "SECTION 10: Stability and reactivity", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("10.1 Reactivity: No data available");
         col.Item().Text("10.2 Chemical stability: Stable under recommended storage conditions.");
         col.Item().Text("10.3 Possibility of hazardous reactions: No data available");
@@ -719,9 +841,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().Text("10.5 Incompatible materials: Strong oxidizing agents.");
     }
 
-    private void ComposeSdsSection11(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema)
+    private void ComposeSdsSection11(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 11: Toxicological information")
     {
-        DrawSdsTitle(col, "SECTION 11: Toxicological information", schema);
+        DrawSdsTitle(col, title, schema);
         var isToxic = hazardCodes.Any(h => h.StartsWith("H30") || h.StartsWith("H31") || h.StartsWith("H33"));
         col.Item().Text("11.1 Information on hazard classes as defined in Regulation (EC) No 1272/2008").Bold();
         col.Item().PaddingLeft(10).Text(isToxic ? "Acute toxicity: Classified based on available ingredients data." : "Acute toxicity: Based on available data, the classification criteria are not met.");
@@ -729,38 +851,38 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("Serious eye damage/eye irritation: Refer to Section 2.");
     }
 
-    private void ComposeSdsSection12(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema)
+    private void ComposeSdsSection12(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 12: Ecological information")
     {
-        DrawSdsTitle(col, "SECTION 12: Ecological information", schema);
+        DrawSdsTitle(col, title, schema);
         var isEcoToxic = hazardCodes.Any(h => h.StartsWith("H4"));
         col.Item().Text("12.1 Toxicity: " + (isEcoToxic ? "Toxic to aquatic life." : "No data available."));
         col.Item().Text("12.2 Persistence and degradability: No data available.");
         col.Item().Text("12.3 Bioaccumulative potential: No data available.");
     }
 
-    private void ComposeSdsSection13(ColumnDescriptor col, TemplateBuilderSchema schema)
+    private void ComposeSdsSection13(ColumnDescriptor col, TemplateBuilderSchema schema, string title = "SECTION 13: Disposal considerations")
     {
-        DrawSdsTitle(col, "SECTION 13: Disposal considerations", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("13.1 Waste treatment methods").Bold();
         col.Item().PaddingLeft(10).Text("Product: Offer surplus and non-recyclable solutions to a licensed disposal company.\nContaminated packaging: Dispose of as unused product.");
     }
 
-    private void ComposeSdsSection14(ColumnDescriptor col, TemplateBuilderSchema schema)
+    private void ComposeSdsSection14(ColumnDescriptor col, TemplateBuilderSchema schema, string title = "SECTION 14: Transport information")
     {
-        DrawSdsTitle(col, "SECTION 14: Transport information", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("Not regulated as a dangerous good under ADR/RID, IMDG, or IATA unless specifically classified in Section 2.");
     }
 
-    private void ComposeSdsSection15(ColumnDescriptor col, TemplateBuilderSchema schema)
+    private void ComposeSdsSection15(ColumnDescriptor col, TemplateBuilderSchema schema, string title = "SECTION 15: Regulatory information")
     {
-        DrawSdsTitle(col, "SECTION 15: Regulatory information", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("15.1 Safety, health and environmental regulations/legislation specific for the substance or mixture").Bold();
         col.Item().PaddingLeft(10).Text("This safety datasheet complies with the requirements of Regulation (EC) No. 1907/2006.");
     }
 
-    private void ComposeSdsSection16(ColumnDescriptor col, List<string> hazardPhrases, TemplateBuilderSchema schema)
+    private void ComposeSdsSection16(ColumnDescriptor col, List<string> hazardPhrases, TemplateBuilderSchema schema, string title = "SECTION 16: Other information")
     {
-        DrawSdsTitle(col, "SECTION 16: Other information", schema);
+        DrawSdsTitle(col, title, schema);
         col.Item().Text("Full text of H-Statements referred to under sections 2 and 3:").Bold();
         if (hazardPhrases.Any())
         {

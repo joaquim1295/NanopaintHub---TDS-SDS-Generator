@@ -21,6 +21,7 @@ public class Product : Entity
 
     public DateTime RevisionDate { get; set; }
     public int DocumentVersion { get; set; }
+    public string ExposureScenarioPdfPath { get; set; } = string.Empty;
 
     public ICollection<ProductComposition> Compositions { get; set; } = new List<ProductComposition>();
 }

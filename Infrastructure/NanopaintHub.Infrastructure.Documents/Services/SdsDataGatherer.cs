@@ -103,19 +103,18 @@ public class SdsDataGatherer
             Assets = jsonExtendedSpecs.TemplateAssets,
             Schema = schema,
             LogoBase64 = logoBase64,
-            
-            // New GHS Intel:
-            UniqueHazards = hazardPhrases,
-            HasHazards = hazardPhrases.Any(),
+            UniqueHazards = uniqueHazards,
+            HasHazards = uniqueHazards.Any(),
             Pictograms = pictograms,
             HasPictograms = pictograms.Any(),
-            IsFlammable = isFlammable,
             HasInhalationHazard = hasInhalationHazard,
             HasSkinHazard = hasSkinHazard,
             HasEyeHazard = hasEyeHazard,
             HasIngestionHazard = hasIngestionHazard,
             IsToxic = isToxic,
-            IsEcoToxic = isEcoToxic
+            IsEcoToxic = isEcoToxic,
+            HazardPhrases = hazardPhrases,
+            HasHazardPhrases = hazardPhrases.Any()
         };
 
         var compiledTemplate = Handlebars.Compile(template.HtmlStructure);

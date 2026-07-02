@@ -66,4 +66,13 @@ public sealed partial class ProductEditorPage : Page
             SubstanceSearchResultsPopupWide.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         }
     }
+
+    private void CompositionPercentage_ValueChanged(Microsoft.UI.Xaml.Controls.NumberBox sender, Microsoft.UI.Xaml.Controls.NumberBoxValueChangedEventArgs args)
+    {
+        // Enqueue the validation so it runs after the binding updates the model
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            ViewModel.ValidateCompositions();
+        });
+    }
 }

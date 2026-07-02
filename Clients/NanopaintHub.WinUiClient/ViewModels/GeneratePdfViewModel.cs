@@ -57,6 +57,19 @@ public partial class GeneratePdfViewModel : ObservableObject
         _pdfPreviewService = pdfPreviewService;
         _pdfOptions = pdfOptions;
         _navigationService = navigationService;
+
+        var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+        _pdfOptions.OnChange((options, name) =>
+        {
+            if (dispatcher != null)
+            {
+                dispatcher.TryEnqueue(() => EvaluateQuestPdfEngine());
+            }
+            else
+            {
+                EvaluateQuestPdfEngine();
+            }
+        });
     }
 
     [RelayCommand]
@@ -168,16 +181,13 @@ public partial class GeneratePdfViewModel : ObservableObject
             };
 
             byte[] pdfBytes;
-            if (DocumentType == "TDS")
+            if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
             {
-                if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
-                {
-                    pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
-                }
-                else
-                {
-                    pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
-                }
+                pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
+            }
+            else if (DocumentType == "TDS")
+            {
+                pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
             }
             else
             {
@@ -235,16 +245,13 @@ public partial class GeneratePdfViewModel : ObservableObject
                 PageOrientation = PageOrientation == "Paisagem" ? "Landscape" : "Portrait"
             };
 
-            if (DocumentType == "TDS")
+            if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
             {
-                if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
-                {
-                    pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
-                }
-                else
-                {
-                    pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
-                }
+                pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
+            }
+            else if (DocumentType == "TDS")
+            {
+                pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
             }
             else
             {
@@ -286,16 +293,13 @@ public partial class GeneratePdfViewModel : ObservableObject
                 PageOrientation = PageOrientation == "Paisagem" ? "Landscape" : "Portrait"
             };
 
-            if (DocumentType == "TDS")
+            if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
             {
-                if (!string.IsNullOrWhiteSpace(EditedHtmlContent))
-                {
-                    pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
-                }
-                else
-                {
-                    pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
-                }
+                pdfBytes = await _htmlEngineService.GeneratePdfFromRawBodyAsync(EditedHtmlContent, SelectedTemplate, settings);
+            }
+            else if (DocumentType == "TDS")
+            {
+                pdfBytes = await _generateTdsUseCase.ExecuteAsync(new GenerateTdsQuery(SelectedProduct.Id, SelectedTemplate.Id, null, true, settings));
             }
             else
             {
@@ -333,12 +337,6 @@ public partial class GeneratePdfViewModel : ObservableObject
             return;
         }
 
-        if (DocumentType != "TDS")
-        {
-            StatusMessage = "A edição de conteúdo só está disponível para documentos TDS.";
-            return;
-        }
-
         IsLoading = true;
         StatusMessage = "A preparar editor de conteúdo...";
 
@@ -352,7 +350,7 @@ public partial class GeneratePdfViewModel : ObservableObject
             else
             {
                 // We use the raw body so TinyMCE doesn't mangle <head> or PagedJs scripts
-                htmlToEdit = await _htmlEngineService.GenerateRawBodyHtmlAsync(SelectedProduct, SelectedTemplate, false, null);
+                htmlToEdit = await _htmlEngineService.GenerateRawBodyHtmlAsync(SelectedProduct, SelectedTemplate, DocumentType == "SDS", null);
             }
 
             var assetsDir = Path.Combine(AppContext.BaseDirectory, "Assets", "Editor");

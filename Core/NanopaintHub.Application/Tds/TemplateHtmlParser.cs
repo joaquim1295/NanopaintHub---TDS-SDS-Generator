@@ -220,6 +220,12 @@ public static class TemplateHtmlParser
                     var classMatch = Regex.Match(attrs, @"class=""([^""]+)""");
                     var cssClass = classMatch.Success ? classMatch.Groups[1].Value : "";
 
+                    var secTypeMatch = Regex.Match(attrs, @"data-type=""([^""]+)""");
+                    var typeValue = secTypeMatch.Success ? secTypeMatch.Groups[1].Value : "";
+
+                    var dsMatch = Regex.Match(attrs, @"data-source=""([^""]+)""");
+                    var dsValue = dsMatch.Success ? dsMatch.Groups[1].Value : "";
+
                     var section = new TemplateSectionSchema
                     {
                         Id = Guid.NewGuid().ToString(),
@@ -257,7 +263,17 @@ public static class TemplateHtmlParser
                     if (titleMatch.Success)
                         section.Title = StripHtmlTags(titleMatch.Groups[1].Value);
 
-                    if (innerHtml.Contains("features-grid"))
+                    if (!string.IsNullOrEmpty(typeValue))
+                    {
+                        section.Type = typeValue;
+                        section.DataSource = dsValue;
+                        if (typeValue == "RichText" || typeValue == "SdsSectionText" || typeValue.StartsWith("SdsSection"))
+                        {
+                            var content = Regex.Replace(innerHtml, @"<h2[^>]*>.*?</h2>", "");
+                            section.Content = content.Trim();
+                        }
+                    }
+                    else if (innerHtml.Contains("features-grid"))
                     {
                         var ds = ExtractDataSource(innerHtml, "{{#each", "}}");
                         if (!string.IsNullOrWhiteSpace(ds))

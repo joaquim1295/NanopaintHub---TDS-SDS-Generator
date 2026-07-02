@@ -138,6 +138,10 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                     b.Property<int>("DocumentVersion")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ExposureScenarioPdfPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("FeaturesJson")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -288,40 +292,6 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                     b.ToTable("Suppliers");
                 });
 
-            modelBuilder.Entity("NanopaintHub.Domain.Entities.SupplierComponent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CasNumber")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ComponentName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("LastModified")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SdsProperties")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("SupplierId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("SupplierComponents");
-                });
-
             modelBuilder.Entity("NanopaintHub.Domain.Entities.TestBatch", b =>
                 {
                     b.Property<Guid>("Id")
@@ -407,15 +377,6 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                     b.Navigation("Phrase");
 
                     b.Navigation("Substance");
-                });
-
-            modelBuilder.Entity("NanopaintHub.Domain.Entities.SupplierComponent", b =>
-                {
-                    b.HasOne("NanopaintHub.Domain.Entities.Supplier", null)
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("NanopaintHub.Domain.Entities.TestBatch", b =>

@@ -192,7 +192,10 @@ public partial class TemplateSection : ObservableObject
 
     /// <summary>Text, Table, BulletPoints, Charts, RichText</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanEditContent))]
     private string _type = "Text";
+
+    public bool CanEditContent => !IsDataBound && (Type == "RichText" || Type == "SdsSectionText" || (Type != null && Type.StartsWith("SdsSection")));
 
     /// <summary>Qual campo do Produto este bloco lê (ex: LiquidProperties, Features, Charts)</summary>
     [ObservableProperty]
@@ -226,4 +229,8 @@ public partial class TemplateSection : ObservableObject
 
     [ObservableProperty]
     private bool _isExpanded = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanEditContent))]
+    private bool _isDataBound = false;
 }

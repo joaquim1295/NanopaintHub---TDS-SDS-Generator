@@ -7,8 +7,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:NanopaintHub_WinUIClient.ViewModels"
     xmlns:entities="using:NanopaintHub.Domain.Entities"
+    xmlns:converters="using:NanopaintHub_WinUIClient.Converters"
     mc:Ignorable="d"
     Background="Transparent">
+
+    <Page.Resources>
+        <converters:PercentageToBrushConverter x:Key="PercentageToBrushConverter" />
+    </Page.Resources>
 
     <Grid x:Name="RootGrid">
         <VisualStateManager.VisualStateGroups>
@@ -178,6 +183,11 @@
                                         </ListView>
                                     </Border>
 
+                                    <InfoBar IsOpen="{x:Bind ViewModel.HasCompositionsError, Mode=OneWay}"
+                                             Severity="Error"
+                                             Message="{x:Bind ViewModel.CompositionsValidationMessage, Mode=OneWay}" 
+                                             IsClosable="False" Margin="0,0,0,16" />
+
                                     <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="entities:ProductComposition">
@@ -191,7 +201,11 @@
                                                     </StackPanel>
                                                     
                                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0" VerticalAlignment="Center">
-                                                        <TextBox Text="{Binding Percentage, Mode=TwoWay}" PlaceholderText="%" Width="60" TextAlignment="Right" />
+                                                        <NumberBox Value="{Binding Percentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                   ValueChanged="CompositionPercentage_ValueChanged" 
+                                                                   Foreground="{Binding Percentage, Converter={StaticResource PercentageToBrushConverter}}"
+                                                                   PlaceholderText="%" Width="90" 
+                                                                   SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
                                                         <TextBlock Text="%" VerticalAlignment="Center" />
                                                     </StackPanel>
                                                     
@@ -202,6 +216,25 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE8A5;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Anexos &amp; Cenários de Exposição (REACH)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <TextBlock Text="O ficheiro PDF selecionado será automaticamente concatenado no final da Ficha de Segurança (SDS)." 
+                                               Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                        <TextBox Grid.Column="0" Header="Caminho do PDF do Cenário de Exposição" 
+                                                 Text="{x:Bind ViewModel.Product.ExposureScenarioPdfPath, Mode=TwoWay}" 
+                                                 PlaceholderText="C:\Caminho\para\o\ficheiro.pdf" />
+                                        <Button Grid.Column="1" Content="Procurar PDF" VerticalAlignment="Bottom" Command="{x:Bind ViewModel.SelectPdfCommand}" />
+                                    </Grid>
                                 </StackPanel>
                             </Expander>
 
@@ -369,6 +402,11 @@
                                             </ListView.ItemTemplate>
                                         </ListView>
                                     </Border>
+                                    <InfoBar IsOpen="{x:Bind ViewModel.HasCompositionsError, Mode=OneWay}"
+                                             Severity="Error"
+                                             Message="{x:Bind ViewModel.CompositionsValidationMessage, Mode=OneWay}" 
+                                             IsClosable="False" Margin="0,0,0,16" />
+
                                     <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="entities:ProductComposition">
@@ -382,7 +420,10 @@
                                                     </StackPanel>
                                                     
                                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0" VerticalAlignment="Center">
-                                                        <TextBox Text="{Binding Percentage, Mode=TwoWay}" PlaceholderText="%" Width="60" TextAlignment="Right" />
+                                                        <NumberBox Value="{Binding Percentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                   ValueChanged="CompositionPercentage_ValueChanged" 
+                                                                   PlaceholderText="%" Width="90" 
+                                                                   SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
                                                         <TextBlock Text="%" VerticalAlignment="Center" />
                                                     </StackPanel>
                                                     

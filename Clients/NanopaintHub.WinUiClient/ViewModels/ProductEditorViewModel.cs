@@ -42,6 +42,32 @@ public partial class ProductEditorViewModel : ObservableObject
     [ObservableProperty]
     private TdsSensorSpecs _sensorSpecs = new();
 
+    [ObservableProperty]
+    private string _compositionsValidationMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool _hasCompositionsError = false;
+
+    public void ValidateCompositions()
+    {
+        var total = Compositions.Sum(c => c.Percentage);
+        if (Compositions.Any(c => c.Percentage <= 0))
+        {
+            HasCompositionsError = true;
+            CompositionsValidationMessage = "A percentagem não pode ser 0 ou inferior.";
+        }
+        else if (total > 100)
+        {
+            HasCompositionsError = true;
+            CompositionsValidationMessage = $"O total excede 100% (Atual: {total}%).";
+        }
+        else
+        {
+            HasCompositionsError = false;
+            CompositionsValidationMessage = string.Empty;
+        }
+    }
+
     public ProductEditorViewModel(
         IProductRepository productRepository, 
         INavigationService navigationService,
@@ -102,6 +128,7 @@ public partial class ProductEditorViewModel : ObservableObject
                 Compositions.Add(comp);
             }
         }
+        ValidateCompositions();
 
         try
         {
@@ -244,18 +271,58 @@ public partial class ProductEditorViewModel : ObservableObject
             Percentage = 0,
             ExtraMetadataJson = "{}"
         });
+        ValidateCompositions();
     }
 
     [RelayCommand]
     private void RemoveComposition(ProductComposition comp)
     {
-        if (comp != null) Compositions.Remove(comp);
+        if (comp != null) 
+        {
+            Compositions.Remove(comp);
+            ValidateCompositions();
+        }
     }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
         if (Product == null) return;
+
+        if (Compositions.Any(c => c.Percentage <= 0))
+        {
+            var window = (Microsoft.UI.Xaml.Application.Current as App)?.MainWindow;
+            if (window != null)
+            {
+                var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                {
+                    Title = "Percentagem Inválida",
+                    Content = "A percentagem de um componente não pode ser 0 ou inferior. Por favor, introduza um valor válido para todos os componentes.",
+                    CloseButtonText = "OK",
+                    XamlRoot = window.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            return;
+        }
+
+        var totalPercentage = Compositions.Sum(c => c.Percentage);
+        if (totalPercentage > 100)
+        {
+            var window = (Microsoft.UI.Xaml.Application.Current as App)?.MainWindow;
+            if (window != null)
+            {
+                var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                {
+                    Title = "Percentagem Total Inválida",
+                    Content = $"A soma das percentagens dos componentes é de {totalPercentage}%. O total não deve ultrapassar os 100%.",
+                    CloseButtonText = "OK",
+                    XamlRoot = window.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            return;
+        }
 
         SaveCollectionsToProduct();
 
@@ -284,5 +351,28 @@ public partial class ProductEditorViewModel : ObservableObject
     private void Cancel()
     {
         _navigationService.GoBack();
+    }
+
+    [RelayCommand]
+    private async Task SelectPdfAsync()
+    {
+        if (Product == null) return;
+        
+        var window = (Microsoft.UI.Xaml.Application.Current as App)?.MainWindow;
+        if (window == null) return;
+
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+
+        picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+        picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+        picker.FileTypeFilter.Add(".pdf");
+
+        var file = await picker.PickSingleFileAsync();
+        if (file != null)
+        {
+            Product.ExposureScenarioPdfPath = file.Path;
+            OnPropertyChanged(nameof(Product));
+        }
     }
 }

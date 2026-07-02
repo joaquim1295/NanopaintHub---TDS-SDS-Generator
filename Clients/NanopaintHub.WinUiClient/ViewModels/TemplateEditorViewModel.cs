@@ -49,6 +49,8 @@ public partial class TemplateEditorViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoadingPreview;
 
+    private readonly IConfiguration _configuration;
+
     [ObservableProperty]
     private string _pageTitle = "Novo Template";
 
@@ -57,6 +59,22 @@ public partial class TemplateEditorViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isNotQuestPdfSelected;
+
+    [ObservableProperty]
+    private bool _isSdsSelected;
+
+    [ObservableProperty]
+    private bool _isTdsSelected = true;
+
+    public void UpdateDocumentTypeFlags()
+    {
+        if (Template != null)
+        {
+            IsSdsSelected = Template.DocumentType == "SDS";
+            IsTdsSelected = Template.DocumentType == "TDS";
+            EvaluateQuestPdfEngine();
+        }
+    }
 
     public TemplateEditorViewModel(
         ITemplateRepository templateRepository, 
@@ -75,8 +93,19 @@ public partial class TemplateEditorViewModel : ObservableObject
         _pdfLayoutService = pdfLayoutService;
         _documentGeneratorRouter = documentGeneratorRouter;
         _pdfPreviewService = pdfPreviewService;
+        _configuration = configuration;
 
-        var engine = configuration["PdfEngine"] ?? "questpdf";
+        var engine = configuration["PdfGenerator:TdsEngine"] ?? "questpdf";
+        IsQuestPdfSelected = string.Equals(engine, "questpdf", StringComparison.OrdinalIgnoreCase);
+        IsNotQuestPdfSelected = !IsQuestPdfSelected;
+    }
+
+    private void EvaluateQuestPdfEngine()
+    {
+        var engine = (Template?.DocumentType == "SDS") 
+            ? (_configuration["PdfGenerator:SdsEngine"] ?? "questpdf")
+            : (_configuration["PdfGenerator:TdsEngine"] ?? "questpdf");
+            
         IsQuestPdfSelected = string.Equals(engine, "questpdf", StringComparison.OrdinalIgnoreCase);
         IsNotQuestPdfSelected = !IsQuestPdfSelected;
     }
@@ -104,8 +133,9 @@ public partial class TemplateEditorViewModel : ObservableObject
                 };
                 BuilderModel = new TemplateBuilderModel();
                 PageTitle = "Novo Template";
-                GenerateDefaultTdsLayout();
+                GenerateDefaultLayout();
             }
+            UpdateDocumentTypeFlags();
         }
         finally
         {
@@ -187,6 +217,33 @@ public partial class TemplateEditorViewModel : ObservableObject
     public void SyncHtmlToBuilder()
     {
         if (Template == null) return;
+        
+        if (Template.DocumentType == "SDS")
+        {
+            if (!string.IsNullOrWhiteSpace(Template.BuilderJson))
+            {
+                try
+                {
+                    BuilderModel = System.Text.Json.JsonSerializer.Deserialize<TemplateBuilderModel>(Template.BuilderJson, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new TemplateBuilderModel();
+                }
+                catch
+                {
+                    BuilderModel = new TemplateBuilderModel();
+                }
+            }
+            else
+            {
+                BuilderModel = new TemplateBuilderModel();
+            }
+
+            var hasCorruption = !BuilderModel.Sections.Any() || BuilderModel.Sections.Any(s => s.Type == "RichText");
+            if (hasCorruption)
+            {
+                GenerateDefaultLayout();
+            }
+            return;
+        }
+
         BuilderModel = TemplateHtmlParser.Parse(Template.HtmlStructure, Template.CssStructure);
     }
 
@@ -216,7 +273,39 @@ public partial class TemplateEditorViewModel : ObservableObject
                 LiquidPropertiesJson = $"{{\"Viscosidade\":\"100 cP\", \"Densidade\":\"1.2 g/cm³\", \"Sólidos\":\"45%\", \"Ph\":\"7.2\"}}",
                 MechanicalPropertiesJson = $"{{\"Dureza\":\"60 Shore A\", \"Alongamento\":\"300%\", \"Tração\":\"5 MPa\"}}",
                 FunctionalPropertiesJson = $"{{\"Resistência\":\"1 kOhm\", \"Sensibilidade\":\"0.87 V/N\"}}",
-                TdsSensorSpecsJson = $"{{\"ForceUnit\":\"N\", \"SensitivityVolts\":0.87, \"SensitivityPerUnit\":0.082, \"ResponseTimeSec\":0.018, \"RecoveryTimeSec\":0.025, \"RepeatabilityPercent\":2.1, \"RestResistanceOhms\":118000, \"HysteresisPercent\":4.2, \"OperatingTempMinC\":-10, \"OperatingTempMaxC\":85, \"RangeMin\":0, \"RangeMax\":50}}"
+                TdsSensorSpecsJson = $"{{\"ForceUnit\":\"N\", \"SensitivityVolts\":0.87, \"SensitivityPerUnit\":0.082, \"ResponseTimeSec\":0.018, \"RecoveryTimeSec\":0.025, \"RepeatabilityPercent\":2.1, \"RestResistanceOhms\":118000, \"HysteresisPercent\":4.2, \"OperatingTempMinC\":-10, \"OperatingTempMaxC\":85, \"RangeMin\":0, \"RangeMax\":50}}",
+                Compositions = new List<ProductComposition>
+                {
+                    new ProductComposition
+                    {
+                        Percentage = 60,
+                        EchaSubstance = new EchaSubstance
+                        {
+                            ChemicalName = "Ethanol",
+                            CasNumber = "64-17-5",
+                            EcNumber = "200-578-6",
+                            Hazards = new List<SubstanceHazard>
+                            {
+                                new SubstanceHazard { PhraseCode = "H225", Phrase = new ClpPhrase { Code = "H225", Description = "Líquido e vapor facilmente inflamáveis" } },
+                                new SubstanceHazard { PhraseCode = "H319", Phrase = new ClpPhrase { Code = "H319", Description = "Provoca irritação ocular grave" } }
+                            }
+                        }
+                    },
+                    new ProductComposition
+                    {
+                        Percentage = 40,
+                        EchaSubstance = new EchaSubstance
+                        {
+                            ChemicalName = "Carbon Black",
+                            CasNumber = "1333-86-4",
+                            EcNumber = "215-609-9",
+                            Hazards = new List<SubstanceHazard>
+                            {
+                                new SubstanceHazard { PhraseCode = "H351", Phrase = new ClpPhrase { Code = "H351", Description = "Suspeito de provocar cancro" } }
+                            }
+                        }
+                    }
+                }
             };
 
             var tempTemplate = new DocumentTemplate
@@ -308,7 +397,7 @@ public partial class TemplateEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void GenerateDefaultTdsLayout()
+    private void GenerateDefaultLayout()
     {
         if (Template == null) return;
 
@@ -323,11 +412,35 @@ public partial class TemplateEditorViewModel : ObservableObject
         BuilderModel.Footer.TextColor = "#0f2a4a";
 
         BuilderModel.Sections.Clear();
-        BuilderModel.Sections.Add(new TemplateSection { Title = "Ink features", Type = "BulletPoints", DataSource = "Features", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#223145" });
-        BuilderModel.Sections.Add(new TemplateSection { Title = "Ink properties", Type = "Table", DataSource = "LiquidProperties", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#223145" });
-        BuilderModel.Sections.Add(new TemplateSection { Title = "Handling Guidelines", Type = "Table", DataSource = "MechanicalProperties", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
-        BuilderModel.Sections.Add(new TemplateSection { Title = "Sensor specifications", Type = "Table", DataSource = "Tds", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", Content = "" });
-        BuilderModel.Sections.Add(new TemplateSection { Title = "Performance charts", Type = "Charts", DataSource = "Charts", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
+
+        if (Template.DocumentType == "SDS")
+        {
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 1: Identification of the substance/mixture and of the company/undertaking", Type = "SdsSection", DataSource = "SdsSection1", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 2: Hazards identification", Type = "SdsSection", DataSource = "SdsSection2", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 3: Composition/information on ingredients", Type = "SdsSection", DataSource = "SdsSection3", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 4: First aid measures", Type = "SdsSection", DataSource = "SdsSection4", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 5: Firefighting measures", Type = "SdsSection", DataSource = "SdsSection5", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 6: Accidental release measures", Type = "SdsSection", DataSource = "SdsSection6", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 7: Handling and storage", Type = "SdsSection", DataSource = "SdsSection7", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 8: Exposure controls/personal protection", Type = "SdsSection", DataSource = "SdsSection8", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 9: Physical and chemical properties", Type = "SdsSection", DataSource = "SdsSection9", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 10: Stability and reactivity", Type = "SdsSection", DataSource = "SdsSection10", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 11: Toxicological information", Type = "SdsSection", DataSource = "SdsSection11", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 12: Ecological information", Type = "SdsSection", DataSource = "SdsSection12", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 13: Disposal considerations", Type = "SdsSection", DataSource = "SdsSection13", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 14: Transport information", Type = "SdsSection", DataSource = "SdsSection14", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 15: Regulatory information", Type = "SdsSection", DataSource = "SdsSection15", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 16: Other information", Type = "SdsSection", DataSource = "SdsSection16", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
+        }
+        else
+        {
+            BuilderModel.Sections.Add(new TemplateSection { Title = "Ink features", Type = "BulletPoints", DataSource = "Features", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#223145" });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "Ink properties", Type = "Table", DataSource = "LiquidProperties", IsHalfWidth = true, FontFamily = "Segoe UI", TextColor = "#223145" });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "Handling Guidelines", Type = "Table", DataSource = "MechanicalProperties", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "Sensor specifications", Type = "Table", DataSource = "Tds", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", Content = "" });
+            BuilderModel.Sections.Add(new TemplateSection { Title = "Performance charts", Type = "Charts", DataSource = "Charts", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145" });
+        }
+        
         SyncBuilderToHtml();
         OnPropertyChanged(nameof(BuilderModel));
     }
@@ -369,6 +482,11 @@ public partial class TemplateEditorViewModel : ObservableObject
     {
         if (section == null || Template == null) return;
 
+        if (string.IsNullOrWhiteSpace(section.Content) && section.Type != null && section.Type.StartsWith("SdsSection"))
+        {
+            section.Content = GetDefaultSdsHtml(section.Type);
+        }
+
         // Sync latest CSS to pass to editor
         SyncBuilderToHtml();
 
@@ -402,5 +520,60 @@ public partial class TemplateEditorViewModel : ObservableObject
         {
             BuilderModel.Sections.Remove(section);
         }
+    }
+
+    private string GetDefaultSdsHtml(string sectionType)
+    {
+        return sectionType switch
+        {
+            "SdsSection1" => @"<p><strong>1.1 Product identifier</strong></p>
+<p style=""padding-left:10px"">Product name: {{Name}}</p>
+<p><strong>1.2 Relevant identified uses of the substance or mixture and uses advised against</strong></p>
+<p style=""padding-left:10px"">Use of the Substance/Mixture: Industrial and research</p>
+<p><strong>1.3 Details of the supplier of the safety data sheet</strong></p>
+<p style=""padding-left:10px"">Company: Nanopaint, Lda<br/>Address: IBS – Institute of Science and Innovation, Braga, Portugal</p>
+<p><strong>1.4 Emergency telephone number</strong></p>
+<p style=""padding-left:10px"">+351 253 601 681</p>",
+            "SdsSection2" => @"<p><strong>2.1 Classification of the substance or mixture</strong></p>
+<p>Classification (REGULATION (EC) No 1272/2008)</p>
+<ul style=""list-style:none; padding-left:10px; margin:0;"">
+  {{#if HazardPhrases}}
+    {{#each HazardPhrases}}<li>{{this}}</li>{{/each}}
+  {{else}}
+    <li>Not classified as a hazardous mixture.</li>
+  {{/if}}
+</ul>
+<p style=""margin-top:4px;""><strong>2.2 Label elements</strong></p>
+<div style=""padding-left:10px;"">
+  {{#each Pictograms}}<div>{{this}}</div>{{/each}}
+</div>",
+            "SdsSection3" => @"<table class=""sds-table"">
+  <tr class=""sds-table-header""><th colspan=""5"">3. COMPOSIÇÃO/INFORMAÇÃO SOBRE OS COMPONENTES</th></tr>
+  <tr>
+    <th>Nome Químico</th>
+    <th>Nº CAS</th>
+    <th>Nº CE</th>
+    <th>Concentração</th>
+    <th>Perigos (Códigos H)</th>
+  </tr>
+  {{#each Components}}
+  <tr>
+    <td>{{ChemicalName}}</td>
+    <td>{{CasNumber}}</td>
+    <td>{{EcNumber}}</td>
+    <td>{{Percentage}}</td>
+    <td>{{Hazards}}</td>
+  </tr>
+  {{/each}}
+</table>",
+            "SdsSection9" => @"<table class=""sds-table"">
+  <tr class=""sds-table-header""><th colspan=""2"">9. PROPRIEDADES FÍSICAS E QUÍMICAS</th></tr>
+  <tr><td width=""40%""><b>Estado Físico</b></td><td>Líquido</td></tr>
+  {{#each LiquidProperties}}
+  <tr><td><b>{{@key}}</b></td><td>{{this}}</td></tr>
+  {{/each}}
+</table>",
+            _ => ""
+        };
     }
 }

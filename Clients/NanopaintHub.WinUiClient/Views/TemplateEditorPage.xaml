@@ -33,7 +33,7 @@
                 
                 <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="16" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
                     <TextBox Grid.Column="0" Header="Nome do Template" Text="{x:Bind ViewModel.Template.TemplateName, Mode=TwoWay}" HorizontalAlignment="Stretch" MinWidth="300" />
-                    <ComboBox Grid.Column="1" Header="Tipo de Documento" SelectedValue="{x:Bind ViewModel.Template.DocumentType, Mode=TwoWay}" SelectedValuePath="Content" MinWidth="150">
+                    <ComboBox Grid.Column="1" Header="Tipo de Documento" SelectedValue="{x:Bind ViewModel.Template.DocumentType, Mode=TwoWay}" SelectedValuePath="Content" MinWidth="150" SelectionChanged="DocumentType_SelectionChanged">
                         <ComboBoxItem Content="TDS" />
                         <ComboBoxItem Content="SDS" />
                     </ComboBox>
@@ -48,7 +48,7 @@
                                         <FontIcon Glyph="&#xE713;" />
                                     </NavigationViewItem.Icon>
                                 </NavigationViewItem>
-                                <NavigationViewItem Content="Secções de Conteúdo" Tag="Sections">
+                                <NavigationViewItem Content="Secções e Design" Tag="Sections">
                                     <NavigationViewItem.Icon>
                                         <FontIcon Glyph="&#xE8FD;" />
                                     </NavigationViewItem.Icon>
@@ -206,13 +206,17 @@
                                     </Grid>
                                 </ScrollViewer>
 
+
+
                                 <!-- Aba: SECÇÕES DE CONTEÚDO -->
                                 <ScrollViewer x:Name="SectionsScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,16,16" Visibility="Collapsed">
-                                    <ListView ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}"
-                                              CanReorderItems="True"
-                                              AllowDrop="True"
-                                              SelectionMode="None"
-                                              IsItemClickEnabled="False">
+                                    <StackPanel Spacing="0">
+                                        <InfoBar IsOpen="True" Severity="Informational" Title="Design de Elementos GHS" Message="A Ficha de Segurança segue um formato estrito de 16 secções exigido pela regulamentação ECHA/GHS. Pode alterar a cor, tipografia e espaçamentos, mas o seu conteúdo e ordenação estão legalmente bloqueados." Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsSdsSelected, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,0,16"/>
+                                        <ListView ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}"
+                                                  CanReorderItems="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected}"
+                                                  AllowDrop="True"
+                                                  SelectionMode="None"
+                                                  IsItemClickEnabled="False">
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -237,7 +241,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         
                                                         <!-- Left Grabber Handle -->
-                                                        <Border Grid.Column="0" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Width="32" CornerRadius="8,0,0,8">
+                                                        <Border Grid.Column="0" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Width="32" CornerRadius="8,0,0,8" Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
                                                             <FontIcon Glyph="&#xE76F;" FontFamily="{ThemeResource SymbolThemeFontFamily}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" ToolTipService.ToolTip="Arraste para reordenar" />
                                                         </Border>
 
@@ -246,19 +250,24 @@
                                                                  <Grid.ColumnDefinitions>
                                                                      <ColumnDefinition Width="*" />
                                                                  </Grid.ColumnDefinitions>
-                                                                 <TextBox Text="{x:Bind Title, Mode=TwoWay}" HorizontalAlignment="Stretch" PlaceholderText="Título da Secção" />
+                                                                 <TextBox Text="{x:Bind Title, Mode=TwoWay}" HorizontalAlignment="Stretch" PlaceholderText="Título da Secção" IsReadOnly="{Binding ElementName=RootGrid, Path=DataContext.IsSdsSelected}"/>
                                                              </Grid>
                                                              
                                                              <Grid Padding="16,0,16,16" Visibility="{x:Bind IsExpanded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                  <Grid ColumnDefinitions="*,*,*" ColumnSpacing="24" HorizontalAlignment="Stretch">
                                                                      <!-- Coluna 1: Tipo & Layout -->
-                                                                     <StackPanel Grid.Column="0" Spacing="8" VerticalAlignment="Top">
+                                                                     <StackPanel Grid.Column="0" Spacing="8" VerticalAlignment="Top" Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                          <ComboBox Header="Tipo de Secção" SelectedValue="{x:Bind Type, Mode=TwoWay}" SelectedValuePath="Content" HorizontalAlignment="Stretch">
                                                                              <ComboBoxItem Content="RichText" />
                                                                              <ComboBoxItem Content="Text" />
                                                                              <ComboBoxItem Content="Table" />
                                                                              <ComboBoxItem Content="BulletPoints" />
                                                                              <ComboBoxItem Content="Charts" />
+                                                                             <ComboBoxItem Content="SdsSection1" />
+                                                                             <ComboBoxItem Content="SdsSection2" />
+                                                                             <ComboBoxItem Content="SdsSection3" />
+                                                                             <ComboBoxItem Content="SdsSection9" />
+                                                                             <ComboBoxItem Content="SdsSectionText" />
                                                                          </ComboBox>
                                                                          <ComboBox Header="Layout" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" HorizontalAlignment="Stretch">
                                                                              <ComboBoxItem Content="1 Coluna">
@@ -266,7 +275,7 @@
                                                                                      <x:Boolean>False</x:Boolean>
                                                                                  </ComboBoxItem.Tag>
                                                                              </ComboBoxItem>
-                                                                             <ComboBoxItem Content="2 Colunas">
+                                                                            <ComboBoxItem Content="2 Colunas">
                                                                                  <ComboBoxItem.Tag>
                                                                                      <x:Boolean>True</x:Boolean>
                                                                                  </ComboBoxItem.Tag>
@@ -277,9 +286,13 @@
                                                                                  HorizontalAlignment="Stretch"
                                                                                  Command="{Binding ElementName=RootGrid, Path=DataContext.EditSectionContentCommand}"
                                                                                  CommandParameter="{Binding}"
-                                                                                 Visibility="{Binding Type, Converter={StaticResource StringEqualityToVisibilityConverter}, ConverterParameter='RichText'}"
+                                                                                 Visibility="{Binding CanEditContent, Converter={StaticResource BoolToVisibilityConverter}}"
                                                                                  IsEnabled="{Binding ElementName=RootGrid, Path=DataContext.IsNotQuestPdfSelected}"
                                                                                  Style="{ThemeResource AccentButtonStyle}"/>
+                                                                         <InfoBar IsOpen="True" Severity="Informational" 
+                                                                                  Title="Automático" Message="Gerado dinamicamente via ECHA." 
+                                                                                  IsClosable="False" Margin="0,8,0,0" 
+                                                                                  Visibility="{Binding IsDataBound, Converter={StaticResource BoolToVisibilityConverter}}" />
                                                                      </StackPanel>
                                                                      <!-- Coluna 2: Fonte & Cor -->
                                                                      <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Top">
@@ -318,8 +331,7 @@
                                                              <ToggleButton IsChecked="{x:Bind IsExpanded, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Expandir/Recolher Definições">
                                                                  <FontIcon Glyph="&#xE713;" FontFamily="{ThemeResource SymbolThemeFontFamily}" />
                                                              </ToggleButton>
-                                                             <Button Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Remover Secção">
-                                                                 <!-- Note: Delete action would be bound here if implemented -->
+                                                             <Button Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Remover Secção" Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveSectionCommand}" CommandParameter="{Binding}" Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                  <FontIcon Glyph="&#xE74D;" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
                                                              </Button>
                                                          </StackPanel>
@@ -328,6 +340,8 @@
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
                                     </ListView>
+                                    <Button Content="Adicionar Nova Secção" Command="{x:Bind ViewModel.AddSectionCommand}" Margin="0,0,0,16" Visibility="{x:Bind ViewModel.IsTdsSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </ScrollViewer>
                             </Grid>
                         </NavigationView>
@@ -336,7 +350,7 @@
                     <PivotItem x:Name="HtmlPivotItem" Header="Edição Manual (HTML/CSS)" Margin="0" x:Load="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay}">
                         <StackPanel Spacing="16" Margin="0,16,0,0">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Button Content="Gerar Layout Padrão" Command="{x:Bind ViewModel.GenerateDefaultTdsLayoutCommand}" Style="{ThemeResource AccentButtonStyle}" />
+                                <Button Content="Gerar Layout Padrão" Command="{x:Bind ViewModel.GenerateDefaultLayoutCommand}" Style="{ThemeResource AccentButtonStyle}" />
                             </StackPanel>
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="16" Height="500">
                                 <StackPanel Grid.Column="0" Spacing="8">

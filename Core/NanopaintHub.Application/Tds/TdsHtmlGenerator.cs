@@ -283,16 +283,21 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
             styles.Add($"min-height: {sec.MinHeight}px;");
 
         string secStyle = styles.Count > 0 ? $" style=\"{string.Join(" ", styles)}\"" : "";
+        string dataAttrs = $" data-type=\"{sec.Type}\" data-source=\"{sec.DataSource}\"";
 
         if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
         {
             sb.AppendLine($"        {{{{#if {sec.DataSource}}}}}");
         }
 
-        sb.AppendLine($"        <section class=\"{cssClass}\"{secStyle}>");
+        sb.AppendLine($"        <section class=\"{cssClass}\"{secStyle}{dataAttrs}>");
         sb.AppendLine($"          <h2 class=\"section-title\">{sec.Title}</h2>");
 
-        if (sec.Type == "RichText")
+        if (!string.IsNullOrWhiteSpace(sec.Content) && (sec.Type == "RichText" || sec.Type == "SdsSectionText" || (sec.Type != null && sec.Type.StartsWith("SdsSection"))))
+        {
+            sb.AppendLine($"          {sec.Content}");
+        }
+        else if (sec.Type == "RichText")
         {
             sb.AppendLine($"          {sec.Content}");
         }
