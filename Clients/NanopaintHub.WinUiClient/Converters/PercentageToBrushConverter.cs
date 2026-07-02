@@ -18,8 +18,8 @@ public class PercentageToBrushConverter : IValueConverter
             }
         }
         
-        // Return default (can be null to fallback to original style)
-        return null;
+        // Return UnsetValue to fallback to original style
+        return Microsoft.UI.Xaml.DependencyProperty.UnsetValue;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)

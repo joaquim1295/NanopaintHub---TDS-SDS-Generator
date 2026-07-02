@@ -1,0 +1,11 @@
+namespace NanopaintHub.Domain.Interfaces.Repositories;
+
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NanopaintHub.Domain.Entities;
+
+public interface IDocumentReleaseRepository : IAsyncRepository<DocumentRelease>
+{
+    Task<IReadOnlyList<DocumentRelease>> GetReleasesByProductIdAsync(int productId);
+    Task<IReadOnlyList<DocumentRelease>> GetReleasesByTypeAsync(string documentType);
+}

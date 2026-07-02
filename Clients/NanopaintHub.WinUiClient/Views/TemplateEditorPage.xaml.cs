@@ -128,10 +128,10 @@ public sealed partial class TemplateEditorPage : Page
         // Forçar binding source update
         if (sender is ComboBox cb && cb.SelectedValue != null && ViewModel?.Template != null)
         {
-            ViewModel.Template.DocumentType = cb.SelectedValue.ToString();
+            ViewModel.Template.DocumentType = cb.SelectedValue.ToString() ?? string.Empty;
         }
         
-        ViewModel.UpdateDocumentTypeFlags();
+        ViewModel?.UpdateDocumentTypeFlags();
         
         // When Document Type changes, we stay on the current tab, no need to force visibility changes here
         // as the Sections tab is now valid for both SDS and TDS.

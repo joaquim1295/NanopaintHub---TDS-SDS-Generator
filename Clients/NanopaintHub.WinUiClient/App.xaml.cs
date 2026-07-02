@@ -12,6 +12,7 @@ using NanopaintHub.Application.Features.TdsGeneration;
 using NanopaintHub.Application.Features.SdsGeneration;
 using NanopaintHub.Application.Contracts;
 using NanopaintHub.Application.Services;
+using NanopaintHub.Application.Features.DocumentReleases;
 
 namespace NanopaintHub_WinUIClient;
 
@@ -56,6 +57,7 @@ public partial class App : Application
 builder.Services.AddSingleton<PdfPreviewService>();
         // Register ViewModels
         builder.Services.AddTransient<ShellViewModel>();
+        builder.Services.AddTransient<DashboardViewModel>();
         builder.Services.AddTransient<ProductsViewModel>();
         builder.Services.AddTransient<ProductEditorViewModel>();
         builder.Services.AddTransient<TemplatesViewModel>();
@@ -66,6 +68,7 @@ builder.Services.AddSingleton<PdfPreviewService>();
         // Register Use Cases and Services
         builder.Services.AddTransient<GenerateTdsUseCase>();
         builder.Services.AddTransient<GenerateSdsUseCase>();
+        builder.Services.AddTransient<SaveDocumentReleaseUseCase>();
         builder.Services.AddTransient<IEchaImportService, EchaImportService>();
         builder.Services.AddTransient<ISubstanceSearchService, SubstanceSearchService>();
 

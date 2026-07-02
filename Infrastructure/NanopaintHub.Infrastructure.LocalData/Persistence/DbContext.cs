@@ -11,6 +11,7 @@ public class NanopaintHubDbContext : DbContext
     public DbSet<TestBatch> TestBatches { get; set; } = null!;
     public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
     public DbSet<Supplier> Suppliers { get; set; } = null!;
+    public DbSet<DocumentRelease> DocumentReleases { get; set; } = null!;
 
     // SDS Database (ECHA / CLP)
     public DbSet<EchaSubstance> EchaSubstances { get; set; } = null!;
@@ -57,6 +58,12 @@ public class NanopaintHubDbContext : DbContext
             .WithMany()
             .HasForeignKey(tb => tb.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DocumentRelease>()
+            .HasOne<Product>()
+            .WithMany()
+            .HasForeignKey(dr => dr.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // SDS Config
         modelBuilder.Entity<EchaSubstance>()

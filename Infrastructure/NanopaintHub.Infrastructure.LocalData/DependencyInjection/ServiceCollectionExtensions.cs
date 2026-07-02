@@ -25,6 +25,7 @@ public static class NanopaintHubPersistenceServiceCollectionExtensions
         services.AddScoped<ITemplateRepository, TemplateRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ITestBatchRepository, TestBatchRepository>();
+        services.AddScoped<IDocumentReleaseRepository, DocumentReleaseRepository>();
         services.AddScoped<IEchaSubstanceRepository, EchaSubstanceRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

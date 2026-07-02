@@ -25,9 +25,9 @@ public sealed partial class ShellPage : Page
     private void ShellPage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         _navigationService.Initialize(ContentFrame);
-        // Default navigate to Products
+        // Default navigate to Dashboard
         NavView.SelectedItem = NavView.MenuItems.OfType<NavigationViewItem>().First();
-        _navigationService.NavigateTo("Products");
+        _navigationService.NavigateTo("Dashboard");
     }
 
     private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using NanopaintHub.Application.Contracts;
 using NanopaintHub.Application.Features.SdsGeneration;
 using NanopaintHub.Application.Features.TdsGeneration;
+using NanopaintHub.Application.Features.DocumentReleases;
 using NanopaintHub.Domain.Entities;
 using Windows.Storage.Pickers;
 using Windows.Storage;
@@ -25,6 +26,7 @@ public partial class GeneratePdfViewModel : ObservableObject
     private readonly ITestBatchRepository _testBatchRepository;
     private readonly GenerateTdsUseCase _generateTdsUseCase;
     private readonly GenerateSdsUseCase _generateSdsUseCase;
+    private readonly SaveDocumentReleaseUseCase _saveDocumentReleaseUseCase;
     private readonly IDocumentGeneratorService _documentGeneratorService;
     private readonly IHtmlEngineService _htmlEngineService;
     private readonly IChromiumTinyMceEditorService _editorService;
@@ -39,6 +41,7 @@ public partial class GeneratePdfViewModel : ObservableObject
         ITestBatchRepository testBatchRepository,
         GenerateTdsUseCase generateTdsUseCase,
         GenerateSdsUseCase generateSdsUseCase,
+        SaveDocumentReleaseUseCase saveDocumentReleaseUseCase,
         IDocumentGeneratorService documentGeneratorService,
         IHtmlEngineService htmlEngineService,
         IChromiumTinyMceEditorService editorService,
@@ -51,6 +54,7 @@ public partial class GeneratePdfViewModel : ObservableObject
         _testBatchRepository = testBatchRepository;
         _generateTdsUseCase = generateTdsUseCase;
         _generateSdsUseCase = generateSdsUseCase;
+        _saveDocumentReleaseUseCase = saveDocumentReleaseUseCase;
         _documentGeneratorService = documentGeneratorService;
         _htmlEngineService = htmlEngineService;
         _editorService = editorService;
@@ -205,6 +209,17 @@ public partial class GeneratePdfViewModel : ObservableObject
             if (file != null)
             {
                 await File.WriteAllBytesAsync(file.Path, pdfBytes);
+                
+                // Audit Trail: Gravar Document Release
+                await _saveDocumentReleaseUseCase.ExecuteAsync(new SaveDocumentReleaseCommand(
+                    SelectedProduct.Id,
+                    SelectedProduct.Name,
+                    DocumentType,
+                    SelectedProduct.DocumentVersion.ToString(),
+                    file.Path,
+                    SelectedTemplate?.BuilderJson ?? ""
+                ));
+
                 StatusMessage = "PDF gerado com sucesso.";
                 SavedFilePath = file.Path;
                 OnPropertyChanged(nameof(SavedFileUri));

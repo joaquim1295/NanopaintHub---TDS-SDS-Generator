@@ -35,6 +35,51 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                     b.ToTable("ClpPhrases");
                 });
 
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.DocumentRelease", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("GeneratedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SnapshotJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("DocumentReleases");
+                });
+
             modelBuilder.Entity("NanopaintHub.Domain.Entities.DocumentTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -330,6 +375,15 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("TestBatches");
+                });
+
+            modelBuilder.Entity("NanopaintHub.Domain.Entities.DocumentRelease", b =>
+                {
+                    b.HasOne("NanopaintHub.Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("NanopaintHub.Domain.Entities.Product", b =>
