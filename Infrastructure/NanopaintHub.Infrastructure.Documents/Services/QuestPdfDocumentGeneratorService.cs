@@ -688,7 +688,20 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
         if (pictograms.Any())
         {
-            col.Item().PaddingLeft(10).Text($"Warning Pictograms: {string.Join(", ", pictograms)}");
+            col.Item().PaddingLeft(10).PaddingBottom(5).Text($"Warning Pictograms: {string.Join(", ", pictograms)}");
+            col.Item().PaddingLeft(10).Row(row =>
+            {
+                row.Spacing(10);
+                foreach (var p in pictograms)
+                {
+                    var code = p.Split(' ')[0];
+                    var imgPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Pictograms", $"{code}.png");
+                    if (File.Exists(imgPath))
+                    {
+                        row.AutoItem().Height(40).Image(imgPath).FitArea();
+                    }
+                }
+            });
         }
         else
         {
