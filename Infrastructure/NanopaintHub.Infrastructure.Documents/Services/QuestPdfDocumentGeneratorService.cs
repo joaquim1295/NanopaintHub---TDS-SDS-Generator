@@ -504,7 +504,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                         ComposeSdsSection11(col, hazardCodes, schema);
                         ComposeSdsSection12(col, hazardCodes, schema);
                         ComposeSdsSection13(col, schema);
-                        ComposeSdsSection14(col, schema);
+                        ComposeSdsSection14(col, hazardCodes, schema);
                         ComposeSdsSection15(col, schema);
                         ComposeSdsSection16(col, hazardPhrases, schema);
                     }
@@ -634,7 +634,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             case "SdsSection11": ComposeSdsSection11(inner, hazardCodes, schema, sec.Title); break;
             case "SdsSection12": ComposeSdsSection12(inner, hazardCodes, schema, sec.Title); break;
             case "SdsSection13": ComposeSdsSection13(inner, schema, sec.Title); break;
-            case "SdsSection14": ComposeSdsSection14(inner, schema, sec.Title); break;
+            case "SdsSection14": ComposeSdsSection14(inner, hazardCodes, schema, sec.Title); break;
             case "SdsSection15": ComposeSdsSection15(inner, schema, sec.Title); break;
             case "SdsSection16": ComposeSdsSection16(inner, hazardPhrases, schema, sec.Title); break;
         }
@@ -880,10 +880,38 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("Product: Offer surplus and non-recyclable solutions to a licensed disposal company.\nContaminated packaging: Dispose of as unused product.");
     }
 
-    private void ComposeSdsSection14(ColumnDescriptor col, TemplateBuilderSchema schema, string title = "SECTION 14: Transport information")
+    private void ComposeSdsSection14(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 14: Transport information")
     {
         DrawSdsTitle(col, title, schema);
-        col.Item().Text("Not regulated as a dangerous good under ADR/RID, IMDG, or IATA unless specifically classified in Section 2.");
+        
+        var adrClasses = new List<string>();
+        if (hazardCodes.Any(h => h.StartsWith("H22"))) adrClasses.Add("ADR3 (Flammable Liquid)");
+        if (hazardCodes.Any(h => h.StartsWith("H314"))) adrClasses.Add("ADR8 (Corrosive)");
+        if (hazardCodes.Any(h => h.StartsWith("H301") || h.StartsWith("H311") || h.StartsWith("H331"))) adrClasses.Add("ADR6 (Toxic)");
+        if (hazardCodes.Any(h => h.StartsWith("H400") || h.StartsWith("H410") || h.StartsWith("H411"))) adrClasses.Add("ADR9 (Environmentally Hazardous)");
+
+        if (adrClasses.Any())
+        {
+            col.Item().PaddingLeft(10).PaddingBottom(5).Text($"Regulated under ADR/RID, IMDG, IATA. Hazard Classes: {string.Join(", ", adrClasses)}");
+            
+            col.Item().PaddingLeft(10).Row(row =>
+            {
+                row.Spacing(10);
+                foreach (var adr in adrClasses)
+                {
+                    var code = adr.Split(' ')[0]; // gets "ADR3", "ADR8", etc.
+                    var imgPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Pictograms", $"{code}.png");
+                    if (File.Exists(imgPath))
+                    {
+                        row.AutoItem().Height(40).Image(imgPath).FitArea();
+                    }
+                }
+            });
+        }
+        else
+        {
+            col.Item().PaddingLeft(10).Text("Not regulated as a dangerous good under ADR/RID, IMDG, or IATA unless specifically classified in Section 2.");
+        }
     }
 
     private void ComposeSdsSection15(ColumnDescriptor col, TemplateBuilderSchema schema, string title = "SECTION 15: Regulatory information")
