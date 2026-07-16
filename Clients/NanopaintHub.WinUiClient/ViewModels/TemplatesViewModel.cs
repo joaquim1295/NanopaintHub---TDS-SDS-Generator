@@ -13,6 +13,7 @@ public partial class TemplatesViewModel : ObservableObject
 {
     private readonly ITemplateRepository _templateRepository;
     private readonly INavigationService _navigationService;
+    private readonly IUnitOfWork _unitOfWork;
 
     [ObservableProperty]
     private ObservableCollection<DocumentTemplate> _templates = new();
@@ -41,10 +42,11 @@ public partial class TemplatesViewModel : ObservableObject
         }
     }
 
-    public TemplatesViewModel(ITemplateRepository templateRepository, INavigationService navigationService)
+    public TemplatesViewModel(ITemplateRepository templateRepository, INavigationService navigationService, IUnitOfWork unitOfWork)
     {
         _templateRepository = templateRepository;
         _navigationService = navigationService;
+        _unitOfWork = unitOfWork;
         _isCardView = _isGlobalCardView;
     }
 
@@ -110,7 +112,28 @@ public partial class TemplatesViewModel : ObservableObject
     {
         if (template != null)
         {
+            var window = (Microsoft.UI.Xaml.Application.Current as App)?.MainWindow;
+            if (window != null)
+            {
+                var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                {
+                    Title = "Confirmar Exclusão",
+                    Content = $"Tem a certeza que deseja excluir o template '{template.TemplateName}'? Esta ação não pode ser desfeita.",
+                    PrimaryButtonText = "Excluir",
+                    CloseButtonText = "Cancelar",
+                    DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
+                    XamlRoot = window.Content.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+                {
+                    return;
+                }
+            }
+
             await _templateRepository.DeleteAsync(template.Id);
+            await _unitOfWork.CommitAsync();
             Templates.Remove(template);
             ApplyFilter();
         }

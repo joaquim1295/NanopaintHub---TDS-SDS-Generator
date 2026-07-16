@@ -5,7 +5,7 @@ using Windows.UI;
 
 namespace NanopaintHub_WinUIClient.Converters;
 
-public class StringToSolidColorBrushConverter : IValueConverter
+public sealed partial class StringToSolidColorBrushConverter : IValueConverter
 {
     private readonly StringToColorConverter _colorConverter = new();
 

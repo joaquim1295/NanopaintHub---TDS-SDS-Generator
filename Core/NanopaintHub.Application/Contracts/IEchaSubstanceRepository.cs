@@ -13,5 +13,6 @@ public interface IEchaSubstanceRepository
     Task<List<EchaSubstance>> SearchByCasAsync(string casNumber, int limit = 20, CancellationToken cancellationToken = default);
     Task<EchaSubstance?> GetByCasAsync(string casNumber, CancellationToken cancellationToken = default);
     Task<List<string>> GetExistingCasNumbersAsync(IEnumerable<string> casNumbers, CancellationToken cancellationToken = default);
+    Task<List<EchaSubstance>> GetByCasListAsync(IEnumerable<string> casNumbers, CancellationToken cancellationToken = default);
     Task AddAsync(EchaSubstance substance, CancellationToken cancellationToken = default);
 }

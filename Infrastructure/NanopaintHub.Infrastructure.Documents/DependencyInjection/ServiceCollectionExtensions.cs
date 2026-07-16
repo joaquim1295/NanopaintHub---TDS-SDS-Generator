@@ -25,6 +25,7 @@ public static class NanopaintHubDocumentsServiceCollectionExtensions
         services.AddScoped<DocumentGeneratorService>();
         services.AddScoped<QuestPdfDocumentGeneratorService>();
         services.AddScoped<ITextDocumentGeneratorService>();
+        services.AddScoped<ISdsPdfExtractorService, SdsPdfExtractorService>();
         services.AddScoped<IDocumentGeneratorService, DocumentGeneratorRouter>();
         services.AddScoped<IHtmlEngineService>(sp => sp.GetRequiredService<DocumentGeneratorService>());
         return services;

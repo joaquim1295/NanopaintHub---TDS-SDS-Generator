@@ -229,3 +229,4 @@ public static class DatabaseSeeder
         await db.SaveChangesAsync(cancellationToken);
     }
 }
+

@@ -11,6 +11,8 @@ public class NanopaintHubDbContext : DbContext
     public DbSet<TestBatch> TestBatches { get; set; } = null!;
     public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
     public DbSet<Supplier> Suppliers { get; set; } = null!;
+    public DbSet<SupplierProduct> SupplierProducts { get; set; } = null!;
+    public DbSet<SupplierProductComposition> SupplierProductCompositions { get; set; } = null!;
     public DbSet<DocumentRelease> DocumentReleases { get; set; } = null!;
 
     // SDS Database (ECHA / CLP)
@@ -52,6 +54,10 @@ public class NanopaintHubDbContext : DbContext
         modelBuilder.Entity<Product>()
             .Property(p => p.TdsSensorSpecsJson)
             .HasDefaultValue("{}");
+
+        modelBuilder.Entity<Product>()
+            .Property(p => p.PrecautionaryCodesJson)
+            .HasDefaultValue("[]");
 
         modelBuilder.Entity<TestBatch>()
             .HasOne<Product>()
@@ -97,6 +103,30 @@ public class NanopaintHubDbContext : DbContext
             .HasOne(pc => pc.EchaSubstance)
             .WithMany()
             .HasForeignKey(pc => pc.EchaSubstanceId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<ProductComposition>()
+            .HasOne(pc => pc.SupplierProduct)
+            .WithMany()
+            .HasForeignKey(pc => pc.SupplierProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SupplierProduct>()
+            .HasOne(sp => sp.Supplier)
+            .WithMany(s => s.Products)
+            .HasForeignKey(sp => sp.SupplierId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SupplierProductComposition>()
+            .HasOne(spc => spc.SupplierProduct)
+            .WithMany(sp => sp.Compositions)
+            .HasForeignKey(spc => spc.SupplierProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SupplierProductComposition>()
+            .HasOne(spc => spc.EchaSubstance)
+            .WithMany()
+            .HasForeignKey(spc => spc.EchaSubstanceId)
             .OnDelete(DeleteBehavior.Restrict);
             
         modelBuilder.Entity<ProductComposition>()

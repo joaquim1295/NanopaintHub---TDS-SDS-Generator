@@ -22,6 +22,7 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Name="DashboardItem" Content="Dashboard" Tag="Dashboard" Icon="Home" />
                 <NavigationViewItem x:Name="ProductsItem" Content="Produtos" Tag="Products" Icon="Library" />
+                <NavigationViewItem x:Name="SuppliersItem" Content="Catálogo de Fornecedores" Tag="Suppliers" Icon="Contact" />
                 <NavigationViewItem x:Name="TemplatesItem" Content="Templates" Tag="Templates" Icon="Document" />
                 <NavigationViewItem x:Name="PdfGeneratorItem" Content="Gerar PDF" Tag="GeneratePdf" Icon="Print" />
             </NavigationView.MenuItems>

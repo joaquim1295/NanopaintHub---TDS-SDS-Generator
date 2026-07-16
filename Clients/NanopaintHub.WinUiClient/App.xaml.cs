@@ -29,7 +29,40 @@ public partial class App : Application
 
     public App()
     {
-        InitializeComponent();
+        this.InitializeComponent();
+
+        // -------------------------------------------------------------
+        // GLOBAL EXCEPTION LOGGER
+        // -------------------------------------------------------------
+        this.UnhandledException += (s, e) =>
+        {
+            e.Handled = true; // Attempt to prevent instant termination if possible
+            try
+            {
+                var logPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "NanopaintHub",
+                    "crash_logs.txt");
+                    
+                var message = $"[{DateTime.Now}] UNHANDLED EXCEPTION\n{e.Exception.Message}\n{e.Exception.StackTrace}\n\n";
+                System.IO.File.AppendAllText(logPath, message);
+                
+                // Show a dialog if the window exists
+                if (MainWindow?.Content?.XamlRoot != null)
+                {
+                    var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                    {
+                        Title = "Erro Fatal Inesperado",
+                        Content = $"Ocorreu um erro interno. Foi gravado um log em:\n{logPath}\n\nDetalhe: {e.Exception.Message}",
+                        CloseButtonText = "OK",
+                        XamlRoot = MainWindow.Content.XamlRoot
+                    };
+                    _ = dialog.ShowAsync();
+                }
+            }
+            catch { /* fallback silently if logger fails */ }
+        };
+        // -------------------------------------------------------------
     }
 
     protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
@@ -40,6 +73,14 @@ public partial class App : Application
         Directory.CreateDirectory(dataDir);
         var dbPath = Path.Combine(dataDir, "nanopaint.db");
         var connectionString = $"Data Source={dbPath}";
+
+        //#if DEBUG
+        //// Drop database to force recreation and repopulate
+        //if (File.Exists(dbPath))
+        //{
+        //    try { File.Delete(dbPath); } catch {}
+        //}
+        //#endif
 
         var builder = Host.CreateApplicationBuilder();
 
@@ -64,11 +105,14 @@ builder.Services.AddSingleton<PdfPreviewService>();
         builder.Services.AddTransient<TemplateEditorViewModel>();
         builder.Services.AddTransient<GeneratePdfViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<NanopaintHub.WinUiClient.ViewModels.SuppliersViewModel>();
+        builder.Services.AddTransient<SupplierProductEditorViewModel>();
 
         // Register Use Cases and Services
         builder.Services.AddTransient<GenerateTdsUseCase>();
         builder.Services.AddTransient<GenerateSdsUseCase>();
         builder.Services.AddTransient<SaveDocumentReleaseUseCase>();
+        builder.Services.AddTransient<NanopaintHub.Application.Contracts.ISaveSupplierProductUseCase, NanopaintHub.Application.Features.SupplierProducts.SaveSupplierProductUseCase>();
         builder.Services.AddTransient<IEchaImportService, EchaImportService>();
         builder.Services.AddTransient<ISubstanceSearchService, SubstanceSearchService>();
 

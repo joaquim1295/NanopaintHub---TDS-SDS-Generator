@@ -18,6 +18,7 @@ public partial class ProductEditorViewModel : ObservableObject
     private readonly IProductRepository _productRepository;
     private readonly INavigationService _navigationService;
     private readonly ISubstanceSearchService _searchService;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcherQueue;
 
     [ObservableProperty]
@@ -34,10 +35,10 @@ public partial class ProductEditorViewModel : ObservableObject
     public ObservableCollection<KeyValuePairItem> LiquidProperties { get; } = new();
     public ObservableCollection<KeyValuePairItem> MechanicalProperties { get; } = new();
     public ObservableCollection<KeyValuePairItem> CustomSensorSpecs { get; } = new();
-    public ObservableCollection<ProductComposition> Compositions { get; } = new();
+    public ObservableCollection<CompositionViewModel> Compositions { get; } = new();
 
     [ObservableProperty]
-    private IEnumerable<EchaSubstance> _substanceSearchResults = Array.Empty<EchaSubstance>();
+    private IEnumerable<NanopaintHub.Application.DTOs.FederatedSearchResult> _substanceSearchResults = Array.Empty<NanopaintHub.Application.DTOs.FederatedSearchResult>();
 
     [ObservableProperty]
     private TdsSensorSpecs _sensorSpecs = new();
@@ -71,12 +72,14 @@ public partial class ProductEditorViewModel : ObservableObject
     public ProductEditorViewModel(
         IProductRepository productRepository, 
         INavigationService navigationService,
-        ISubstanceSearchService searchService)
+        ISubstanceSearchService searchService,
+        IUnitOfWork unitOfWork)
     {
         _dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
         _productRepository = productRepository;
         _navigationService = navigationService;
         _searchService = searchService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task InitializeAsync(Guid? productId)
@@ -125,7 +128,7 @@ public partial class ProductEditorViewModel : ObservableObject
         {
             foreach (var comp in Product.Compositions)
             {
-                Compositions.Add(comp);
+                Compositions.Add(new CompositionViewModel(comp));
             }
         }
         ValidateCompositions();
@@ -200,7 +203,20 @@ public partial class ProductEditorViewModel : ObservableObject
 
         Product.TdsSensorSpecsJson = JsonSerializer.Serialize(SensorSpecs);
 
-        Product.Compositions = Compositions.ToList();
+        if (Product.Compositions == null) 
+        {
+            Product.Compositions = new List<ProductComposition>();
+        }
+
+        var newModels = Compositions.Select(c => c.Model).ToList();
+        var toRemove = Product.Compositions.Where(c => !newModels.Contains(c)).ToList();
+        foreach (var c in toRemove) Product.Compositions.Remove(c);
+
+        foreach (var m in newModels)
+        {
+            if (!Product.Compositions.Contains(m))
+                Product.Compositions.Add(m);
+        }
     }
 
     [RelayCommand]
@@ -245,10 +261,20 @@ public partial class ProductEditorViewModel : ObservableObject
         try
         {
             var results = await _searchService.SearchAsync(query);
+            var resultsList = results.ToList();
             
+            // Always append the "Import from PDF" action at the end
+            resultsList.Add(new NanopaintHub.Application.DTOs.FederatedSearchResult
+            {
+                DisplayName = "📄 Importar SDS de um Fornecedor (PDF)",
+                Description = string.IsNullOrWhiteSpace(query) ? "Adicionar uma nova matéria-prima lendo a sua Ficha de Segurança." : $"Não encontrou '{query}'? Clique aqui para importar o PDF.",
+                IsImportAction = true,
+                TypedQuery = query
+            });
+
             _dispatcherQueue.TryEnqueue(() =>
             {
-                SubstanceSearchResults = results;
+                SubstanceSearchResults = resultsList;
             });
         }
         catch (Exception ex)
@@ -258,24 +284,42 @@ public partial class ProductEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddComposition(EchaSubstance substance)
+    private void AddComposition(NanopaintHub.Application.DTOs.FederatedSearchResult result)
     {
-        if (substance == null) return;
-        if (Compositions.Any(c => c.EchaSubstanceId == substance.Id)) return; // Já existe
-
-        Compositions.Add(new ProductComposition
+        if (result == null) return;
+        
+        if (result.EchaSubstance != null)
         {
-            EchaSubstanceId = substance.Id,
-            EchaSubstance = substance,
-            ProductId = Product?.Id ?? Guid.Empty,
-            Percentage = 0,
-            ExtraMetadataJson = "{}"
-        });
+            if (Compositions.Any(c => c.Model.EchaSubstanceId == result.EchaSubstance.Id)) return; // Já existe
+
+            Compositions.Add(new CompositionViewModel(new ProductComposition
+            {
+                EchaSubstanceId = result.EchaSubstance.Id,
+                EchaSubstance = result.EchaSubstance,
+                ProductId = Product?.Id ?? Guid.Empty,
+                Percentage = 0,
+                ExtraMetadataJson = "{}"
+            }));
+        }
+        else if (result.SupplierProduct != null)
+        {
+            if (Compositions.Any(c => c.Model.SupplierProductId == result.SupplierProduct.Id)) return; // Já existe
+
+            Compositions.Add(new CompositionViewModel(new ProductComposition
+            {
+                SupplierProductId = result.SupplierProduct.Id,
+                SupplierProduct = result.SupplierProduct,
+                ProductId = Product?.Id ?? Guid.Empty,
+                Percentage = 0,
+                ExtraMetadataJson = "{}"
+            }));
+        }
+        
         ValidateCompositions();
     }
 
     [RelayCommand]
-    private void RemoveComposition(ProductComposition comp)
+    private void RemoveComposition(CompositionViewModel comp)
     {
         if (comp != null) 
         {
@@ -332,12 +376,15 @@ public partial class ProductEditorViewModel : ObservableObject
             var existing = await _productRepository.GetByIdAsync(Product.Id);
             if (existing != null)
             {
+                Product.MarkAsModified();
                 await _productRepository.UpdateAsync(Product);
             }
             else
             {
                 await _productRepository.AddAsync(Product);
             }
+
+            await _unitOfWork.CommitAsync();
 
             _navigationService.GoBack();
         }
@@ -375,4 +422,73 @@ public partial class ProductEditorViewModel : ObservableObject
             OnPropertyChanged(nameof(Product));
         }
     }
+}
+
+public partial class CompositionViewModel : ObservableObject
+{
+    private readonly ProductComposition _model;
+
+    public CompositionViewModel(ProductComposition model)
+    {
+        _model = model;
+    }
+
+    public ProductComposition Model => _model;
+
+    public string DisplayName => _model.DisplayName;
+    public string DisplayDescription => _model.DisplayDescription;
+    public SupplierProduct? SupplierProduct => _model.SupplierProduct;
+    public EchaSubstance? EchaSubstance => _model.EchaSubstance;
+    
+    public double Percentage
+    {
+        get => _model.Percentage;
+        set
+        {
+            if (_model.Percentage != value)
+            {
+                _model.Percentage = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(InnerComponents));
+                OnPropertyChanged(nameof(PercentageInput));
+            }
+        }
+    }
+
+    public string PercentageInput
+    {
+        get => Percentage.ToString();
+        set
+        {
+            if (double.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var parsed))
+            {
+                Percentage = parsed;
+            }
+            else if (string.IsNullOrWhiteSpace(value))
+            {
+                Percentage = 0;
+            }
+            OnPropertyChanged();
+        }
+    }
+
+    public IReadOnlyList<InnerComponentViewModel> InnerComponents
+    {
+        get
+        {
+            if (_model.SupplierProduct?.Compositions == null) return Array.Empty<InnerComponentViewModel>();
+            
+            return _model.SupplierProduct.Compositions.Select(c => new InnerComponentViewModel
+            {
+                ChemicalName = c.EchaSubstance?.ChemicalName ?? "Desconhecido",
+                EffectivePercentage = Math.Round(_model.Percentage * c.Percentage / 100.0, 2)
+            }).ToList();
+        }
+    }
+}
+
+public class InnerComponentViewModel
+{
+    public string ChemicalName { get; set; } = string.Empty;
+    public double EffectivePercentage { get; set; }
 }

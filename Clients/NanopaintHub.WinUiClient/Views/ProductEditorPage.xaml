@@ -7,12 +7,90 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:NanopaintHub_WinUIClient.ViewModels"
     xmlns:entities="using:NanopaintHub.Domain.Entities"
+    xmlns:dtos="using:NanopaintHub.Application.DTOs"
     xmlns:converters="using:NanopaintHub_WinUIClient.Converters"
+    xmlns:selectors="using:NanopaintHub_WinUIClient.Selectors"
     mc:Ignorable="d"
     Background="Transparent">
 
     <Page.Resources>
         <converters:PercentageToBrushConverter x:Key="PercentageToBrushConverter" />
+        
+        <DataTemplate x:Key="SubstanceTemplate" x:DataType="viewmodels:CompositionViewModel">
+            <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="12" CornerRadius="4" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DisplayName}" Style="{ThemeResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding DisplayDescription}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0" VerticalAlignment="Center">
+                    <TextBox Text="{Binding PercentageInput, Mode=TwoWay, UpdateSourceTrigger=Default}" 
+                             Foreground="{Binding Percentage, Converter={StaticResource PercentageToBrushConverter}}"
+                             PlaceholderText="Valor numérico" Width="80" TextAlignment="Right" />
+                    <TextBlock Text="%" VerticalAlignment="Center" Width="20" />
+                </StackPanel>
+                
+                <Button Grid.Column="2" Content="Remover" VerticalAlignment="Center"
+                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCompositionCommand}" 
+                        CommandParameter="{Binding}" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SupplierProductTemplate" x:DataType="viewmodels:CompositionViewModel">
+            <Border Margin="0,0,0,8" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="4" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                <Grid>
+                    <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" Background="Transparent" BorderThickness="0">
+                        <Expander.Header>
+                            <!-- Reserved space for absolute positioned controls -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="230" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Padding="0,12">
+                                    <TextBlock Text="{Binding DisplayName}" Style="{ThemeResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding DisplayDescription}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                            </Grid>
+                        </Expander.Header>
+                        <Expander.Content>
+                            <StackPanel Spacing="8" Padding="12,8,12,16">
+                                <TextBlock Text="Composição Interna (Lida do PDF):" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <ItemsControl ItemsSource="{Binding InnerComponents}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="viewmodels:InnerComponentViewModel">
+                                            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
+                                                <TextBlock Grid.Column="0" Text="•" Margin="0,0,8,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                <TextBlock Grid.Column="1" Text="{Binding ChemicalName}" TextWrapping="Wrap" />
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding EffectivePercentage}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                    <TextBlock Text="%" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Expander.Content>
+                    </Expander>
+                    
+                    <!-- Placed outside the Expander to avoid breaking the ToggleButton -->
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,48,0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBox Text="{Binding PercentageInput, Mode=TwoWay, UpdateSourceTrigger=Default}" 
+                                 Foreground="{Binding Percentage, Converter={StaticResource PercentageToBrushConverter}}"
+                                 PlaceholderText="Valor numérico" Width="80" TextAlignment="Right" />
+                        <TextBlock Text="%" VerticalAlignment="Center" Width="20" />
+                        <Button Content="Remover" VerticalAlignment="Center" Margin="8,0,0,0"
+                                Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCompositionCommand}" 
+                                CommandParameter="{Binding}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <selectors:CompositionTemplateSelector x:Key="CompositionTemplateSelector"
+             SubstanceTemplate="{StaticResource SubstanceTemplate}"
+             SupplierProductTemplate="{StaticResource SupplierProductTemplate}" />
     </Page.Resources>
 
     <Grid x:Name="RootGrid">
@@ -159,9 +237,11 @@
                                     </StackPanel>
                                 </Expander.Header>
                                 <StackPanel Spacing="16" Margin="0,16,0,0">
-                                    <TextBox x:Name="SubstanceSearchBox" 
-                                             PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
-                                             TextChanged="SubstanceSearchBox_TextChanged" />
+                                    <Grid ColumnDefinitions="*" ColumnSpacing="8">
+                                        <TextBox Grid.Column="0" x:Name="SubstanceSearchBox" 
+                                                 PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
+                                                 TextChanged="SubstanceSearchBox_TextChanged" />
+                                    </Grid>
                                     <Border x:Name="SubstanceSearchResultsPopup" 
                                             Visibility="Collapsed"
                                             Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -170,13 +250,10 @@
                                         <ListView ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
                                                   ItemClick="SubstanceSearchResults_ItemClick" IsItemClickEnabled="True" SelectionMode="None">
                                             <ListView.ItemTemplate>
-                                                <DataTemplate x:DataType="entities:EchaSubstance">
+                                                <DataTemplate x:DataType="dtos:FederatedSearchResult">
                                                     <StackPanel Padding="0,4">
-                                                        <TextBlock Text="{Binding ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                            <Run Text="CAS: " />
-                                                            <Run Text="{Binding CasNumber}" />
-                                                        </TextBlock>
+                                                        <TextBlock Text="{Binding DisplayName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                        <TextBlock Text="{Binding Description}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ListView.ItemTemplate>
@@ -188,33 +265,8 @@
                                              Message="{x:Bind ViewModel.CompositionsValidationMessage, Mode=OneWay}" 
                                              IsClosable="False" Margin="0,0,0,16" />
 
-                                    <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="entities:ProductComposition">
-                                                <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="12" CornerRadius="4" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding EchaSubstance.ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
-                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                            <Run Text="CAS: " />
-                                                            <Run Text="{Binding EchaSubstance.CasNumber}" />
-                                                        </TextBlock>
-                                                    </StackPanel>
-                                                    
-                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0" VerticalAlignment="Center">
-                                                        <NumberBox Value="{Binding Percentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                   ValueChanged="CompositionPercentage_ValueChanged" 
-                                                                   Foreground="{Binding Percentage, Converter={StaticResource PercentageToBrushConverter}}"
-                                                                   PlaceholderText="%" Width="90" 
-                                                                   SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
-                                                        <TextBlock Text="%" VerticalAlignment="Center" />
-                                                    </StackPanel>
-                                                    
-                                                    <Button Grid.Column="2" Content="Remover" VerticalAlignment="Center"
-                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCompositionCommand}" 
-                                                            CommandParameter="{Binding}" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}"
+                                                  ItemTemplateSelector="{StaticResource CompositionTemplateSelector}">
                                     </ItemsControl>
                                 </StackPanel>
                             </Expander>
@@ -379,9 +431,11 @@
                                         <FontIcon Glyph="&#xE81C;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Text="Fórmula (Componentes SDS)" Style="{ThemeResource SubtitleTextBlockStyle}" />
                                     </StackPanel>
-                                    <TextBox x:Name="SubstanceSearchBoxWide" 
-                                             PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
-                                             TextChanged="SubstanceSearchBox_TextChanged" />
+                                    <Grid ColumnDefinitions="*" ColumnSpacing="8">
+                                        <TextBox Grid.Column="0" x:Name="SubstanceSearchBoxWide" 
+                                                 PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
+                                                 TextChanged="SubstanceSearchBox_TextChanged" />
+                                    </Grid>
                                     <Border x:Name="SubstanceSearchResultsPopupWide" 
                                             Visibility="Collapsed"
                                             Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -390,13 +444,10 @@
                                         <ListView ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
                                                   ItemClick="SubstanceSearchResults_ItemClick" IsItemClickEnabled="True" SelectionMode="None">
                                             <ListView.ItemTemplate>
-                                                <DataTemplate x:DataType="entities:EchaSubstance">
+                                                <DataTemplate x:DataType="dtos:FederatedSearchResult">
                                                     <StackPanel Padding="0,4">
-                                                        <TextBlock Text="{Binding ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                            <Run Text="CAS: " />
-                                                            <Run Text="{Binding CasNumber}" />
-                                                        </TextBlock>
+                                                        <TextBlock Text="{Binding DisplayName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                        <TextBlock Text="{Binding Description}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ListView.ItemTemplate>
@@ -407,32 +458,8 @@
                                              Message="{x:Bind ViewModel.CompositionsValidationMessage, Mode=OneWay}" 
                                              IsClosable="False" Margin="0,0,0,16" />
 
-                                    <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="entities:ProductComposition">
-                                                <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="12" CornerRadius="4" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding EchaSubstance.ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
-                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                            <Run Text="CAS: " />
-                                                            <Run Text="{Binding EchaSubstance.CasNumber}" />
-                                                        </TextBlock>
-                                                    </StackPanel>
-                                                    
-                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0" VerticalAlignment="Center">
-                                                        <NumberBox Value="{Binding Percentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                   ValueChanged="CompositionPercentage_ValueChanged" 
-                                                                   PlaceholderText="%" Width="90" 
-                                                                   SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
-                                                        <TextBlock Text="%" VerticalAlignment="Center" />
-                                                    </StackPanel>
-                                                    
-                                                    <Button Grid.Column="2" Content="Remover" VerticalAlignment="Center"
-                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCompositionCommand}" 
-                                                            CommandParameter="{Binding}" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}"
+                                                  ItemTemplateSelector="{StaticResource CompositionTemplateSelector}">
                                     </ItemsControl>
                                 </StackPanel>
                             </Border>

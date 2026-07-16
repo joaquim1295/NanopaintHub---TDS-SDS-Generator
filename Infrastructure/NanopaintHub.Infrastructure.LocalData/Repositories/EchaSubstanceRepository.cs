@@ -1,4 +1,4 @@
-namespace NanopaintHub.Infrastructure.LocalData.Repositories;
+﻿namespace NanopaintHub.Infrastructure.LocalData.Repositories;
 
 using System;
 using System.Collections.Generic;
@@ -60,7 +60,10 @@ public class EchaSubstanceRepository : IEchaSubstanceRepository
         return await _dbContext.EchaSubstances
             .Include(e => e.Hazards)
             .ThenInclude(h => h.Phrase)
-            .FirstOrDefaultAsync(e => e.CasNumber == casNumber, cancellationToken);
+            .Where(e => e.CasNumber == casNumber)
+            .OrderByDescending(e => e.Hazards.Count)
+            .ThenBy(e => e.ChemicalName.StartsWith("Substância Importada") ? 1 : 0)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task AddAsync(EchaSubstance substance, CancellationToken cancellationToken = default)
@@ -70,12 +73,20 @@ public class EchaSubstanceRepository : IEchaSubstanceRepository
 
     public async Task<List<string>> GetExistingCasNumbersAsync(IEnumerable<string> casNumbers, CancellationToken cancellationToken = default)
     {
-        if (casNumbers == null || !casNumbers.Any()) return new List<string>();
-
+        var distinctCas = casNumbers.Distinct().ToList();
         return await _dbContext.EchaSubstances
-            .Where(e => casNumbers.Contains(e.CasNumber))
+            .Where(e => distinctCas.Contains(e.CasNumber) && !e.ChemicalName.StartsWith("Substância Importada"))
             .Select(e => e.CasNumber)
             .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<EchaSubstance>> GetByCasListAsync(IEnumerable<string> casNumbers, CancellationToken cancellationToken = default)
+    {
+        var distinctCas = casNumbers.Distinct().ToList();
+        return await _dbContext.EchaSubstances
+            .Include(e => e.Hazards)
+            .Where(e => distinctCas.Contains(e.CasNumber))
             .ToListAsync(cancellationToken);
     }
 }

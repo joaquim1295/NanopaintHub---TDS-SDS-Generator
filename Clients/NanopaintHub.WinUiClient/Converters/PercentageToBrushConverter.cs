@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Media;
 
 namespace NanopaintHub_WinUIClient.Converters;
 
-public class PercentageToBrushConverter : IValueConverter
+public sealed partial class PercentageToBrushConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

@@ -13,6 +13,7 @@ public partial class ProductsViewModel : ObservableObject
 {
     private readonly IProductRepository _productRepository;
     private readonly INavigationService _navigationService;
+    private readonly IUnitOfWork _unitOfWork;
 
     [ObservableProperty]
     private ObservableCollection<Product> _products = new();
@@ -41,10 +42,11 @@ public partial class ProductsViewModel : ObservableObject
         }
     }
 
-    public ProductsViewModel(IProductRepository productRepository, INavigationService navigationService)
+    public ProductsViewModel(IProductRepository productRepository, INavigationService navigationService, IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
         _navigationService = navigationService;
+        _unitOfWork = unitOfWork;
         _isCardView = _isGlobalCardView;
     }
 
@@ -110,7 +112,28 @@ public partial class ProductsViewModel : ObservableObject
     {
         if (product != null)
         {
+            var window = (Microsoft.UI.Xaml.Application.Current as App)?.MainWindow;
+            if (window != null)
+            {
+                var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                {
+                    Title = "Confirmar Exclusão",
+                    Content = $"Tem a certeza que deseja excluir o produto '{product.Name}'? Esta ação não pode ser desfeita.",
+                    PrimaryButtonText = "Excluir",
+                    CloseButtonText = "Cancelar",
+                    DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
+                    XamlRoot = window.Content.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+                {
+                    return;
+                }
+            }
+
             await _productRepository.DeleteAsync(product.Id);
+            await _unitOfWork.CommitAsync();
             Products.Remove(product);
             ApplyFilter();
         }

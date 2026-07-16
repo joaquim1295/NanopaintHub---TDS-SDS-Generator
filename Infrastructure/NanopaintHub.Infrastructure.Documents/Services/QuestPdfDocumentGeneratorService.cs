@@ -19,15 +19,21 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
     private readonly IPdfGenerationProgressNotifier _progress;
     private readonly TdsDataMergeService _tdsMerge;
     private readonly ITdsChartRenderer _chartRenderer;
+    private readonly NanopaintHub.Domain.Common.CompanyInfoOptions _companyInfo;
+    private readonly IClpPhraseRepository _phraseRepo;
 
     public QuestPdfDocumentGeneratorService(
         IPdfGenerationProgressNotifier progress,
         TdsDataMergeService tdsMerge,
-        ITdsChartRenderer chartRenderer)
+        ITdsChartRenderer chartRenderer,
+        Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Domain.Common.CompanyInfoOptions> companyInfoOptions,
+        IClpPhraseRepository phraseRepo)
     {
         _progress = progress;
         _tdsMerge = tdsMerge;
         _chartRenderer = chartRenderer;
+        _companyInfo = companyInfoOptions.CurrentValue;
+        _phraseRepo = phraseRepo;
     }
 
     public Task<byte[]> GenerateTdsAsync(Product product, DocumentTemplate template, TestBatch? testBatch = null, PdfGenerationSettings? settings = null)
@@ -408,7 +414,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         {
             col.Item().Row(row =>
             {
-                row.RelativeItem().Text(string.IsNullOrWhiteSpace(schema.Footer.Column1) ? "NanoPaint, Lda.\nCIIES – Sala 23/28\nAvenida de Tibães, 1199\n4770-568 Vale de São Cosme, Portugal" : schema.Footer.Column1)
+                row.RelativeItem().Text(string.IsNullOrWhiteSpace(schema.Footer.Column1) ? $"{_companyInfo.Name}\n{_companyInfo.Address}" : schema.Footer.Column1)
                    .FontSize((float)schema.Theme.BaseFontSize - 1f).Bold().FontColor(schema.Theme.PrimaryColor);
                 
                 row.RelativeItem().AlignRight().Text(string.IsNullOrWhiteSpace(schema.Footer.Column2) ? "www.nanopaint-tech.com\ninfo@nanopaint-tech.com" : schema.Footer.Column2)
@@ -428,8 +434,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             });
         });
     }
-
-    public Task<byte[]> GenerateSdsAsync(Product product, DocumentTemplate template, PdfGenerationSettings? settings = null)
+    public async Task<byte[]> GenerateSdsAsync(Product product, DocumentTemplate template, PdfGenerationSettings? settings = null)
     {
         _progress.Report("Carregando formulação para SDS...", 20);
         
@@ -442,6 +447,10 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             .Select(g => g.First())
             .ToList();
             
+        var pCodes = string.IsNullOrWhiteSpace(product.PrecautionaryCodesJson) ? new List<string>() : (System.Text.Json.JsonSerializer.Deserialize<List<string>>(product.PrecautionaryCodesJson) ?? new List<string>());
+        var allPhrases = await _phraseRepo.GetAllAsync();
+        var pPhrases = allPhrases.Where(p => p.PhraseType == "P" && pCodes.Contains(p.Code)).ToList();
+
         var hazardPhrases = uniqueHazards
             .Select(h => $"{h.PhraseCode} {(h.Phrase?.Description ?? "Hazard description not available")}")
             .ToList();
@@ -486,18 +495,18 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
                 page.Content().PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre).PaddingTop((float)schema.Layout.ContentPaddingTop, Unit.Millimetre).Column(col =>
                 {
-                    col.Spacing(8);
+                col.Spacing(8);
 
                     if (schema.Sections == null || schema.Sections.Count == 0)
                     {
                         // Fallback Se o Builder não tiver gerado secções
                         ComposeSdsSection1(col, product, schema);
-                        ComposeSdsSection2(col, uniqueHazards, hazardCodes, schema);
+                        ComposeSdsSection2(col, uniqueHazards, hazardCodes, pPhrases, schema);
                         ComposeSdsSection3(col, compositions, schema);
-                        ComposeSdsSection4(col, hazardCodes, schema);
+                        ComposeSdsSection4(col, hazardCodes, product.SdsSection4CustomText, schema);
                         ComposeSdsSection5(col, hazardCodes, schema);
                         ComposeSdsSection6(col, schema);
-                        ComposeSdsSection7(col, hazardCodes, schema);
+                        ComposeSdsSection7(col, hazardCodes, product.SdsSection7CustomText, schema);
                         ComposeSdsSection8(col, schema);
                         ComposeSdsSection9(col, liquidProps, schema);
                         ComposeSdsSection10(col, schema);
@@ -523,7 +532,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                                         for (int i = 0; i < halfWidthQueue.Count; i += 2)
                                         {
                                             var sec = halfWidthQueue[i];
-                                            leftCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases));
+                                            leftCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases, pPhrases));
                                         }
                                     });
                                     row.ConstantItem(10);
@@ -532,7 +541,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                                         for (int i = 1; i < halfWidthQueue.Count; i += 2)
                                         {
                                             var sec = halfWidthQueue[i];
-                                            rightCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases));
+                                            rightCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases, pPhrases));
                                         }
                                     });
                                 });
@@ -549,7 +558,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                             else
                             {
                                 FlushHalfWidthQueue();
-                                col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases));
+                                col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases, pPhrases));
                             }
                         }
             
@@ -596,10 +605,10 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         }
 
         _progress.Report("SDS QuestPDF gerado com sucesso.", 100);
-        return Task.FromResult(bytes);
+        return bytes;
     }
 
-    private void RenderSdsSection(ColumnDescriptor inner, TemplateSectionSchema sec, TemplateBuilderSchema schema, Product product, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes, List<ProductComposition> compositions, Dictionary<string, string> liquidProps, List<string> hazardPhrases)
+    private void RenderSdsSection(ColumnDescriptor inner, TemplateSectionSchema sec, TemplateBuilderSchema schema, Product product, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes, List<ProductComposition> compositions, Dictionary<string, string> liquidProps, List<string> hazardPhrases, List<ClpPhrase> pPhrases)
     {
         if (sec.Type == "RichText" || sec.Type == "SdsSectionText")
         {
@@ -622,12 +631,12 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         switch (sectionKey)
         {
             case "SdsSection1": ComposeSdsSection1(inner, product, schema, sec.Title); break;
-            case "SdsSection2": ComposeSdsSection2(inner, uniqueHazards, hazardCodes, schema, sec.Title); break;
+            case "SdsSection2": ComposeSdsSection2(inner, uniqueHazards, hazardCodes, pPhrases, schema, sec.Title); break;
             case "SdsSection3": ComposeSdsSection3(inner, compositions, schema, sec.Title); break;
-            case "SdsSection4": ComposeSdsSection4(inner, hazardCodes, schema, sec.Title); break;
+            case "SdsSection4": ComposeSdsSection4(inner, hazardCodes, product.SdsSection4CustomText, schema, sec.Title); break;
             case "SdsSection5": ComposeSdsSection5(inner, hazardCodes, schema, sec.Title); break;
             case "SdsSection6": ComposeSdsSection6(inner, schema, sec.Title); break;
-            case "SdsSection7": ComposeSdsSection7(inner, hazardCodes, schema, sec.Title); break;
+            case "SdsSection7": ComposeSdsSection7(inner, hazardCodes, product.SdsSection7CustomText, schema, sec.Title); break;
             case "SdsSection8": ComposeSdsSection8(inner, schema, sec.Title); break;
             case "SdsSection9": ComposeSdsSection9(inner, liquidProps, schema, sec.Title); break;
             case "SdsSection10": ComposeSdsSection10(inner, schema, sec.Title); break;
@@ -653,12 +662,12 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingTop(4).Text("1.2 Relevant identified uses of the substance or mixture and uses advised against").Bold();
         col.Item().PaddingLeft(10).Text("Use of the Substance/Mixture: Industrial and research");
         col.Item().PaddingTop(4).Text("1.3 Details of the supplier of the safety data sheet").Bold();
-        col.Item().PaddingLeft(10).Text("Company: Nanopaint, Lda\nAddress: CIIES – Sala 23/28, Avenida de Tibães, 1199, 4770-568 Vale de São Cosme, Portugal");
+        col.Item().PaddingLeft(10).Text($"Company: {_companyInfo.Name}\nAddress: {_companyInfo.Address}");
         col.Item().PaddingTop(4).Text("1.4 Emergency telephone number").Bold();
-        col.Item().PaddingLeft(10).Text("+351 253 601 681");
+        col.Item().PaddingLeft(10).Text(_companyInfo.Telephone);
     }
 
-    private void ComposeSdsSection2(ColumnDescriptor col, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 2: Hazards identification")
+    private void ComposeSdsSection2(ColumnDescriptor col, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes, List<ClpPhrase> pPhrases, TemplateBuilderSchema schema, string title = "SECTION 2: Hazards identification")
     {
         DrawSdsTitle(col, title, schema);
         col.Item().Text("2.1 Classification of the substance or mixture").Bold();
@@ -689,6 +698,19 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         if (pictograms.Any())
         {
             col.Item().PaddingLeft(10).PaddingBottom(5).Text($"Warning Pictograms: {string.Join(", ", pictograms)}");
+        }
+
+        if (pPhrases != null && pPhrases.Any())
+        {
+            col.Item().PaddingTop(5).Text("Precautionary statements:").Bold();
+            foreach (var p in pPhrases)
+            {
+                col.Item().PaddingLeft(10).Text($"{p.Code}: {p.Description}");
+            }
+        }
+
+        if (pictograms.Any())
+        {
             col.Item().PaddingLeft(10).Row(row =>
             {
                 row.Spacing(10);
@@ -735,20 +757,38 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
             foreach (var comp in compositions)
             {
-                var substance = comp.EchaSubstance;
-                if (substance == null) continue;
+                if (comp.EchaSubstance != null)
+                {
+                    var substance = comp.EchaSubstance;
+                    var subHazards = string.Join("; ", substance.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>());
+                    
+                    table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"CAS: {substance.CasNumber}\nEC: {substance.EcNumber}");
+                    table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(substance.ChemicalName);
+                    table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(subHazards);
+                    table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{comp.Percentage}%");
+                }
 
-                var subHazards = string.Join("; ", substance.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>());
-                
-                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"CAS: {substance.CasNumber}\nEC: {substance.EcNumber}");
-                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(substance.ChemicalName);
-                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(subHazards);
-                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{comp.Percentage}%");
+                if (comp.SupplierProduct?.Compositions != null && comp.SupplierProduct.Compositions.Any())
+                {
+                    foreach (var inner in comp.SupplierProduct.Compositions)
+                    {
+                        var substance = inner.EchaSubstance;
+                        if (substance == null) continue;
+                        
+                        var effectivePercent = Math.Round((comp.Percentage * inner.Percentage) / 100.0, 2);
+                        var subHazards = string.Join("; ", substance.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>());
+                        
+                        table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"CAS: {substance.CasNumber}\nEC: {substance.EcNumber}");
+                        table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(substance.ChemicalName);
+                        table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(subHazards);
+                        table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{effectivePercent}%");
+                    }
+                }
             }
         });
     }
 
-    private void ComposeSdsSection4(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 4: First aid measures")
+    private void ComposeSdsSection4(ColumnDescriptor col, HashSet<string> hazardCodes, string customText, TemplateBuilderSchema schema, string title = "SECTION 4: First aid measures")
     {
         DrawSdsTitle(col, title, schema);
         col.Item().Text("4.1 Description of first aid measures").Bold();
@@ -803,7 +843,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         col.Item().PaddingLeft(10).Text("Soak up with inert absorbent material and dispose of as hazardous waste. Keep in suitable, closed containers for disposal.");
     }
 
-    private void ComposeSdsSection7(ColumnDescriptor col, HashSet<string> hazardCodes, TemplateBuilderSchema schema, string title = "SECTION 7: Handling and storage")
+    private void ComposeSdsSection7(ColumnDescriptor col, HashSet<string> hazardCodes, string customText, TemplateBuilderSchema schema, string title = "SECTION 7: Handling and storage")
     {
         DrawSdsTitle(col, title, schema);
         col.Item().Text("7.1 Precautions for safe handling").Bold();
@@ -953,3 +993,10 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         }
     }
 }
+
+
+
+
+
+
+

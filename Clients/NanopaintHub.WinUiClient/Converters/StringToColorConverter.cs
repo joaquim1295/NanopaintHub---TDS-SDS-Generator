@@ -4,7 +4,7 @@ using Windows.UI;
 
 namespace NanopaintHub_WinUIClient.Converters;
 
-public class StringToColorConverter : IValueConverter
+public sealed partial class StringToColorConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

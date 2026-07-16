@@ -27,21 +27,61 @@ public class SdsDataGatherer
         var jsonExtendedSpecs = TdsSensorDataMerger.ParseProductSpecs(product.TdsSensorSpecsJson);
 
         var components = product.Compositions?
-            .Select(c => (object)new
+            .SelectMany(c =>
             {
-                ChemicalName = c.EchaSubstance?.ChemicalName,
-                CasNumber = c.EchaSubstance?.CasNumber,
-                EcNumber = c.EchaSubstance?.EcNumber,
-                Percentage = $"{c.Percentage}%",
-                Hazards = string.Join("; ", c.EchaSubstance?.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>())
+                var list = new List<object>();
+                if (c.EchaSubstance != null)
+                {
+                    list.Add(new
+                    {
+                        ChemicalName = c.EchaSubstance.ChemicalName,
+                        CasNumber = c.EchaSubstance.CasNumber,
+                        EcNumber = c.EchaSubstance.EcNumber,
+                        Percentage = $"{c.Percentage}%",
+                        Hazards = string.Join("; ", c.EchaSubstance.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>())
+                    });
+                }
+                if (c.SupplierProduct?.Compositions != null && c.SupplierProduct.Compositions.Any())
+                {
+                    foreach (var inner in c.SupplierProduct.Compositions)
+                    {
+                        if (inner.EchaSubstance == null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[SDS] Inner composition missing ECHA substance for supplier product {c.SupplierProduct?.Name}.");
+                            continue;
+                        }
+                        var effectivePercent = Math.Round((c.Percentage * inner.Percentage) / 100.0, 2);
+                        list.Add(new
+                        {
+                            ChemicalName = inner.EchaSubstance.ChemicalName,
+                            CasNumber = inner.EchaSubstance.CasNumber,
+                            EcNumber = inner.EchaSubstance.EcNumber,
+                            Percentage = $"{effectivePercent}%",
+                            Hazards = string.Join("; ", inner.EchaSubstance.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>())
+                        });
+                    }
+                }
+                return list;
             })
             .ToList() ?? new List<object>();
 
         // 1. Extrair todas as Unique Hazards
-        var compositions = product.Compositions?.ToList() ?? new List<ProductComposition>();
-        var uniqueHazards = compositions
-            .Where(c => c.EchaSubstance?.Hazards != null)
-            .SelectMany(c => c.EchaSubstance!.Hazards!)
+        // Flatten hazards from both direct and supplier product components
+        var flatHazards = new List<EchaSubstance>();
+        foreach (var comp in product.Compositions ?? System.Linq.Enumerable.Empty<ProductComposition>())
+        {
+            if (comp.EchaSubstance != null) flatHazards.Add(comp.EchaSubstance);
+            if (comp.SupplierProduct?.Compositions != null)
+            {
+                foreach (var inner in comp.SupplierProduct.Compositions)
+                {
+                    if (inner.EchaSubstance != null) flatHazards.Add(inner.EchaSubstance);
+                }
+            }
+        }
+
+        var uniqueHazards = flatHazards
+            .SelectMany(e => e.Hazards ?? System.Array.Empty<SubstanceHazard>())
             .GroupBy(h => h.PhraseCode)
             .Select(g => g.First())
             .ToList();
@@ -131,12 +171,36 @@ public class SdsDataGatherer
     public Task<object> GatherDataRawAsync(Product product)
     {
         var components = product.Compositions?
-            .Select(c => (object)new
+            .SelectMany(c =>
             {
-                ChemicalName = c.EchaSubstance?.ChemicalName,
-                CasNumber = c.EchaSubstance?.CasNumber,
-                EcNumber = c.EchaSubstance?.EcNumber,
-                Percentage = $"{c.Percentage}%"
+                var list = new List<object>();
+                if (c.EchaSubstance != null)
+                {
+                    list.Add(new
+                    {
+                        ChemicalName = c.EchaSubstance.ChemicalName,
+                        CasNumber = c.EchaSubstance.CasNumber,
+                        EcNumber = c.EchaSubstance.EcNumber,
+                        Percentage = $"{c.Percentage}%",
+                        Hazards = string.Join("; ", c.EchaSubstance.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>())
+                    });
+                }
+                if (c.SupplierProduct?.Compositions != null && c.SupplierProduct.Compositions.Any())
+                {
+                    foreach (var inner in c.SupplierProduct.Compositions)
+                    {
+                        var effectivePercent = (c.Percentage * inner.Percentage) / 100.0;
+                        list.Add(new
+                        {
+                            ChemicalName = inner.EchaSubstance?.ChemicalName,
+                            CasNumber = inner.EchaSubstance?.CasNumber,
+                            EcNumber = inner.EchaSubstance?.EcNumber,
+                            Percentage = $"{effectivePercent}%",
+                            Hazards = string.Join("; ", inner.EchaSubstance?.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>())
+                        });
+                    }
+                }
+                return list;
             })
             .ToList() ?? new List<object>();
 

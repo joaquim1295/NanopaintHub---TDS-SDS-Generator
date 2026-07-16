@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="NanopaintHub_WinUIClient.Views.ProductEditorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:NanopaintHub_WinUIClient.ViewModels"
+    xmlns:entities="using:NanopaintHub.Domain.Entities"
+    xmlns:converters="using:NanopaintHub_WinUIClient.Converters"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Page.Resources>
+        <converters:PercentageToBrushConverter x:Key="PercentageToBrushConverter" />
+    </Page.Resources>
+
+    <Grid x:Name="RootGrid">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="WideState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1100" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="NarrowLayoutContainer.Visibility" Value="Collapsed" />
+                        <Setter Target="WideLayoutContainer.Visibility" Value="Visible" />
+                        <Setter Target="FormContainer.MaxWidth" Value="1800" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="NarrowLayoutContainer.Visibility" Value="Visible" />
+                        <Setter Target="WideLayoutContainer.Visibility" Value="Collapsed" />
+                        <Setter Target="FormContainer.MaxWidth" Value="800" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid RowDefinitions="Auto,*,Auto" Padding="0" Margin="0,0,0,24">
+                
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" VerticalAlignment="Center">
+                    <Button Command="{x:Bind ViewModel.CancelCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
+                        <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
+                    </Button>
+                    <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
+                </StackPanel>
+
+                <!-- Form Container -->
+                <StackPanel x:Name="FormContainer" Grid.Row="1" Spacing="16" MaxWidth="800" HorizontalAlignment="Stretch">
+                    <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                                  Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    
+                    <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
+                        
+                        <!-- ========================================== -->
+                        <!-- NARROW LAYOUT (Default / Mobile-first)     -->
+                        <!-- ========================================== -->
+                        <StackPanel x:Name="NarrowLayoutContainer" Spacing="16" Visibility="Visible">
+                            <Expander IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Informação Geral" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="12" Margin="0,12,0,0">
+                                    <TextBox Grid.Row="0" Grid.Column="0" Header="Nome do Produto" Text="{x:Bind ViewModel.Product.Name, Mode=TwoWay}" />
+                                    <TextBox Grid.Row="0" Grid.Column="1" Header="Código" Text="{x:Bind ViewModel.Product.Code, Mode=TwoWay}" />
+                                    <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Header="Descrição" Text="{x:Bind ViewModel.Product.Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" />
+                                </Grid>
+                            </Expander>
+
+                            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Características (Ink Features)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Spacing="12" Margin="0,12,0,0">
+                                    <Button Content="Adicionar Característica" Command="{x:Bind ViewModel.AddFeatureCommand}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.Features}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:StringItem">
+                                                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                                    <TextBox Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Ex: RoHS compliant" />
+                                                    <Button Grid.Column="1" Margin="8,0,0,0" Content="Remover" 
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveFeatureCommand}" 
+                                                            CommandParameter="{x:Bind}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE318;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Propriedades da Tinta (Liquid Properties)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Spacing="12" Margin="0,12,0,0">
+                                    <Button Content="Adicionar Propriedade" Command="{x:Bind ViewModel.AddLiquidPropertyCommand}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.LiquidProperties}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                <Grid ColumnDefinitions="*,*,Auto" Margin="0,0,0,8">
+                                                    <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay}" PlaceholderText="Propriedade (ex: Viscosity)" Margin="0,0,8,0" />
+                                                    <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Valor (ex: 25–35 Pa·s)" />
+                                                    <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveLiquidPropertyCommand}" 
+                                                            CommandParameter="{x:Bind}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE90F;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Handling Guidelines (Mechanical Properties)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Spacing="12" Margin="0,12,0,0">
+                                    <Button Content="Adicionar Guideline" Command="{x:Bind ViewModel.AddMechanicalPropertyCommand}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.MechanicalProperties}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                <Grid ColumnDefinitions="*,*,Auto" Margin="0,0,0,8">
+                                                    <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay}" PlaceholderText="Propriedade (ex: Curing)" Margin="0,0,8,0" />
+                                                    <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Valor (ex: 120 °C / 15 min)" />
+                                                    <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveMechanicalPropertyCommand}" 
+                                                            CommandParameter="{x:Bind}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE81C;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Fórmula (Componentes SDS)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <TextBox x:Name="SubstanceSearchBox" 
+                                             PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
+                                             TextChanged="SubstanceSearchBox_TextChanged" />
+                                    <Border x:Name="SubstanceSearchResultsPopup" 
+                                            Visibility="Collapsed"
+                                            Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                            CornerRadius="4" Margin="0,4,0,16" MaxHeight="200">
+                                        <ListView ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
+                                                  ItemClick="SubstanceSearchResults_ItemClick" IsItemClickEnabled="True" SelectionMode="None">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="entities:EchaSubstance">
+                                                    <StackPanel Padding="0,4">
+                                                        <TextBlock Text="{Binding ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                            <Run Text="CAS: " />
+                                                            <Run Text="{Binding CasNumber}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </Border>
+
+                                    <InfoBar IsOpen="{x:Bind ViewModel.HasCompositionsError, Mode=OneWay}"
+                                             Severity="Error"
+                                             Message="{x:Bind ViewModel.CompositionsValidationMessage, Mode=OneWay}" 
+                                             IsClosable="False" Margin="0,0,0,16" />
+
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="entities:ProductComposition">
+                                                <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="12" CornerRadius="4" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding EchaSubstance.ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
+                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                            <Run Text="CAS: " />
+                                                            <Run Text="{Binding EchaSubstance.CasNumber}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0" VerticalAlignment="Center">
+                                                        <NumberBox Value="{Binding Percentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                   ValueChanged="CompositionPercentage_ValueChanged" 
+                                                                   Foreground="{Binding Percentage, Converter={StaticResource PercentageToBrushConverter}}"
+                                                                   PlaceholderText="%" Width="90" 
+                                                                   SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                                        <TextBlock Text="%" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                    
+                                                    <Button Grid.Column="2" Content="Remover" VerticalAlignment="Center"
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCompositionCommand}" 
+                                                            CommandParameter="{Binding}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="SDS Config (CLP)" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Padding="16" Spacing="16">
+                                    <TextBlock Text="Frases P (Conselhos de Prud�ncia)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.PrecautionaryCodes, Mode=OneWay}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:StringItem">
+                                                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                                    <TextBox Grid.Column="0" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Ex: P280" Margin="0,0,8,0" />
+                                                    <Button Grid.Column="1" Command="{Binding ElementName=RootGrid, Path=DataContext.RemovePrecautionaryCodeCommand}" CommandParameter="{Binding}" Background="Transparent" BorderThickness="0">
+                                                        <FontIcon Glyph="&#xE74D;" FontSize="12" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button Content="Adicionar Frase P" Command="{x:Bind ViewModel.AddPrecautionaryCodeCommand}" Style="{ThemeResource AccentButtonStyle}" />
+                                    
+                                    <TextBox Header="Primeiros Socorros (Override - Sec. 4)" Text="{x:Bind ViewModel.SdsSection4CustomText, Mode=TwoWay}" AcceptsReturn="True" Height="100" PlaceholderText="Deixe em branco para usar regras autom�ticas..." />
+                                    <TextBox Header="Manuseamento e Armazenamento (Override - Sec. 7)" Text="{x:Bind ViewModel.SdsSection7CustomText, Mode=TwoWay}" AcceptsReturn="True" Height="100" PlaceholderText="Deixe em branco para usar regras autom�ticas..." />
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE8A5;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Anexos &amp; Cenários de Exposição (REACH)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <TextBlock Text="O ficheiro PDF selecionado será automaticamente concatenado no final da Ficha de Segurança (SDS)." 
+                                               Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                        <TextBox Grid.Column="0" Header="Caminho do PDF do Cenário de Exposição" 
+                                                 Text="{x:Bind ViewModel.Product.ExposureScenarioPdfPath, Mode=TwoWay}" 
+                                                 PlaceholderText="C:\Caminho\para\o\ficheiro.pdf" />
+                                        <Button Grid.Column="1" Content="Procurar PDF" VerticalAlignment="Bottom" Command="{x:Bind ViewModel.SelectPdfCommand}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE9A6;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Especificações do Sensor (Opcional)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <Button Content="Adicionar Especificação" Command="{x:Bind ViewModel.AddCustomSensorSpecCommand}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.CustomSensorSpecs}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                <Grid ColumnDefinitions="*,*,Auto" Margin="0,0,0,8">
+                                                    <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay}" PlaceholderText="Espec. Adicional" Margin="0,0,8,0" />
+                                                    <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Valor" />
+                                                    <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCustomSensorSpecCommand}" 
+                                                            CommandParameter="{x:Bind}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    
+                                    <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,8" />
+
+                                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12">
+                                        <TextBox Grid.Row="0" Grid.Column="0" Header="Unidade de Força" Text="{x:Bind ViewModel.SensorSpecs.ForceUnit, Mode=TwoWay}" />
+                                        <TextBox Grid.Row="0" Grid.Column="1" Header="Sensibilidade (Volts)" Text="{Binding SensorSpecs.SensitivityVolts, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="1" Grid.Column="0" Header="Sensibilidade / Unid." Text="{Binding SensorSpecs.SensitivityPerUnit, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="1" Grid.Column="1" Header="Tempo Resposta (s)" Text="{Binding SensorSpecs.ResponseTimeSec, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="2" Grid.Column="0" Header="Recuperação (s)" Text="{Binding SensorSpecs.RecoveryTimeSec, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="2" Grid.Column="1" Header="Repetibilidade (%)" Text="{Binding SensorSpecs.RepeatabilityPercent, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="3" Grid.Column="0" Header="Resist. Repouso (Ohms)" Text="{Binding SensorSpecs.RestResistanceOhms, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="3" Grid.Column="1" Header="Histerese (%)" Text="{Binding SensorSpecs.HysteresisPercent, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="4" Grid.Column="0" Header="Temp Op Min (°C)" Text="{Binding SensorSpecs.OperatingTempMinC, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="4" Grid.Column="1" Header="Temp Op Max (°C)" Text="{Binding SensorSpecs.OperatingTempMaxC, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="5" Grid.Column="0" Header="Range Min" Text="{Binding SensorSpecs.RangeMin, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="5" Grid.Column="1" Header="Range Max" Text="{Binding SensorSpecs.RangeMax, Mode=TwoWay, TargetNullValue=''}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
+
+                        <!-- ========================================== -->
+                        <!-- WIDE LAYOUT (DASHBOARD MASONRY)            -->
+                        <!-- ========================================== -->
+                        <Grid x:Name="WideLayoutContainer" Visibility="Collapsed" 
+                              ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,*" 
+                              ColumnSpacing="24" RowSpacing="24">
+                            
+                            <!-- Col 0: Info Geral (Top) -->
+                            <Border Grid.Row="0" Grid.Column="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="24" VerticalAlignment="Top">
+                                <StackPanel Spacing="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Informação Geral" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                                    </StackPanel>
+                                    <TextBox Header="Nome do Produto" Text="{x:Bind ViewModel.Product.Name, Mode=TwoWay}" />
+                                    <TextBox Header="Código" Text="{x:Bind ViewModel.Product.Code, Mode=TwoWay}" />
+                                    <TextBox Header="Descrição" Text="{x:Bind ViewModel.Product.Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Col 0: Características (Bottom) -->
+                            <Border Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="24" VerticalAlignment="Stretch">
+                                <StackPanel Spacing="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Características (Ink Features)" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                                    </StackPanel>
+                                    <Button Content="Adicionar Característica" Command="{x:Bind ViewModel.AddFeatureCommand}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.Features}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:StringItem">
+                                                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                                                    <TextBox Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Ex: RoHS compliant" />
+                                                    <Button Grid.Column="1" Margin="12,0,0,0" Content="Remover" 
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveFeatureCommand}" 
+                                                            CommandParameter="{x:Bind}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Col 1: Liquid Properties (Top) -->
+                            <Border Grid.Row="0" Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="24" VerticalAlignment="Stretch">
+                                <StackPanel Spacing="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE318;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Liquid Properties" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    </StackPanel>
+                                    <Button Content="Adicionar Propriedade" Command="{x:Bind ViewModel.AddLiquidPropertyCommand}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.LiquidProperties}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                <Grid ColumnDefinitions="*,*,Auto" Margin="0,0,0,12">
+                                                    <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay}" PlaceholderText="Propriedade" Margin="0,0,8,0" />
+                                                    <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Valor" />
+                                                    <Button Grid.Column="2" Margin="12,0,0,0" Content="Remover" 
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveLiquidPropertyCommand}" 
+                                                            CommandParameter="{x:Bind}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Col 1: Mechanical Properties (Bottom) -->
+                            <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="24" VerticalAlignment="Stretch">
+                                <StackPanel Spacing="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE90F;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Mechanical Properties" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    </StackPanel>
+                                    <Button Content="Adicionar Guideline" Command="{x:Bind ViewModel.AddMechanicalPropertyCommand}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.MechanicalProperties}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                <Grid ColumnDefinitions="*,*,Auto" Margin="0,0,0,12">
+                                                    <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay}" PlaceholderText="Propriedade" Margin="0,0,8,0" />
+                                                    <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Valor" />
+                                                    <Button Grid.Column="2" Margin="12,0,0,0" Content="Remover" 
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveMechanicalPropertyCommand}" 
+                                                            CommandParameter="{x:Bind}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Col 1: SDS Config (Bottom/Extra) -->
+                            <Border Grid.Row="2" Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="24" VerticalAlignment="Top">
+                                <StackPanel Spacing="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="SDS Config (CLP)" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    </StackPanel>
+                                    <TextBlock Text="Frases P (Conselhos de Prud�ncia)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.PrecautionaryCodes, Mode=OneWay}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:StringItem">
+                                                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                                    <TextBox Grid.Column="0" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Ex: P280" Margin="0,0,8,0" />
+                                                    <Button Grid.Column="1" Command="{Binding ElementName=RootGrid, Path=DataContext.RemovePrecautionaryCodeCommand}" CommandParameter="{Binding}" Background="Transparent" BorderThickness="0">
+                                                        <FontIcon Glyph="&#xE74D;" FontSize="12" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button Content="Adicionar Frase P" Command="{x:Bind ViewModel.AddPrecautionaryCodeCommand}" Style="{ThemeResource AccentButtonStyle}" />
+                                    <TextBox Header="Primeiros Socorros (Sec. 4)" Text="{x:Bind ViewModel.SdsSection4CustomText, Mode=TwoWay}" AcceptsReturn="True" Height="80" PlaceholderText="Opcional. Substitui o texto auto..." />
+                                    <TextBox Header="Manuseamento (Sec. 7)" Text="{x:Bind ViewModel.SdsSection7CustomText, Mode=TwoWay}" AcceptsReturn="True" Height="80" PlaceholderText="Opcional. Substitui o texto auto..." />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Col 2: Formulação (Top) -->
+                            <Border Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="24" VerticalAlignment="Stretch">
+                                <StackPanel Spacing="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE81C;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Fórmula (Componentes SDS)" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    </StackPanel>
+                                    <TextBox x:Name="SubstanceSearchBoxWide" 
+                                             PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
+                                             TextChanged="SubstanceSearchBox_TextChanged" />
+                                    <Border x:Name="SubstanceSearchResultsPopupWide" 
+                                            Visibility="Collapsed"
+                                            Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                            CornerRadius="4" Margin="0,4,0,16" MaxHeight="200">
+                                        <ListView ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
+                                                  ItemClick="SubstanceSearchResults_ItemClick" IsItemClickEnabled="True" SelectionMode="None">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="entities:EchaSubstance">
+                                                    <StackPanel Padding="0,4">
+                                                        <TextBlock Text="{Binding ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                            <Run Text="CAS: " />
+                                                            <Run Text="{Binding CasNumber}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </Border>
+                                    <InfoBar IsOpen="{x:Bind ViewModel.HasCompositionsError, Mode=OneWay}"
+                                             Severity="Error"
+                                             Message="{x:Bind ViewModel.CompositionsValidationMessage, Mode=OneWay}" 
+                                             IsClosable="False" Margin="0,0,0,16" />
+
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="entities:ProductComposition">
+                                                <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="12" CornerRadius="4" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding EchaSubstance.ChemicalName}" Style="{ThemeResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
+                                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                            <Run Text="CAS: " />
+                                                            <Run Text="{Binding EchaSubstance.CasNumber}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0" VerticalAlignment="Center">
+                                                        <NumberBox Value="{Binding Percentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                   ValueChanged="CompositionPercentage_ValueChanged" 
+                                                                   PlaceholderText="%" Width="90" 
+                                                                   SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                                        <TextBlock Text="%" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                    
+                                                    <Button Grid.Column="2" Content="Remover" VerticalAlignment="Center"
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCompositionCommand}" 
+                                                            CommandParameter="{Binding}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Col 2: Sensor Specs (Bottom) -->
+                            <Expander Grid.Row="2" Grid.Column="2" IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Top">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon Glyph="&#xE9A6;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Especificações do Sensor (Opcional)" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <Button Content="Adicionar Especificação" Command="{x:Bind ViewModel.AddCustomSensorSpecCommand}" />
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.CustomSensorSpecs}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                <Grid ColumnDefinitions="*,*,Auto" Margin="0,0,0,12">
+                                                    <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay}" PlaceholderText="Espec. Adicional" Margin="0,0,8,0" />
+                                                    <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay}" PlaceholderText="Valor" />
+                                                    <Button Grid.Column="2" Margin="12,0,0,0" Content="Remover" 
+                                                            Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCustomSensorSpecCommand}" 
+                                                            CommandParameter="{x:Bind}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,8" />
+
+                                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="16">
+                                        <TextBox Grid.Row="0" Grid.Column="0" Header="Força Unit" Text="{x:Bind ViewModel.SensorSpecs.ForceUnit, Mode=TwoWay}" PlaceholderText="N" />
+                                        <TextBox Grid.Row="0" Grid.Column="1" Header="Sens. (V)" Text="{Binding SensorSpecs.SensitivityVolts, Mode=TwoWay, TargetNullValue=''}" />
+                                        
+                                        <TextBox Grid.Row="1" Grid.Column="0" Header="Sens. Unid." Text="{Binding SensorSpecs.SensitivityPerUnit, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="1" Grid.Column="1" Header="T. Resp (s)" Text="{Binding SensorSpecs.ResponseTimeSec, Mode=TwoWay, TargetNullValue=''}" />
+                                        
+                                        <TextBox Grid.Row="2" Grid.Column="0" Header="T. Recup (s)" Text="{Binding SensorSpecs.RecoveryTimeSec, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="2" Grid.Column="1" Header="Repetib. (%)" Text="{Binding SensorSpecs.RepeatabilityPercent, Mode=TwoWay, TargetNullValue=''}" />
+                                        
+                                        <TextBox Grid.Row="3" Grid.Column="0" Header="Resistência" Text="{Binding SensorSpecs.RestResistanceOhms, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="3" Grid.Column="1" Header="Histerese (%)" Text="{Binding SensorSpecs.HysteresisPercent, Mode=TwoWay, TargetNullValue=''}" />
+                                        
+                                        <TextBox Grid.Row="4" Grid.Column="0" Header="Temp Op Min" Text="{Binding SensorSpecs.OperatingTempMinC, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="4" Grid.Column="1" Header="Temp Op Max" Text="{Binding SensorSpecs.OperatingTempMaxC, Mode=TwoWay, TargetNullValue=''}" />
+                                        
+                                        <TextBox Grid.Row="5" Grid.Column="0" Header="Range Min" Text="{Binding SensorSpecs.RangeMin, Mode=TwoWay, TargetNullValue=''}" />
+                                        <TextBox Grid.Row="5" Grid.Column="1" Header="Range Max" Text="{Binding SensorSpecs.RangeMax, Mode=TwoWay, TargetNullValue=''}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Expander>
+
+                        </Grid>
+
+                    </Grid>
+                </StackPanel>
+
+                <!-- Actions -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,24,0,0" HorizontalAlignment="Left">
+                    <Button Content="Salvar Produto" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+                    <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
+                </StackPanel>
+
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>
+

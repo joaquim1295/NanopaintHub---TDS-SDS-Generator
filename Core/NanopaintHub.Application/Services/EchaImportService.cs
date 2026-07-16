@@ -52,10 +52,10 @@ public class EchaImportService : IEchaImportService
                 while (await csv.ReadAsync())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    var cas = GetFieldValue(csv, "CAS Number", "CAS No", "CAS");
-                    var ec = GetFieldValue(csv, "EC Number", "EC No", "EC");
-                    var name = GetFieldValue(csv, "International Chemical Identification", "Chemical Name", "Name");
-                    var hazardsStr = GetFieldValue(csv, "Hazard Statement Code(s)", "Hazards", "H-phrases");
+                    var cas = GetFieldValue(csv, "CAS Number", "CAS No", "CAS", "Cas number", "Cas No", "cas");
+                    var ec = GetFieldValue(csv, "EC Number", "EC No", "EC", "Ec number", "Ec No", "ec");
+                    var name = GetFieldValue(csv, "International Chemical Identification", "International chemical identification", "Chemical Name", "Chemical name", "Substance Name", "Substance name", "Name", "name");
+                    var hazardsStr = GetFieldValue(csv, "Hazard Statement Code(s)", "Hazard statement code(s)", "Hazards", "H-phrases", "Classification", "classification");
 
                     ProcessRow(cas, ec, name, hazardsStr, records);
                 }
@@ -74,10 +74,10 @@ public class EchaImportService : IEchaImportService
                 if (result.Tables.Count > 0)
                 {
                     var table = result.Tables[0];
-                    var casCol = GetColumnIndex(table, "CAS Number", "CAS No", "CAS");
-                    var ecCol = GetColumnIndex(table, "EC Number", "EC No", "EC");
-                    var nameCol = GetColumnIndex(table, "International Chemical Identification", "Chemical Name", "Name");
-                    var hazardsCol = GetColumnIndex(table, "Hazard Statement Code(s)", "Hazards", "H-phrases");
+                    var casCol = GetColumnIndex(table, "CAS Number", "CAS No", "CAS", "Cas number", "Cas No", "cas");
+                    var ecCol = GetColumnIndex(table, "EC Number", "EC No", "EC", "Ec number", "Ec No", "ec");
+                    var nameCol = GetColumnIndex(table, "International Chemical Identification", "International chemical identification", "Chemical Name", "Chemical name", "Substance Name", "Substance name", "Name", "name");
+                    var hazardsCol = GetColumnIndex(table, "Hazard Statement Code(s)", "Hazard statement code(s)", "Hazards", "H-phrases", "Classification", "classification");
 
                     foreach (System.Data.DataRow row in table.Rows)
                     {

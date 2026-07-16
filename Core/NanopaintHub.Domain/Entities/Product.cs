@@ -23,5 +23,10 @@ public class Product : Entity
     public int DocumentVersion { get; set; }
     public string ExposureScenarioPdfPath { get; set; } = string.Empty;
 
+    // SDS Configuration (CLP)
+    public string PrecautionaryCodesJson { get; set; } = "[]";
+    public string SdsSection4CustomText { get; set; } = string.Empty;
+    public string SdsSection7CustomText { get; set; } = string.Empty;
+
     public ICollection<ProductComposition> Compositions { get; set; } = new List<ProductComposition>();
 }

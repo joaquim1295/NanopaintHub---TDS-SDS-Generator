@@ -22,11 +22,14 @@ public static class NanopaintHubPersistenceServiceCollectionExtensions
         });
 
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IClpPhraseRepository, ClpPhraseRepository>();
         services.AddScoped<ITemplateRepository, TemplateRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ITestBatchRepository, TestBatchRepository>();
         services.AddScoped<IDocumentReleaseRepository, DocumentReleaseRepository>();
         services.AddScoped<IEchaSubstanceRepository, EchaSubstanceRepository>();
+        services.AddScoped<ISupplierRepository, SupplierRepository>();
+        services.AddScoped<ISupplierProductRepository, SupplierProductRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

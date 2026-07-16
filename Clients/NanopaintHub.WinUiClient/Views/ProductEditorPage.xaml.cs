@@ -53,11 +53,19 @@ public sealed partial class ProductEditorPage : Page
         });
     }
 
-    private void SubstanceSearchResults_ItemClick(object sender, Microsoft.UI.Xaml.Controls.ItemClickEventArgs e)
+    private async void SubstanceSearchResults_ItemClick(object sender, Microsoft.UI.Xaml.Controls.ItemClickEventArgs e)
     {
-        if (e.ClickedItem is NanopaintHub.Domain.Entities.EchaSubstance substance)
+        if (e.ClickedItem is NanopaintHub.Application.DTOs.FederatedSearchResult result)
         {
-            ViewModel.AddCompositionCommand.Execute(substance);
+            if (result.IsImportAction)
+            {
+                SubstanceSearchResultsPopup.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+                SubstanceSearchResultsPopupWide.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+                await ImportPdfAsync(result.TypedQuery);
+                return;
+            }
+
+            ViewModel.AddCompositionCommand.Execute(result);
             
             SubstanceSearchBox.Text = string.Empty;
             SubstanceSearchBoxWide.Text = string.Empty;
@@ -67,12 +75,248 @@ public sealed partial class ProductEditorPage : Page
         }
     }
 
-    private void CompositionPercentage_ValueChanged(Microsoft.UI.Xaml.Controls.NumberBox sender, Microsoft.UI.Xaml.Controls.NumberBoxValueChangedEventArgs args)
+
+    private async System.Threading.Tasks.Task ImportPdfAsync(string initialQuery = "")
     {
-        // Enqueue the validation so it runs after the binding updates the model
-        DispatcherQueue.TryEnqueue(() =>
+        var window = ((App)App.Current).MainWindow;
+        if (window == null) return;
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+        picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+        picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+        picker.FileTypeFilter.Add(".pdf");
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
         {
-            ViewModel.ValidateCompositions();
-        });
+            var pdfExtractor = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.ISdsPdfExtractorService>();
+            var extractedData = await pdfExtractor.ExtractSdsDataAsync(file.Path);
+
+            if (extractedData.CasNumbers.Count == 0 && string.IsNullOrWhiteSpace(extractedData.ProductName))
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Nenhum dado encontrado",
+                    Content = "Não foi possível extrair dados estruturados ou números CAS deste PDF.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+                return;
+            }
+
+            var echaRepo = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.IEchaSubstanceRepository>();
+            var supplierRepo = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.ISupplierRepository>();
+            var supplierProductRepo = App.Services.GetRequiredService<NanopaintHub.Application.Contracts.ISupplierProductRepository>();
+
+            var substances = new System.Collections.Generic.List<NanopaintHub.Domain.Entities.EchaSubstance>();
+            foreach (var data in extractedData.CasNumbers)
+            {
+                data.CasNumber = data.CasNumber?.Trim() ?? string.Empty;
+                var sub = await echaRepo.GetByCasAsync(data.CasNumber);
+                if (sub == null && !string.IsNullOrWhiteSpace(data.CasNumber))
+                {
+                    var confirmMissingDialog = new ContentDialog
+                    {
+                        Title = "CAS não encontrado na ECHA",
+                        Content = $"O CAS {data.CasNumber} não foi encontrado na base de dados local do Anexo Harmonizado II da ECHA.\n\nSerá importado utilizando os dados extraídos diretamente da Ficha de Segurança (SDS). Deseja continuar?",
+                        PrimaryButtonText = "Continuar",
+                        CloseButtonText = "Ignorar Componente",
+                        DefaultButton = ContentDialogButton.Primary,
+                        XamlRoot = this.XamlRoot
+                    };
+                    var missingResult = await confirmMissingDialog.ShowAsync();
+                    if (missingResult != ContentDialogResult.Primary)
+                    {
+                        continue;
+                    }
+
+                    sub = new NanopaintHub.Domain.Entities.EchaSubstance
+                    {
+                        CasNumber = data.CasNumber,
+                        ChemicalName = "Substância Importada (CAS: " + data.CasNumber + ")"
+                    };
+                    
+                    if (data.ExtractedHazards != null && data.ExtractedHazards.Any())
+                    {
+                        foreach (var hazard in data.ExtractedHazards)
+                        {
+                            sub.Hazards.Add(new NanopaintHub.Domain.Entities.SubstanceHazard
+                            {
+                                Substance = sub,
+                                PhraseCode = hazard
+                            });
+                        }
+                    }
+
+                    await echaRepo.AddAsync(sub);
+                }
+                
+                if (sub != null) 
+                {
+                    // Enrich existing database component with any newly extracted hazards from the SDS
+                    if (data.ExtractedHazards != null && data.ExtractedHazards.Any())
+                    {
+                        foreach (var hazard in data.ExtractedHazards)
+                        {
+                            if (!sub.Hazards.Any(h => h.PhraseCode == hazard))
+                            {
+                                sub.Hazards.Add(new NanopaintHub.Domain.Entities.SubstanceHazard
+                                {
+                                    Substance = sub,
+                                    PhraseCode = hazard
+                                });
+                            }
+                        }
+                    }
+
+                    substances.Add(sub);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(extractedData.ProductName))
+            {
+                extractedData.ProductName = initialQuery;
+            }
+
+            var nameTextBox = new TextBox { Header = "Nome do Produto", Text = extractedData.ProductName, PlaceholderText = "Ex: Resina X", Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 16) };
+            var supplierTextBox = new TextBox { Header = "Fornecedor", Text = extractedData.SupplierName, PlaceholderText = "Ex: BASF", Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 16) };
+            
+            var panel = new StackPanel();
+            panel.Children.Add(new TextBlock { Text = $"Foram encontrados {extractedData.CasNumbers.Count} componentes ({substances.Count} identificados na base ECHA).", Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 16), TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap });
+            
+            // Anti-duplicate protection: Warning bar
+            var duplicateWarning = new Microsoft.UI.Xaml.Controls.InfoBar
+            {
+                Severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning,
+                Title = "Possível Duplicado",
+                Message = "Já existe um produto com um nome semelhante na base de dados.",
+                IsOpen = false,
+                IsClosable = false,
+                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 16)
+            };
+            panel.Children.Add(duplicateWarning);
+            
+            panel.Children.Add(nameTextBox);
+            panel.Children.Add(supplierTextBox);
+
+            // Dynamically check for duplicates when name changes
+            nameTextBox.TextChanged += async (s, args) => 
+            {
+                if (string.IsNullOrWhiteSpace(nameTextBox.Text) || nameTextBox.Text.Length < 3)
+                {
+                    duplicateWarning.IsOpen = false;
+                    return;
+                }
+                var similar = await supplierProductRepo.SearchByNameAsync(nameTextBox.Text);
+                duplicateWarning.IsOpen = similar != null && similar.Count > 0;
+            };
+
+            // Trigger initial check
+            if (!string.IsNullOrWhiteSpace(nameTextBox.Text))
+            {
+                var initialSimilar = await supplierProductRepo.SearchByNameAsync(nameTextBox.Text);
+                duplicateWarning.IsOpen = initialSimilar != null && initialSimilar.Count > 0;
+            }
+
+            // UI for Mixture of Mixtures (Substances extracted)
+            var compositionsPanel = new StackPanel { Spacing = 8, Margin = new Microsoft.UI.Xaml.Thickness(0, 8, 0, 0) };
+            compositionsPanel.Children.Add(new TextBlock { Text = "Composição Interna Extraída:", Style = (Microsoft.UI.Xaml.Style)Microsoft.UI.Xaml.Application.Current.Resources["BodyStrongTextBlockStyle"] });
+            
+            foreach (var sub in substances)
+            {
+                var casData = extractedData.CasNumbers.FirstOrDefault(c => c.CasNumber == sub.CasNumber);
+                double autoPct = casData?.ParsedPercentage ?? 0;
+                string rawPctInfo = string.IsNullOrWhiteSpace(casData?.RawPercentageText) ? "" : $" [{casData.RawPercentageText}]";
+                
+                string hazardsStr = string.Join(", ", sub.Hazards?.Select(h => h.PhraseCode) ?? Array.Empty<string>());
+                if (string.IsNullOrWhiteSpace(hazardsStr)) hazardsStr = "Sem classificação";
+                
+                var subText = new TextBlock { Text = $"• {sub.ChemicalName} (CAS: {sub.CasNumber}) - {autoPct}%{rawPctInfo}\n   Classificação: {hazardsStr}", VerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment.Center, TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap };
+                compositionsPanel.Children.Add(subText);
+            }
+
+            if (substances.Count > 0)
+            {
+                panel.Children.Add(compositionsPanel);
+            }
+
+            var confirmDialog = new ContentDialog
+            {
+                Title = "Importar Matéria-Prima de SDS",
+                Content = panel,
+                PrimaryButtonText = "Salvar e Adicionar",
+                CloseButtonText = "Cancelar",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await confirmDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary && !string.IsNullOrWhiteSpace(nameTextBox.Text))
+            {
+                // Create supplier if not exists (simplification)
+                var supplierName = string.IsNullOrWhiteSpace(supplierTextBox.Text) ? "Desconhecido" : supplierTextBox.Text;
+                var suppliers = await supplierRepo.GetAllAsync();
+                var supplier = System.Linq.Enumerable.FirstOrDefault(suppliers, s => s.Name.Equals(supplierName, StringComparison.OrdinalIgnoreCase));
+                
+                if (supplier == null)
+                {
+                    supplier = new NanopaintHub.Domain.Entities.Supplier { Name = supplierName };
+                    await supplierRepo.AddAsync(supplier);
+                }
+
+                // Copy PDF to secure archive
+                string archiveDir = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "NanopaintHub", "SdsArchives");
+                System.IO.Directory.CreateDirectory(archiveDir);
+                string extension = System.IO.Path.GetExtension(file.Path);
+                string safeFileName = $"{Guid.NewGuid()}{extension}";
+                string destPath = System.IO.Path.Combine(archiveDir, safeFileName);
+                System.IO.File.Copy(file.Path, destPath, true);
+
+                var supplierProduct = new NanopaintHub.Domain.Entities.SupplierProduct
+                {
+                    Name = nameTextBox.Text,
+                    SupplierId = supplier.Id,
+                    Supplier = supplier,
+                    SdsFilePath = destPath
+                };
+
+                foreach (var sub in substances)
+                {
+                    var casData = extractedData.CasNumbers.FirstOrDefault(c => c.CasNumber == sub.CasNumber);
+                    double autoPct = casData?.ParsedPercentage ?? 0;
+
+                    supplierProduct.Compositions.Add(new NanopaintHub.Domain.Entities.SupplierProductComposition
+                    {
+                        EchaSubstanceId = sub.Id,
+                        EchaSubstance = sub,
+                        SupplierProductId = supplierProduct.Id,
+                        Percentage = autoPct,
+                        PercentageText = casData?.RawPercentageText
+                    });
+                }
+
+                await supplierProductRepo.AddAsync(supplierProduct);
+
+                // Add the SupplierProduct itself to the Paint
+                ViewModel.AddCompositionCommand.Execute(new NanopaintHub.Application.DTOs.FederatedSearchResult
+                {
+                    SupplierProduct = supplierProduct
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Erro ao extrair PDF",
+                Content = ex.Message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
     }
 }

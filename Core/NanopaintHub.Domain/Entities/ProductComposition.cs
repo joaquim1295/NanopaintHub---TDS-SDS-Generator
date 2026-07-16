@@ -11,8 +11,11 @@ public class ProductComposition : Entity
     public Guid ProductId { get; set; }
     public Product? Product { get; set; }
 
-    public Guid EchaSubstanceId { get; set; }
+    public Guid? EchaSubstanceId { get; set; }
     public EchaSubstance? EchaSubstance { get; set; }
+
+    public Guid? SupplierProductId { get; set; }
+    public SupplierProduct? SupplierProduct { get; set; }
 
     public double Percentage { get; set; }
 
@@ -21,4 +24,12 @@ public class ProductComposition : Entity
     /// como especificações precisas de tamanho de nanopartículas, etc.
     /// </summary>
     public string ExtraMetadataJson { get; set; } = "{}";
+
+    public string DisplayName => SupplierProduct != null 
+        ? SupplierProduct.Name 
+        : EchaSubstance?.ChemicalName ?? "Desconhecido";
+
+    public string DisplayDescription => SupplierProduct != null 
+        ? $"Matéria-Prima de: {SupplierProduct.Supplier?.Name ?? "Desconhecido"}" 
+        : $"CAS: {EchaSubstance?.CasNumber}";
 }
