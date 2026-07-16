@@ -129,6 +129,77 @@
                         </StackPanel>
                     </Grid>
                 </Border>
+
+                <!-- Card 5: Database Diagnostics & Inspector -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE733;" FontSize="20" VerticalAlignment="Top" Margin="0,4,16,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        
+                        <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="0,0,16,0">
+                            <TextBlock Text="Diagnóstico e Inspeção de Base de Dados" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Monitorize o volume de dados do sistema e exporte a base de dados para análise profunda externa." Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                            
+                            <Grid RowSpacing="8" ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Fórmulas e Matérias:" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{x:Bind ViewModel.TotalProducts, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Fornecedores:" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{x:Bind ViewModel.TotalSuppliers, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Substâncias REACH/ECHA:" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{x:Bind ViewModel.TotalEchaSubstances, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Componentes Químicos:" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{x:Bind ViewModel.TotalCompositions, Mode=OneWay}" Style="{ThemeResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
+                            <Button Command="{x:Bind ViewModel.ExportDatabaseCommand}"
+                                    Style="{ThemeResource AccentButtonStyle}">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE74E;" FontSize="14" />
+                                        <TextBlock Text="Exportar Base de Dados (.db)" />
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                            <HyperlinkButton Content="{x:Bind ViewModel.ExportedFilePath, Mode=OneWay}"
+                                             Command="{x:Bind ViewModel.OpenExportedDatabaseCommand}"
+                                             Visibility="{x:Bind ViewModel.HasExportedFile, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                                             ToolTipService.ToolTip="Abrir ficheiro exportado"
+                                             FontSize="12" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </StackPanel>
 
             <InfoBar IsOpen="True" Severity="Informational" Title="Multi-Engine Architecture" 

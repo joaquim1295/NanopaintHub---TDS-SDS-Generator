@@ -9,6 +9,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Options;
 using NanopaintHub.Application.Contracts;
 using NanopaintHub.Infrastructure.Documents.DependencyInjection;
+using NanopaintHub.Infrastructure.LocalData.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace NanopaintHub_WinUIClient.ViewModels;
 
@@ -16,6 +18,7 @@ public partial class SettingsViewModel : ObservableObject
 {
     private readonly string _appSettingsPath;
     private readonly IEchaImportService _echaImportService;
+    private readonly NanopaintHubDbContext _dbContext;
 
     public List<string> AvailableEngines { get; } = new() { "QuestPDF", "WebView2", "iText7" };
 
@@ -34,9 +37,27 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int _alertDurationSeconds;
 
-    public SettingsViewModel(IOptionsMonitor<PdfGeneratorOptions> options, IEchaImportService echaImportService)
+    [ObservableProperty]
+    private int _totalProducts;
+
+    [ObservableProperty]
+    private int _totalSuppliers;
+
+    [ObservableProperty]
+    private int _totalCompositions;
+
+    [ObservableProperty]
+    private int _totalEchaSubstances;
+
+    [ObservableProperty]
+    private string _exportedFilePath = string.Empty;
+
+    public bool HasExportedFile => !string.IsNullOrEmpty(ExportedFilePath);
+
+    public SettingsViewModel(IOptionsMonitor<PdfGeneratorOptions> options, IEchaImportService echaImportService, NanopaintHubDbContext dbContext)
     {
         _echaImportService = echaImportService;
+        _dbContext = dbContext;
         _tdsEngine = options.CurrentValue.TdsEngine;
         _sdsEngine = options.CurrentValue.SdsEngine;
         
@@ -197,6 +218,81 @@ public partial class SettingsViewModel : ObservableObject
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error saving EchaDatabase settings: {ex.Message}");
+        }
+    }
+
+    public async Task LoadDatabaseMetricsAsync()
+    {
+        try
+        {
+            TotalProducts = await _dbContext.Products.CountAsync();
+            TotalSuppliers = await _dbContext.Suppliers.CountAsync();
+            TotalCompositions = await _dbContext.ProductCompositions.CountAsync() + await _dbContext.SupplierProductCompositions.CountAsync();
+            TotalEchaSubstances = await _dbContext.EchaSubstances.CountAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error loading metrics: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportDatabaseAsync()
+    {
+        var picker = new Windows.Storage.Pickers.FileSavePicker();
+        
+        var app = (Microsoft.UI.Xaml.Application.Current as App);
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(app?.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
+        picker.FileTypeChoices.Add("SQLite Database", new List<string>() { ".db" });
+        picker.SuggestedFileName = "nanopainthub_inspect.db";
+
+        var file = await picker.PickSaveFileAsync();
+        if (file != null)
+        {
+            try
+            {
+                var appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
+                var dbPath = Path.Combine(appDataFolder, "nanopainthub.db");
+
+                File.Copy(dbPath, file.Path, overwrite: true);
+                
+                ExportedFilePath = file.Path;
+                OnPropertyChanged(nameof(HasExportedFile));
+
+                // Open the file using the default OS handler
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = file.Path,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error exporting database: {ex.Message}");
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void OpenExportedDatabase()
+    {
+        if (File.Exists(ExportedFilePath))
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = ExportedFilePath,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error opening database: {ex.Message}");
+            }
         }
     }
 }

@@ -14,4 +14,10 @@ public sealed partial class SettingsPage : Page
         ViewModel = App.Services.GetRequiredService<SettingsViewModel>();
         DataContext = ViewModel;
     }
+
+    protected override async void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        await ViewModel.LoadDatabaseMetricsAsync();
+    }
 }
