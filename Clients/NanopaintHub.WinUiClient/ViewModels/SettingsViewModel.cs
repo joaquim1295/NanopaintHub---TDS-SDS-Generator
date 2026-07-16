@@ -257,17 +257,17 @@ public partial class SettingsViewModel : ObservableObject
                 var appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
                 var dbPath = Path.Combine(appDataFolder, "nanopainthub.db");
 
-                File.Copy(dbPath, file.Path, overwrite: true);
+                using (var sourceStream = new FileStream(dbPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var destStream = new FileStream(file.Path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                {
+                    sourceStream.CopyTo(destStream);
+                }
                 
                 ExportedFilePath = file.Path;
                 OnPropertyChanged(nameof(HasExportedFile));
 
-                // Open the file using the default OS handler
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = file.Path,
-                    UseShellExecute = true
-                });
+                // Open the folder and select the file instead of trying to open the .db directly
+                System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{file.Path}\"");
             }
             catch (Exception ex)
             {
@@ -283,11 +283,7 @@ public partial class SettingsViewModel : ObservableObject
         {
             try
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = ExportedFilePath,
-                    UseShellExecute = true
-                });
+                System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{ExportedFilePath}\"");
             }
             catch (Exception ex)
             {
