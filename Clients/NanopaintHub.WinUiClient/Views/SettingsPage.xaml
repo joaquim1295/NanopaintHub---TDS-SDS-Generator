@@ -197,10 +197,9 @@
                                 </Button.Content>
                             </Button>
 
-                            <HyperlinkButton Content="{x:Bind ViewModel.ExportedFilePath, Mode=OneWay}"
-                                             Command="{x:Bind ViewModel.OpenExportedDatabaseCommand}"
-                                             Visibility="{x:Bind ViewModel.HasExportedFile, Mode=OneWay, Converter={StaticResource BoolToVis}}"
-                                             ToolTipService.ToolTip="Abrir ficheiro exportado"
+                            <HyperlinkButton Content="Abrir Pasta Local da Base de Dados"
+                                             Command="{x:Bind ViewModel.OpenDatabaseFolderCommand}"
+                                             ToolTipService.ToolTip="{x:Bind ViewModel.DatabaseFolderPath}"
                                              FontSize="12" />
                         </StackPanel>
                     </Grid>

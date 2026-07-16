@@ -49,10 +49,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int _totalEchaSubstances;
 
-    [ObservableProperty]
-    private string _exportedFilePath = string.Empty;
-
-    public bool HasExportedFile => !string.IsNullOrEmpty(ExportedFilePath);
+    public string DatabaseFolderPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
 
     public SettingsViewModel(IOptionsMonitor<PdfGeneratorOptions> options, IEchaImportService echaImportService, NanopaintHubDbContext dbContext)
     {
@@ -262,9 +259,6 @@ public partial class SettingsViewModel : ObservableObject
                 {
                     sourceStream.CopyTo(destStream);
                 }
-                
-                ExportedFilePath = file.Path;
-                OnPropertyChanged(nameof(HasExportedFile));
 
                 // Open the folder and select the file instead of trying to open the .db directly
                 System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{file.Path}\"");
@@ -277,18 +271,15 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OpenExportedDatabase()
+    private void OpenDatabaseFolder()
     {
-        if (File.Exists(ExportedFilePath))
+        try
         {
-            try
-            {
-                System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{ExportedFilePath}\"");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error opening database: {ex.Message}");
-            }
+            System.Diagnostics.Process.Start("explorer.exe", $"\"{DatabaseFolderPath}\"");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error opening database folder: {ex.Message}");
         }
     }
 }
