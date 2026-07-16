@@ -243,24 +243,49 @@ public partial class SettingsViewModel : ObservableObject
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
         picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
-        picker.FileTypeChoices.Add("SQLite Database", new List<string>() { ".db" });
-        picker.SuggestedFileName = "nanopainthub_inspect.db";
+        picker.FileTypeChoices.Add("Ficheiro JSON Legível", new List<string>() { ".json" });
+        picker.FileTypeChoices.Add("Base de Dados SQLite", new List<string>() { ".db" });
+        picker.SuggestedFileName = "nanopainthub_export";
 
         var file = await picker.PickSaveFileAsync();
         if (file != null)
         {
             try
             {
-                var appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
-                var dbPath = Path.Combine(appDataFolder, "nanopainthub.db");
-
-                using (var sourceStream = new FileStream(dbPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var destStream = new FileStream(file.Path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                if (file.Path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 {
-                    sourceStream.CopyTo(destStream);
+                    var products = await _dbContext.Products.Include(p => p.Compositions).ToListAsync();
+                    var suppliers = await _dbContext.Suppliers.Include(s => s.Products).ToListAsync();
+                    
+                    var exportData = new 
+                    {
+                        ExportDate = DateTime.UtcNow,
+                        Metrics = new { TotalProducts, TotalSuppliers, TotalCompositions, TotalEchaSubstances },
+                        Products = products,
+                        Suppliers = suppliers
+                    };
+
+                    var options = new JsonSerializerOptions 
+                    { 
+                        WriteIndented = true,
+                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+                    };
+                    
+                    var json = JsonSerializer.Serialize(exportData, options);
+                    await File.WriteAllTextAsync(file.Path, json);
+                }
+                else
+                {
+                    var appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
+                    var dbPath = Path.Combine(appDataFolder, "nanopainthub.db");
+
+                    using (var sourceStream = new FileStream(dbPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var destStream = new FileStream(file.Path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                    {
+                        sourceStream.CopyTo(destStream);
+                    }
                 }
 
-                // Open the folder and select the file instead of trying to open the .db directly
                 System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{file.Path}\"");
             }
             catch (Exception ex)
