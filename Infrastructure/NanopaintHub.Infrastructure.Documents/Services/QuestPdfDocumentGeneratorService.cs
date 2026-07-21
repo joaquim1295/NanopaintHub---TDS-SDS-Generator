@@ -19,7 +19,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
     private readonly IPdfGenerationProgressNotifier _progress;
     private readonly TdsDataMergeService _tdsMerge;
     private readonly ITdsChartRenderer _chartRenderer;
-    private readonly NanopaintHub.Domain.Common.CompanyInfoOptions _companyInfo;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Domain.Common.CompanyInfoOptions> _companyInfoOptions;
     private readonly IClpPhraseRepository _phraseRepo;
 
     public QuestPdfDocumentGeneratorService(
@@ -32,7 +32,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         _progress = progress;
         _tdsMerge = tdsMerge;
         _chartRenderer = chartRenderer;
-        _companyInfo = companyInfoOptions.CurrentValue;
+        _companyInfoOptions = companyInfoOptions;
         _phraseRepo = phraseRepo;
     }
 
@@ -98,7 +98,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                 page.Footer()
                     .PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre)
                     .PaddingBottom((float)schema.Layout.BottomMargin, Unit.Millimetre)
-                    .Element(c => ComposeFooter(c, schema));
+                    .Element(c => ComposeFooter(c, schema, product, template));
             });
         });
 
@@ -156,6 +156,8 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
     {
         if (string.IsNullOrWhiteSpace(text)) return string.Empty;
 
+        var companyInfo = _companyInfoOptions.CurrentValue;
+
         return text
             .Replace("{{Name}}", product.Name ?? "")
             .Replace("{{Product.Name}}", product.Name ?? "")
@@ -165,7 +167,14 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             .Replace("{{Product.Description}}", product.Description ?? "")
             .Replace("{{TemplateName}}", template?.TemplateName ?? "")
             .Replace("{{RevisionDate}}", product.RevisionDate.ToString("yyyy-MM-dd"))
-            .Replace("{{Version}}", product.DocumentVersion.ToString());
+            .Replace("{{Date}}", product.RevisionDate.ToString("yyyy-MM-dd"))
+            .Replace("{{Version}}", product.DocumentVersion.ToString())
+            .Replace("{{Company.Name}}", companyInfo.Name ?? "")
+            .Replace("{{Company.Address}}", companyInfo.Address ?? "")
+            .Replace("{{Company.Telephone}}", companyInfo.Telephone ?? "")
+            .Replace("{{Company.Email}}", companyInfo.Email ?? "")
+            .Replace("{{Company.EmergencyTelephone}}", !string.IsNullOrWhiteSpace(companyInfo.EmergencyTelephone) ? companyInfo.EmergencyTelephone : (companyInfo.Telephone ?? ""))
+            .Replace("{{Company.ResponsiblePerson}}", companyInfo.ResponsiblePerson ?? "");
     }
 
     private void ComposeMinimalHeader(IContainer container, TemplateBuilderSchema schema, Product product, DocumentTemplate template)
@@ -408,29 +417,63 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         });
     }
 
-    private void ComposeFooter(IContainer container, TemplateBuilderSchema schema)
+    private void ComposeFooter(IContainer container, TemplateBuilderSchema schema, Product product, DocumentTemplate template)
     {
+        var companyInfo = _companyInfoOptions.CurrentValue;
+
         container.BorderTop(1).BorderColor("#d8e1ec").PaddingTop(4, Unit.Millimetre).Column(col =>
         {
             col.Item().Row(row =>
             {
-                row.RelativeItem().Text(string.IsNullOrWhiteSpace(schema.Footer.Column1) ? $"{_companyInfo.Name}\n{_companyInfo.Address}" : schema.Footer.Column1)
+                var col1Text = string.IsNullOrWhiteSpace(schema.Footer.Column1) ? $"{companyInfo.Name}\n{companyInfo.Address}" : schema.Footer.Column1;
+                var col2Text = string.IsNullOrWhiteSpace(schema.Footer.Column2) ? "www.nanopaint-tech.com\ninfo@nanopaint-tech.com" : schema.Footer.Column2;
+
+                row.RelativeItem().Text(ReplacePlaceholders(col1Text, product, template))
                    .FontSize((float)schema.Theme.BaseFontSize - 1f).Bold().FontColor(schema.Theme.PrimaryColor);
                 
-                row.RelativeItem().AlignRight().Text(string.IsNullOrWhiteSpace(schema.Footer.Column2) ? "www.nanopaint-tech.com\ninfo@nanopaint-tech.com" : schema.Footer.Column2)
+                row.RelativeItem().AlignRight().Text(ReplacePlaceholders(col2Text, product, template))
                    .FontSize((float)schema.Theme.BaseFontSize - 1f).Bold().FontColor(schema.Theme.PrimaryColor);
             });
 
             var defaultLegal = "© 2026 NanoPaint Lda. All rights reserved. This Technical Data Sheet is generated from product records in NanopaintHub. Values shown reflect stored product data with optional batch overlay.";
-            col.Item().PaddingTop(2).Text(string.IsNullOrWhiteSpace(schema.Footer.LegalText) ? defaultLegal : schema.Footer.LegalText)
+            var legalText = string.IsNullOrWhiteSpace(schema.Footer.LegalText) ? defaultLegal : schema.Footer.LegalText;
+            col.Item().PaddingTop(2).Text(ReplacePlaceholders(legalText, product, template))
                .FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Medium);
             
-            col.Item().AlignRight().Text(x =>
+            col.Item().Row(row =>
             {
-                x.Span("Page ").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                x.CurrentPageNumber().FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                x.Span(" of ").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                x.TotalPages().FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                if (schema.Footer.ShowVersionAndDate)
+                {
+                    row.RelativeItem().AlignLeft().Text(x =>
+                    {
+                        var ver = string.IsNullOrWhiteSpace(schema.Header.InfoVersion) ? product.DocumentVersion.ToString() : schema.Header.InfoVersion;
+                        var dat = schema.Header.InfoRevisedDate.HasValue ? schema.Header.InfoRevisedDate.Value.ToString("yyyy-MM-dd") : product.RevisionDate.ToString("yyyy-MM-dd");
+                        
+                        if (!string.IsNullOrWhiteSpace(schema.Footer.VersionLabel))
+                            x.Span($"{schema.Footer.VersionLabel} {ver}").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                        else
+                            x.Span(ver).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                            
+                        x.Span("   |   ").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Lighten1);
+                        
+                        if (!string.IsNullOrWhiteSpace(schema.Footer.DateLabel))
+                            x.Span($"{schema.Footer.DateLabel} {dat}").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                        else
+                            x.Span(dat).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                    });
+                }
+                else
+                {
+                    row.RelativeItem();
+                }
+
+                row.RelativeItem().AlignRight().Text(x =>
+                {
+                    x.Span("Page ").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                    x.CurrentPageNumber().FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                    x.Span(" of ").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                    x.TotalPages().FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                });
             });
         });
     }
@@ -569,7 +612,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                 page.Footer()
                     .PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre)
                     .PaddingBottom((float)schema.Layout.BottomMargin, Unit.Millimetre)
-                    .Element(c => ComposeFooter(c, schema));
+                    .Element(c => ComposeFooter(c, schema, product, template));
             });
         });
 
@@ -656,15 +699,17 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
     private void ComposeSdsSection1(ColumnDescriptor col, Product product, TemplateBuilderSchema schema, string title = "SECTION 1: Identification of the substance/mixture and of the company/undertaking")
     {
+        var companyInfo = _companyInfoOptions.CurrentValue;
+        
         DrawSdsTitle(col, title, schema);
         col.Item().Text("1.1 Product identifier").Bold();
         col.Item().PaddingLeft(10).Text($"Product name: {product.Name}");
         col.Item().PaddingTop(4).Text("1.2 Relevant identified uses of the substance or mixture and uses advised against").Bold();
         col.Item().PaddingLeft(10).Text("Use of the Substance/Mixture: Industrial and research");
         col.Item().PaddingTop(4).Text("1.3 Details of the supplier of the safety data sheet").Bold();
-        col.Item().PaddingLeft(10).Text($"Company: {_companyInfo.Name}\nAddress: {_companyInfo.Address}");
+        col.Item().PaddingLeft(10).Text($"Company: {companyInfo.Name}\nAddress: {companyInfo.Address}\nTelephone: {companyInfo.Telephone}\nEmail: {companyInfo.Email}");
         col.Item().PaddingTop(4).Text("1.4 Emergency telephone number").Bold();
-        col.Item().PaddingLeft(10).Text(_companyInfo.Telephone);
+        col.Item().PaddingLeft(10).Text(!string.IsNullOrWhiteSpace(companyInfo.EmergencyTelephone) ? companyInfo.EmergencyTelephone : (companyInfo.Telephone ?? ""));
     }
 
     private void ComposeSdsSection2(ColumnDescriptor col, List<SubstanceHazard> uniqueHazards, HashSet<string> hazardCodes, List<ClpPhrase> pPhrases, TemplateBuilderSchema schema, string title = "SECTION 2: Hazards identification")

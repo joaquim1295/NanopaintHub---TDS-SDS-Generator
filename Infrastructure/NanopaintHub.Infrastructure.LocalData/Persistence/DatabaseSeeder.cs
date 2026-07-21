@@ -23,6 +23,7 @@ public static class DatabaseSeeder
 
         await EnsureDefaultTemplatesAsync(db, cancellationToken);
         await SeedEchaDataAsync(db, cancellationToken);
+        await SeedClpTranslationsAsync(db, cancellationToken);
 
         if (await db.Products.AnyAsync(cancellationToken))
         {
@@ -193,13 +194,27 @@ public static class DatabaseSeeder
         // 1. Frases H Base (Mock inicial para testar)
         var phrases = new[]
         {
+            new ClpPhrase { Code = "H224", Description = "Extremely flammable liquid and vapour.", PhraseType = "H" },
             new ClpPhrase { Code = "H225", Description = "Highly flammable liquid and vapour.", PhraseType = "H" },
             new ClpPhrase { Code = "H226", Description = "Flammable liquid and vapour.", PhraseType = "H" },
+            new ClpPhrase { Code = "H302", Description = "Harmful if swallowed.", PhraseType = "H" },
             new ClpPhrase { Code = "H304", Description = "May be fatal if swallowed and enters airways.", PhraseType = "H" },
+            new ClpPhrase { Code = "H312", Description = "Harmful in contact with skin.", PhraseType = "H" },
+            new ClpPhrase { Code = "H314", Description = "Causes severe skin burns and eye damage.", PhraseType = "H" },
             new ClpPhrase { Code = "H315", Description = "Causes skin irritation.", PhraseType = "H" },
+            new ClpPhrase { Code = "H317", Description = "May cause an allergic skin reaction.", PhraseType = "H" },
+            new ClpPhrase { Code = "H318", Description = "Causes serious eye damage.", PhraseType = "H" },
             new ClpPhrase { Code = "H319", Description = "Causes serious eye irritation.", PhraseType = "H" },
+            new ClpPhrase { Code = "H330", Description = "Fatal if inhaled.", PhraseType = "H" },
+            new ClpPhrase { Code = "H332", Description = "Harmful if inhaled.", PhraseType = "H" },
             new ClpPhrase { Code = "H335", Description = "May cause respiratory irritation.", PhraseType = "H" },
-            new ClpPhrase { Code = "H336", Description = "May cause drowsiness or dizziness.", PhraseType = "H" }
+            new ClpPhrase { Code = "H336", Description = "May cause drowsiness or dizziness.", PhraseType = "H" },
+            new ClpPhrase { Code = "H350", Description = "May cause cancer.", PhraseType = "H" },
+            new ClpPhrase { Code = "H351", Description = "Suspected of causing cancer.", PhraseType = "H" },
+            new ClpPhrase { Code = "H360", Description = "May damage fertility or the unborn child.", PhraseType = "H" },
+            new ClpPhrase { Code = "H400", Description = "Very toxic to aquatic life.", PhraseType = "H" },
+            new ClpPhrase { Code = "H410", Description = "Very toxic to aquatic life with long lasting effects.", PhraseType = "H" },
+            new ClpPhrase { Code = "H411", Description = "Toxic to aquatic life with long lasting effects.", PhraseType = "H" }
         };
         db.ClpPhrases.AddRange(phrases);
 
@@ -227,6 +242,37 @@ public static class DatabaseSeeder
         );
 
         await db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Insere textos normativos iniciais (EN + PT) para as frases H mais comuns.
+    /// Serve como base mínima de funcionamento do SDS Compliance Engine.
+    /// O Químico pode expandir via interface futura de gestão de traduções.
+    /// </summary>
+    private static async Task SeedClpTranslationsAsync(NanopaintHubDbContext db, CancellationToken cancellationToken)
+    {
+        // Assume que se tiver mais de 50 registos, já correu o script massivo da ECHA.
+        if (await db.ClpPhraseTranslations.CountAsync(cancellationToken) > 50)
+            return;
+
+        string scriptPath = "Infrastructure/NanopaintHub.Infrastructure.LocalData/Persistence/EchaAnnexVI_Seed.sql";
+        
+        if (!System.IO.File.Exists(scriptPath))
+        {
+            scriptPath = System.IO.Path.Combine(AppContext.BaseDirectory, "EchaAnnexVI_Seed.sql");
+            if (!System.IO.File.Exists(scriptPath))
+                return; // Falha graciosamente
+        }
+
+        var sql = await System.IO.File.ReadAllTextAsync(scriptPath, cancellationToken);
+        try
+        {
+            await db.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error running EchaAnnexVI_Seed.sql: {ex.Message}");
+        }
     }
 }
 

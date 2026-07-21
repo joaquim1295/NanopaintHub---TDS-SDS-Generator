@@ -11,6 +11,7 @@ using NanopaintHub.Application.Contracts;
 using NanopaintHub.Infrastructure.Documents.DependencyInjection;
 using NanopaintHub.Infrastructure.LocalData.Persistence;
 using Microsoft.EntityFrameworkCore;
+using NanopaintHub.Domain.Common;
 
 namespace NanopaintHub_WinUIClient.ViewModels;
 
@@ -91,6 +92,7 @@ public partial class SettingsViewModel : ObservableObject
                         AlertDurationSeconds = duration;
                     }
                 }
+
             }
             catch { }
         }
@@ -115,6 +117,8 @@ public partial class SettingsViewModel : ObservableObject
     {
         SaveSettingsAsync();
     }
+
+
 
     private async void SaveSettingsAsync()
     {
@@ -148,6 +152,8 @@ public partial class SettingsViewModel : ObservableObject
             var echaNode = root["EchaDatabase"]!.AsObject();
             echaNode["AlertThresholdMonths"] = AlertThresholdMonths;
             echaNode["AlertDurationSeconds"] = AlertDurationSeconds;
+
+
 
             var options = new JsonSerializerOptions { WriteIndented = true };
             await File.WriteAllTextAsync(_appSettingsPath, root.ToJsonString(options));

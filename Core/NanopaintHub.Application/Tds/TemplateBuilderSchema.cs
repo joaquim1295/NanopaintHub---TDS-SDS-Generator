@@ -74,12 +74,15 @@ public class TemplateThemeSchema
 
 public class TemplateFooterSchema
 {
-    public string Column1 { get; set; } = "";
+    public string Column1 { get; set; } = "NanoPaint, Lda.\nCIIES – Sala 23/28\nAvenida de Tibães, 1199\n4770-568 Vale de São Cosme, Portugal";
     public string Column2 { get; set; } = "";
     public string LegalText { get; set; } = "";
     public string FontFamily { get; set; } = "";
     public string TextColor { get; set; } = "";
     public string FooterRepeatStyle { get; set; } = "Original";
+    public bool ShowVersionAndDate { get; set; } = true;
+    public string VersionLabel { get; set; } = "Versão:";
+    public string DateLabel { get; set; } = "Data:";
 }
 
 public class TemplateBatchSchema

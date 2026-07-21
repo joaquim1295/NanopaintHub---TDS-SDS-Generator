@@ -10,14 +10,30 @@
     mc:Ignorable="d"
     Background="Transparent">
 
-    <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto" Padding="0">
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" VerticalAlignment="Center">
-            <Button Command="{x:Bind ViewModel.CancelCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
-                <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
-            </Button>
-            <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" VerticalAlignment="Center" Margin="0" />
-        </StackPanel>
+    <Grid x:Name="RootGrid" RowDefinitions="Auto,*" Padding="0">
+        <!-- Header Moderno com Ações Integradas -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                <Button Command="{x:Bind ViewModel.CancelCommand}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Voltar">
+                    <FontIcon Glyph="&#xE72B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" />
+                </Button>
+                <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0" />
+            </StackPanel>
+
+            <!-- Ações movidas do fundo para o topo (Corner direito) -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <CheckBox Content="HTML Custom" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <Button Content="Edição Global" Command="{x:Bind ViewModel.EditGlobalHtmlCommand}" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" Style="{ThemeResource DefaultButtonStyle}" />
+                <Button Content="Salvar Template" Command="{x:Bind ViewModel.SaveCommand}" Style="{ThemeResource AccentButtonStyle}" />
+            </StackPanel>
+        </Grid>
 
         <!-- Form -->
         <Grid Grid.Row="1">
@@ -28,10 +44,16 @@
             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="16" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
+                <controls:InfoBar Grid.Row="0" IsOpen="{x:Bind ViewModel.IsQuestPdfSelected, Mode=OneWay}" 
+                              Severity="Informational" Title="Edição indisponível" 
+                              Message="A edição HTML livre (via TinyMCE) está desativada porque o motor PDF (QuestPDF) usa o Builder." 
+                              IsClosable="False" Margin="0,0,0,16" />
+
+                <Grid Grid.Row="1"  ColumnDefinitions="*,Auto" ColumnSpacing="16" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
                     <TextBox Grid.Column="0" Header="Nome do Template" Text="{x:Bind ViewModel.Template.TemplateName, Mode=TwoWay}" HorizontalAlignment="Stretch" MinWidth="300" />
                     <ComboBox Grid.Column="1" Header="Tipo de Documento" SelectedValue="{x:Bind ViewModel.Template.DocumentType, Mode=TwoWay}" SelectedValuePath="Content" MinWidth="150" SelectionChanged="DocumentType_SelectionChanged">
                         <ComboBoxItem Content="TDS" />
@@ -379,25 +401,7 @@
             </Grid>
         </Grid>
 
-        <!-- Actions -->
-        <StackPanel Grid.Row="2" Orientation="Vertical" Spacing="16" Margin="0,24,0,0">
-            <controls:InfoBar IsOpen="{x:Bind ViewModel.IsQuestPdfSelected, Mode=OneWay}" 
-                              Severity="Informational" 
-                              Title="Edição indisponível" 
-                              Message="A edição HTML livre (via TinyMCE) está desativada porque o motor PDF selecionado (QuestPDF) gera os documentos de forma paramétrica através do Builder." 
-                              IsClosable="False" />
-            
-            <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Left">
-                <Button Content="Salvar Template" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
-                <Button Content="Pré-visualizar PDF" Command="{x:Bind ViewModel.GeneratePreviewPdfCommand}" />
-                <ProgressRing IsActive="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay}" 
-                              Visibility="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                              VerticalAlignment="Center" Width="24" Height="24" />
-                <Button Content="Preview e Edição Global (TinyMCE)" Command="{x:Bind ViewModel.EditGlobalHtmlCommand}" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                <CheckBox Content="HTML Personalizado Ativo" IsChecked="{x:Bind ViewModel.IsCustomizedHtml, Mode=TwoWay}" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.IsNotQuestPdfSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelCommand}" />
-            </StackPanel>
-        </StackPanel>
+        
         <!-- Overlay Grid para Preview -->
         <Grid x:Name="PreviewOverlay" Grid.RowSpan="3" Canvas.ZIndex="100" 
               Visibility="{x:Bind ViewModel.IsPdfPreviewVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -415,24 +419,7 @@
                 </Grid>
                 
                 <!-- Overlay Content -->
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#f3f4f6" Padding="24">
-                    <ItemsControl ItemsSource="{x:Bind ViewModel.PdfPreviewImages, Mode=OneWay}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Vertical" Spacing="24" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Image Source="{Binding}" MaxWidth="794" Stretch="Uniform" HorizontalAlignment="Center">
-                                    <Image.Shadow>
-                                        <ThemeShadow />
-                                    </Image.Shadow>
-                                </Image>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                <WebView2 x:Name="PdfWebView" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DefaultBackgroundColor="Transparent" />
             </Grid>
         </Grid>
     </Grid>

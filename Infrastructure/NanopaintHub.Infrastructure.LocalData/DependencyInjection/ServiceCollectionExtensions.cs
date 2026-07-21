@@ -32,6 +32,11 @@ public static class NanopaintHubPersistenceServiceCollectionExtensions
         services.AddScoped<ISupplierProductRepository, SupplierProductRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // SDS Compliance Engine
+        services.AddScoped<IClpPhraseTranslationRepository, ClpPhraseTranslationRepository>();
+        services.AddScoped<NanopaintHub.Application.Contracts.ISdsHazardAggregatorService,
+                           NanopaintHub.Application.Services.SdsHazardAggregatorService>();
+
         return services;
     }
 }

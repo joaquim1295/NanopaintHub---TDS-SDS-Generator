@@ -10,11 +10,111 @@ public sealed partial class TemplateEditorPage : Page
 {
     public TemplateEditorViewModel ViewModel { get; }
 
+    public Microsoft.UI.Xaml.Visibility NullableBoolToVisibility(bool? isChecked) 
+        => isChecked == true ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
     public TemplateEditorPage()
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
         DataContext = ViewModel;
+        
+        ViewModel.PreviewPdfGenerated += ViewModel_PreviewPdfGenerated;
+        this.Unloaded += TemplateEditorPage_Unloaded;
+    }
+
+    private void TemplateEditorPage_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        ViewModel.PreviewPdfGenerated -= ViewModel_PreviewPdfGenerated;
+        PdfWebView?.Close();
+    }
+
+    private void RemoveSection_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if ((sender as Microsoft.UI.Xaml.FrameworkElement)?.DataContext is NanopaintHub_WinUIClient.Models.TemplateSection section)
+        {
+            ViewModel.RemoveSectionCommand.Execute(section);
+        }
+    }
+
+    private void EditSectionContent_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if ((sender as Microsoft.UI.Xaml.FrameworkElement)?.DataContext is NanopaintHub_WinUIClient.Models.TemplateSection section)
+        {
+            ViewModel.EditSectionContentCommand.Execute(section);
+        }
+    }
+
+    private Windows.Storage.Streams.IRandomAccessStream? _activePdfStream;
+
+    private async void ViewModel_PreviewPdfGenerated(object? sender, Windows.Storage.Streams.IRandomAccessStream stream)
+    {
+        try
+        {
+            await EnsureWebViewInitializedAsync();
+
+            _activePdfStream = stream;
+            // Use http://localhost to avoid DNS resolution ERR_NAME_NOT_RESOLVED
+            PdfWebView.Source = new Uri($"http://localhost/nanopaint-preview/document.pdf?id={Guid.NewGuid()}#page=1&zoom=page-width");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to update PDF preview: {ex.Message}");
+        }
+    }
+
+    private async System.Threading.Tasks.Task EnsureWebViewInitializedAsync()
+    {
+        try
+        {
+            if (PdfWebView.CoreWebView2 == null)
+            {
+                System.Diagnostics.Debug.WriteLine("[WEBVIEW2-DIAGNOSTIC] A iniciar EnsureCoreWebView2Async...");
+                var appData = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub", "WebView2");
+                System.IO.Directory.CreateDirectory(appData);
+                Environment.SetEnvironmentVariable("WEBVIEW2_USER_DATA_FOLDER", appData);
+                await PdfWebView.EnsureCoreWebView2Async();
+                System.Diagnostics.Debug.WriteLine("[WEBVIEW2-DIAGNOSTIC] CoreWebView2 inicializado com sucesso.");
+                
+                PdfWebView.DefaultBackgroundColor = Microsoft.UI.Colors.Transparent;
+                
+                // Intercept localhost instead of a fake domain to avoid DNS errors
+                PdfWebView.CoreWebView2.AddWebResourceRequestedFilter("http://localhost/nanopaint-preview/*", Microsoft.Web.WebView2.Core.CoreWebView2WebResourceContext.All);
+                PdfWebView.CoreWebView2.WebResourceRequested += CoreWebView2_WebResourceRequested;
+
+                // Add navigation events for diagnostic verbosity
+                PdfWebView.CoreWebView2.NavigationStarting += (s, e) => System.Diagnostics.Debug.WriteLine($"[WEBVIEW2-DIAGNOSTIC] NavigationStarting: {e.Uri}");
+                PdfWebView.CoreWebView2.NavigationCompleted += (s, e) => System.Diagnostics.Debug.WriteLine($"[WEBVIEW2-DIAGNOSTIC] NavigationCompleted: Success={e.IsSuccess}, ErrorStatus={e.WebErrorStatus}");
+                PdfWebView.CoreWebView2.ProcessFailed += (s, e) => System.Diagnostics.Debug.WriteLine($"[WEBVIEW2-DIAGNOSTIC] ProcessFailed: {e.ProcessFailedKind}, Reason={e.Reason}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[WEBVIEW2-DIAGNOSTIC] ERRO FATAL na inicialização do WebView2: {ex}");
+        }
+    }
+
+    private void CoreWebView2_WebResourceRequested(Microsoft.Web.WebView2.Core.CoreWebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceRequestedEventArgs args)
+    {
+        System.Diagnostics.Debug.WriteLine($"[WEBVIEW2-DIAGNOSTIC] WebResourceRequested para URI: {args.Request.Uri}");
+        try
+        {
+            if (args.Request.Uri.StartsWith("http://localhost/nanopaint-preview/document.pdf") && _activePdfStream != null)
+            {
+                _activePdfStream?.Seek(0);
+                args.Response = sender.Environment.CreateWebResourceResponse(
+                    _activePdfStream, 200, "OK", "Content-Type: application/pdf");
+                System.Diagnostics.Debug.WriteLine($"[WEBVIEW2-DIAGNOSTIC] Stream acoplado à Response (Tamanho: {_activePdfStream?.Size} bytes)");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[WEBVIEW2-DIAGNOSTIC] Pedido ignorado (Stream nulo ou URI inválido). Stream is null: {_activePdfStream == null}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[WEBVIEW2-DIAGNOSTIC] Erro ao servir WebResource: {ex}");
+        }
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -101,25 +201,6 @@ public sealed partial class TemplateEditorPage : Page
             {
                 popup.IsOpen = false;
             }
-        }
-    }
-
-    private void VisualBuilderNav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
-    {
-        if (args.SelectedItem is NavigationViewItem item)
-        {
-            var tag = item.Tag?.ToString();
-            if (tag == "Settings")
-            {
-                SettingsScrollViewer.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
-                SectionsScrollViewer.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
-            }
-            else if (tag == "Sections")
-            {
-                SettingsScrollViewer.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
-                SectionsScrollViewer.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
-            }
-
         }
     }
 

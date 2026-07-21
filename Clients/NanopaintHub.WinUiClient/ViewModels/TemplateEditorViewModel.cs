@@ -1,16 +1,16 @@
 using System;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NanopaintHub.Application.Contracts;
 using NanopaintHub.Domain.Entities;
 using NanopaintHub_WinUIClient.Services;
-using Microsoft.UI.Xaml.Media.Imaging;
-using System.Collections.ObjectModel;
 using NanopaintHub_WinUIClient.Models;
-
 using Microsoft.Extensions.Configuration;
+using Windows.Storage.Streams;
+using System.IO;
 
 namespace NanopaintHub_WinUIClient.ViewModels;
 
@@ -22,7 +22,9 @@ public partial class TemplateEditorViewModel : ObservableObject
     private readonly ITdsHtmlGenerator _htmlGenerator;
     private readonly IPdfLayoutService _pdfLayoutService;
     private readonly IDocumentGeneratorService _documentGeneratorRouter;
-    private readonly PdfPreviewService _pdfPreviewService;
+
+    public event EventHandler<IRandomAccessStream>? PreviewPdfGenerated;
+    private CancellationTokenSource? _previewCts;
 
     public List<string> HeaderRepeatStyles { get; } = new() { "None", "Minimal", "Original" };
     public List<string> FooterRepeatStyles { get; } = new() { "None", "Original" };
@@ -39,9 +41,6 @@ public partial class TemplateEditorViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isCustomizedHtml;
-
-    [ObservableProperty]
-    private ObservableCollection<BitmapImage> _pdfPreviewImages = new();
 
     [ObservableProperty]
     private bool _isPdfPreviewVisible;
@@ -66,6 +65,26 @@ public partial class TemplateEditorViewModel : ObservableObject
     [ObservableProperty]
     private bool _isTdsSelected = true;
 
+    [ObservableProperty]
+    private string _companyName;
+
+    [ObservableProperty]
+    private string _companyAddress;
+
+    [ObservableProperty]
+    private string _companyTelephone;
+
+    [ObservableProperty]
+    private string _companyEmergencyTelephone;
+
+    [ObservableProperty]
+    private string _companyEmail;
+
+    [ObservableProperty]
+    private string _companyResponsiblePerson;
+
+    private readonly string _appSettingsPath;
+
     public void UpdateDocumentTypeFlags()
     {
         if (Template != null)
@@ -73,6 +92,15 @@ public partial class TemplateEditorViewModel : ObservableObject
             IsSdsSelected = Template.DocumentType == "SDS";
             IsTdsSelected = Template.DocumentType == "TDS";
             EvaluateQuestPdfEngine();
+            
+            if (BuilderModel?.Sections != null)
+            {
+                foreach (var section in BuilderModel.Sections)
+                {
+                    section.IsTdsContext = IsTdsSelected;
+                    section.IsSdsContext = IsSdsSelected;
+                }
+            }
         }
     }
 
@@ -83,8 +111,8 @@ public partial class TemplateEditorViewModel : ObservableObject
         ITdsHtmlGenerator htmlGenerator,
         IPdfLayoutService pdfLayoutService,
         IDocumentGeneratorService documentGeneratorRouter,
-        PdfPreviewService pdfPreviewService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Domain.Common.CompanyInfoOptions> companyOptions)
     {
         _templateRepository = templateRepository;
         _navigationService = navigationService;
@@ -92,12 +120,63 @@ public partial class TemplateEditorViewModel : ObservableObject
         _htmlGenerator = htmlGenerator;
         _pdfLayoutService = pdfLayoutService;
         _documentGeneratorRouter = documentGeneratorRouter;
-        _pdfPreviewService = pdfPreviewService;
         _configuration = configuration;
 
         var engine = configuration["PdfGenerator:TdsEngine"] ?? "questpdf";
         IsQuestPdfSelected = string.Equals(engine, "questpdf", StringComparison.OrdinalIgnoreCase);
         IsNotQuestPdfSelected = !IsQuestPdfSelected;
+
+        CompanyName = !string.IsNullOrWhiteSpace(companyOptions.CurrentValue.Name) ? companyOptions.CurrentValue.Name : "Nanopaint, Lda";
+        CompanyAddress = !string.IsNullOrWhiteSpace(companyOptions.CurrentValue.Address) ? companyOptions.CurrentValue.Address : "CIIES – Sala 23/28\nAvenida de Tibães, 1199\n4770-568 Vale de São Cosme, Portugal";
+        CompanyTelephone = !string.IsNullOrWhiteSpace(companyOptions.CurrentValue.Telephone) ? companyOptions.CurrentValue.Telephone : "+351 253 601 681";
+        CompanyEmergencyTelephone = !string.IsNullOrWhiteSpace(companyOptions.CurrentValue.EmergencyTelephone) ? companyOptions.CurrentValue.EmergencyTelephone : "+351 253 601 681";
+        CompanyEmail = !string.IsNullOrWhiteSpace(companyOptions.CurrentValue.Email) ? companyOptions.CurrentValue.Email : "info@nanopaint-tech.com";
+        CompanyResponsiblePerson = companyOptions.CurrentValue.ResponsiblePerson;
+
+        var localFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
+        _appSettingsPath = System.IO.Path.Combine(localFolder, "appsettings.user.json");
+        
+        SaveCompanySettingsAsync();
+    }
+
+    partial void OnCompanyNameChanged(string value) { SaveCompanySettingsAsync(); }
+    partial void OnCompanyAddressChanged(string value) { SaveCompanySettingsAsync(); }
+    partial void OnCompanyTelephoneChanged(string value) { SaveCompanySettingsAsync(); }
+    partial void OnCompanyEmergencyTelephoneChanged(string value) { SaveCompanySettingsAsync(); }
+    partial void OnCompanyEmailChanged(string value) { SaveCompanySettingsAsync(); }
+    partial void OnCompanyResponsiblePersonChanged(string value) { SaveCompanySettingsAsync(); }
+
+    private async void SaveCompanySettingsAsync()
+    {
+        try
+        {
+            var root = new System.Text.Json.Nodes.JsonObject();
+            if (System.IO.File.Exists(_appSettingsPath))
+            {
+                var content = await System.IO.File.ReadAllTextAsync(_appSettingsPath);
+                try { root = System.Text.Json.Nodes.JsonNode.Parse(content)?.AsObject() ?? new System.Text.Json.Nodes.JsonObject(); }
+                catch { }
+            }
+
+            if (!root.ContainsKey("CompanyInfo"))
+            {
+                root["CompanyInfo"] = new System.Text.Json.Nodes.JsonObject();
+            }
+            var companyNode = root["CompanyInfo"]!.AsObject();
+            companyNode["Name"] = CompanyName;
+            companyNode["Address"] = CompanyAddress;
+            companyNode["Telephone"] = CompanyTelephone;
+            companyNode["EmergencyTelephone"] = CompanyEmergencyTelephone;
+            companyNode["Email"] = CompanyEmail;
+            companyNode["ResponsiblePerson"] = CompanyResponsiblePerson;
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            await System.IO.File.WriteAllTextAsync(_appSettingsPath, root.ToJsonString(options));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error saving company settings: {ex.Message}");
+        }
     }
 
     private void EvaluateQuestPdfEngine()
@@ -252,6 +331,22 @@ public partial class TemplateEditorViewModel : ObservableObject
     {
         if (Template == null) return;
         
+        // Debounce Logic
+        _previewCts?.Cancel();
+        _previewCts = new CancellationTokenSource();
+        var token = _previewCts.Token;
+
+        try
+        {
+            await Task.Delay(1500, token); // 1.5s debounce
+        }
+        catch (TaskCanceledException)
+        {
+            return; // Debounce interrupted
+        }
+
+        if (token.IsCancellationRequested) return;
+
         IsLoadingPreview = true;
         try
         {
@@ -328,23 +423,28 @@ public partial class TemplateEditorViewModel : ObservableObject
             {
                 pdfBytes = await _documentGeneratorRouter.GenerateTdsAsync(dummyProduct, tempTemplate, null);
             }
+
+            if (token.IsCancellationRequested) return;
             
-            var tempPdfPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + ".pdf");
-            await System.IO.File.WriteAllBytesAsync(tempPdfPath, pdfBytes);
-            
-            var imagePaths = await _pdfPreviewService.RenderPdfToImagesAsync(tempPdfPath);
-            PdfPreviewImages.Clear();
-            foreach (var imgPath in imagePaths)
+            // Zero LOH WinRT Interop (avoid converting the byte array multiple times)
+            var winrtStream = new InMemoryRandomAccessStream();
+            using (var dotNetStream = winrtStream.AsStreamForWrite())
             {
-                var bitmap = new BitmapImage(new Uri(imgPath));
-                PdfPreviewImages.Add(bitmap);
+                await dotNetStream.WriteAsync(pdfBytes, 0, pdfBytes.Length, token);
+                await dotNetStream.FlushAsync(token);
             }
             
+            PreviewPdfGenerated?.Invoke(this, winrtStream);
             IsPdfPreviewVisible = true;
         }
-        catch (Exception)
+        catch (OperationCanceledException)
         {
-            // Omit error handling for now or handle as needed
+            // Omit error handling for cancellation
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[TemplateEditorViewModel] Preview Error: {ex.Message}");
+            // Let the UI know to degrade gracefully
         }
         finally
         {
@@ -510,7 +610,7 @@ public partial class TemplateEditorViewModel : ObservableObject
     [RelayCommand]
     private void AddSection()
     {
-        BuilderModel.Sections.Add(new TemplateSection());
+        BuilderModel.Sections.Add(new TemplateSection { IsTdsContext = IsTdsSelected, IsSdsContext = IsSdsSelected });
     }
 
     [RelayCommand]
@@ -531,9 +631,9 @@ public partial class TemplateEditorViewModel : ObservableObject
 <p><strong>1.2 Relevant identified uses of the substance or mixture and uses advised against</strong></p>
 <p style=""padding-left:10px"">Use of the Substance/Mixture: Industrial and research</p>
 <p><strong>1.3 Details of the supplier of the safety data sheet</strong></p>
-<p style=""padding-left:10px"">Company: Nanopaint, Lda<br/>Address: CIIES – Sala 23/28, Avenida de Tibães, 1199, 4770-568 Vale de São Cosme, Portugal</p>
+<p style=""padding-left:10px"">Company: {{Company.Name}}<br/>Address: {{Company.Address}}<br/>Telephone: {{Company.Telephone}}<br/>Email: {{Company.Email}}</p>
 <p><strong>1.4 Emergency telephone number</strong></p>
-<p style=""padding-left:10px"">+351 253 601 681</p>",
+<p style=""padding-left:10px"">{{Company.EmergencyTelephone}}</p>",
             "SdsSection2" => @"<p><strong>2.1 Classification of the substance or mixture</strong></p>
 <p>Classification (REGULATION (EC) No 1272/2008)</p>
 <ul style=""list-style:none; padding-left:10px; margin:0;"">

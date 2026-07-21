@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
   <meta charset="utf-8" />
@@ -23,9 +23,26 @@
   </header>
 
   <section class="card">
-    <h2 style="margin-top:0">Identificação</h2>
-    <p>{{Description}}</p>
-    {{#if Assets.Logo}}<img src="{{Assets.Logo}}" alt="Logo" style="max-height:58px" />{{/if}}
+    <h2 style="margin-top:0">SECÇÃO 1: Identificação da substância/mistura e da sociedade/empresa</h2>
+    
+    <h3 style="font-size:14px; margin-bottom:4px;">1.1 Identificador do produto</h3>
+    <p style="margin-top:0"><strong>Nome do produto:</strong> {{Name}} ({{Code}})</p>
+
+    <h3 style="font-size:14px; margin-bottom:4px;">1.2 Utilizações identificadas relevantes e utilizações desaconselhadas</h3>
+    <p style="margin-top:0"><strong>Utilização da substância/mistura:</strong> {{Description}}</p>
+
+    <h3 style="font-size:14px; margin-bottom:4px;">1.3 Identificação do fornecedor da ficha de dados de segurança</h3>
+    <p style="margin-top:0; white-space: pre-wrap;"><strong>Empresa:</strong> {{Company.Name}}
+<strong>Morada:</strong> {{Company.Address}}
+<strong>Telefone:</strong> {{Company.Telephone}}
+<strong>Email:</strong> {{Company.Email}}
+{{#if Company.ResponsiblePerson}}<strong>Pessoa Responsável:</strong> {{Company.ResponsiblePerson}}
+{{/if}}</p>
+
+    <h3 style="font-size:14px; margin-bottom:4px;">1.4 Número de telefone de emergência</h3>
+    <p style="margin-top:0; font-weight:bold; color:var(--brand)">{{Company.EmergencyTelephone}}</p>
+
+    {{#if Assets.Logo}}<img src="{{Assets.Logo}}" alt="Logo" style="max-height:58px; margin-top:12px" />{{/if}}
   </section>
 
   <section class="card">
@@ -51,6 +68,32 @@
     <h2 style="margin-top:0">Campos custom</h2>
     <table><tbody>{{#each Placeholders}}<tr><th>{{@key}}</th><td>{{this}}</td></tr>{{/each}}</tbody></table>
     <p class="muted">Insira placeholders adicionais pelo builder visual (dropdown/textbox).</p>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0">SECÇÃO 16: Outras informações</h2>
+    <p style="margin-top:0; font-size:12px; text-align:justify;">A informação contida neste documento baseia-se no estado atual do nosso conhecimento. No entanto, isto não constitui uma garantia para características específicas do produto e não estabelece uma relação contratual legalmente válida. É da responsabilidade do utilizador certificar-se da adequação e integridade desta informação para o seu uso particular. A empresa não aceita responsabilidade por qualquer perda ou dano que possa ocorrer do uso desta informação. Esta FDS fornece informações regulamentares selecionadas sobre este produto, incluindo os seus componentes, e não pretende incluir todos os regulamentos. É da responsabilidade do utilizador conhecer e cumprir todas as regras, regulamentos e leis aplicáveis relativas ao produto em uso.</p>
+
+    {{#if HasHazardPhrases}}
+    <h3 style="font-size:14px; margin-bottom:4px; margin-top:16px;">Frases de Perigo (Secções 2 e 3)</h3>
+    <ul style="margin-top:0; padding-left:20px; font-size:12px">
+      {{#each HazardPhrases}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    {{/if}}
+
+    <h3 style="font-size:14px; margin-bottom:4px; margin-top:16px;">Abreviaturas e Acrónimos</h3>
+    <div style="font-size:11px; column-count:2; column-gap:16px; margin-top:4px">
+      <strong>ADR:</strong> Accord relatif au transport international des marchandises dangereuses par route<br/>
+      <strong>IMDG:</strong> International Maritime Code for Dangerous Goods<br/>
+      <strong>IATA:</strong> International Air Transport Association<br/>
+      <strong>GHS:</strong> Globally Harmonised System of Classification and Labelling of Chemicals<br/>
+      <strong>EINECS:</strong> European Inventory of Existing Commercial Chemical Substances<br/>
+      <strong>CAS:</strong> Chemical Abstracts Service<br/>
+      <strong>PBT:</strong> Persistent, Bioaccumulative and Toxic<br/>
+      <strong>vPvB:</strong> very Persistent and very Bioaccumulative
+    </div>
   </section>
 </body>
 </html>

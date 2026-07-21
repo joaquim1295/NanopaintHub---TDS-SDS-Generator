@@ -80,6 +80,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.1.240916" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
     <!-- WebView2 is included in WindowsAppSDK -->
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />

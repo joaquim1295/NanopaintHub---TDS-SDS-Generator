@@ -91,6 +91,7 @@ public partial class App : Application
         // Register Core/Infrastructure Services
         builder.Services.AddNanopaintHubPersistence(connectionString);
         builder.Services.AddNanopaintHubDocuments(builder.Configuration);
+        builder.Services.Configure<NanopaintHub.Domain.Common.CompanyInfoOptions>(builder.Configuration.GetSection(NanopaintHub.Domain.Common.CompanyInfoOptions.SectionName));
 
         // Register App Services
         builder.Services.AddSingleton<INavigationService, NavigationService>();

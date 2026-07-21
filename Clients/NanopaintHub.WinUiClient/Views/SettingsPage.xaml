@@ -9,9 +9,6 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVis" />
-    </Page.Resources>
 
     <Grid Padding="24">
         <StackPanel Spacing="24" MaxWidth="800" HorizontalAlignment="Stretch">
@@ -101,6 +98,9 @@
                                 VerticalAlignment="Center" />
                     </Grid>
                 </Border>
+
+                <!-- Group Header 3 -->
+                <TextBlock Text="Diagnóstico e Alertas" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0" />
 
                 <!-- Card 4: Notification Settings -->
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -199,7 +199,7 @@
 
                             <HyperlinkButton Content="{x:Bind ViewModel.ExportedFilePath, Mode=OneWay}"
                                              Command="{x:Bind ViewModel.OpenExportedDatabaseCommand}"
-                                             Visibility="{x:Bind ViewModel.HasExportedFile, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                                             Visibility="{x:Bind ViewModel.HasExportedFile, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                              ToolTipService.ToolTip="Abrir pasta do ficheiro exportado"
                                              FontSize="12" />
                         </StackPanel>

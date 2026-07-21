@@ -28,5 +28,20 @@ public class Product : Entity
     public string SdsSection4CustomText { get; set; } = string.Empty;
     public string SdsSection7CustomText { get; set; } = string.Empty;
 
+    /// <summary>
+    /// JSON serializado de <see cref="SdsOverrideData"/>.
+    /// Guarda os textos manuais do Químico por secção (ex: Sec4_FirstAid, Sec14_Transport).
+    /// Quando null ou vazio, o sistema usa a geração automática por perigos ECHA.
+    /// </summary>
+    public string SdsOverrideJson { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Impressão digital dos perigos activos no momento em que os Overrides foram guardados.
+    /// Formato: frases H concatenadas e ordenadas (ex: "H225;H314;H318").
+    /// Usado para detetar se a fórmula mudou de perfil de perigo desde o último override manual
+    /// (Staleness Detection - Proteção contra overrides desatualizados).
+    /// </summary>
+    public string HazardProfileHash { get; set; } = string.Empty;
+
     public ICollection<ProductComposition> Compositions { get; set; } = new List<ProductComposition>();
 }

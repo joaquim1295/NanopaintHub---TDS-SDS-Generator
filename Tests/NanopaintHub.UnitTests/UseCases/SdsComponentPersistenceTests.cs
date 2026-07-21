@@ -109,7 +109,9 @@ public class SdsComponentPersistenceTests
         db.ChangeTracker.Clear();
 
         // 5. Simular a "Geração de PDF" (Use Case)
-        var sdsGatherer = new SdsDataGatherer();
+        var mockOptions = new Moq.Mock<Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Domain.Common.CompanyInfoOptions>>();
+        mockOptions.Setup(m => m.CurrentValue).Returns(new NanopaintHub.Domain.Common.CompanyInfoOptions());
+        var sdsGatherer = new SdsDataGatherer(mockOptions.Object);
         // Não precisamos de Puppeteer para testar se os componentes aparecem no HTML.
         // O Mock não é preciso se não chamarmos o documentService (estamos só a extrair HTML para o teste)
         var htmlGenerado = await sdsGatherer.GatherHtmlAsync(

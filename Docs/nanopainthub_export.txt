@@ -1,0 +1,108 @@
+{
+  "ExportDate": "2026-07-16T11:50:28.5232904Z",
+  "Metrics": {
+    "TotalProducts": 1,
+    "TotalSuppliers": 1,
+    "TotalCompositions": 3,
+    "TotalEchaSubstances": 4179
+  },
+  "Products": [
+    {
+      "Code": "InkPR02NP",
+      "Name": "InkPR02NP\u00AE",
+      "Description": "InkPR02NP\u00AE is a piezoresistive ink that changes its electrical resistance when subjected to mechanical deformation. It is designed for face-to-face printing on flexible substrates and sensor applications.",
+      "CategoryId": "aed1fe69-8175-4c5b-ae96-006e137ff13c",
+      "FeaturesJson": "[\u0022Carbon-based\u0022,\u0022Piezoresistive\u0022,\u0022Face-to-face printing\u0022,\u0022Flexible\u0022,\u0022Strong variation of electrical resistance\u0022,\u0022Stretchable\u0022]",
+      "LiquidPropertiesJson": "{\u0022Appearance\u0022:\u0022Black\u0022,\u0022Physical form\u0022:\u0022Paste\u0022,\u0022Cure\u0022:\u0022Air dry / heat cure\u0022,\u0022Solid content\u0022:\u002265 %\u0022,\u0022Viscosity\u0022:\u002280\\u2013100 KU\u0022,\u0022Max particle diameter\u0022:\u0022\\u003C 10 \\u00B5m\u0022}",
+      "MechanicalPropertiesJson": "{\u0022Processing\u0022:\u0022Screen printing\u0022,\u0022Printing equipment\u0022:\u0022Manual / semi-automatic\u0022,\u0022Mesh\u0022:\u002243T\\u201390T\u0022,\u0022Stencil\u0022:\u0022Polyester / stainless steel\u0022,\u0022Squeegee\u0022:\u002270\\u201390 Shore A\u0022,\u0022Cure\u0022:\u002280 \\u00B0C, 30 min\u0022,\u0022Clean-up\u0022:\u0022Solvent recommended in SDS\u0022,\u0022Substrates\u0022:\u0022PET, PI, TPU, textiles\u0022,\u0022Storage\u0022:\u00225\\u201325 \\u00B0C, sealed\u0022,\u0022Shelf-life\u0022:\u002212 months\u0022}",
+      "FunctionalPropertiesJson": "{}",
+      "TdsSensorSpecsJson": "{\u0022SchemaVersion\u0022:2,\u0022ForceUnit\u0022:\u0022N\u0022,\u0022SensitivityVolts\u0022:null,\u0022sensitivityPerUnit\u0022:100,\u0022sensitivityForce\u0022:100,\u0022ResponseTimeSec\u0022:null,\u0022RecoveryTimeSec\u0022:null,\u0022RepeatabilityPercent\u0022:null,\u0022RestResistanceOhms\u0022:null,\u0022OperatingTempMinC\u0022:null,\u0022OperatingTempMaxC\u0022:null,\u0022RangeMin\u0022:null,\u0022RangeMax\u0022:null,\u0022HysteresisPercent\u0022:null,\u0022DriftIntervals\u0022:[],\u0022Charts\u0022:{\u0022Linearity\u0022:[],\u0022ResistanceVsForce\u0022:[],\u0022resistanceVsOhms\u0022:[],\u0022Hysteresis\u0022:null,\u0022ExtraSeries\u0022:{}},\u0022ExtraSpecs\u0022:{},\u0022TemplateAssets\u0022:{},\u0022PlaceholderValues\u0022:{}}",
+      "RevisionDate": "2026-07-16T00:00:00",
+      "DocumentVersion": 1,
+      "ExposureScenarioPdfPath": "",
+      "PrecautionaryCodesJson": "[]",
+      "SdsSection4CustomText": "",
+      "SdsSection7CustomText": "",
+      "Compositions": [
+        {
+          "ProductId": "b440e99a-0495-4ee0-8044-0fa31d900064",
+          "Product": null,
+          "EchaSubstanceId": "d6187437-9b9c-48b3-91d9-2fd397e3a7de",
+          "EchaSubstance": null,
+          "SupplierProductId": null,
+          "SupplierProduct": null,
+          "Percentage": 75,
+          "ExtraMetadataJson": "{}",
+          "DisplayName": "Desconhecido",
+          "DisplayDescription": "CAS: ",
+          "Id": "75d22ca4-5b1b-4899-bc43-d375f5b8302c",
+          "CreatedAt": "2026-07-16T09:51:22.2461534",
+          "LastModified": "2026-07-16T09:51:22.2461535"
+        },
+        {
+          "ProductId": "b440e99a-0495-4ee0-8044-0fa31d900064",
+          "Product": null,
+          "EchaSubstanceId": null,
+          "EchaSubstance": null,
+          "SupplierProductId": "8dc9ccfd-2b49-4a87-90d8-714bf36ed9ad",
+          "SupplierProduct": {
+            "Name": "Diluente",
+            "ProductCode": "",
+            "SupplierId": "3d737469-3192-45ba-8637-aba316b41de7",
+            "Supplier": {
+              "Name": "SIRPI",
+              "Country": "",
+              "TechnicalContact": "",
+              "Products": [
+                null
+              ],
+              "Id": "3d737469-3192-45ba-8637-aba316b41de7",
+              "CreatedAt": "2026-07-16T09:51:58.7266135",
+              "LastModified": "2026-07-16T09:51:58.7266136"
+            },
+            "SdsFilePath": "C:\\Users\\Arriscado\\AppData\\Local\\NanopaintHub\\SdsArchives\\639c4760-917c-4337-93ae-1ee80163d529.pdf",
+            "IsArchived": false,
+            "Compositions": [],
+            "Id": "8dc9ccfd-2b49-4a87-90d8-714bf36ed9ad",
+            "CreatedAt": "2026-07-16T09:51:58.7547106",
+            "LastModified": "2026-07-16T09:51:58.7547113"
+          },
+          "Percentage": 20,
+          "ExtraMetadataJson": "{}",
+          "DisplayName": "Diluente",
+          "DisplayDescription": "Mat\u00E9ria-Prima de: SIRPI",
+          "Id": "339ba321-b677-4c21-b7f3-39fc53d3916a",
+          "CreatedAt": "2026-07-16T09:51:58.7868286",
+          "LastModified": "2026-07-16T09:51:58.7868289"
+        }
+      ],
+      "Id": "b440e99a-0495-4ee0-8044-0fa31d900064",
+      "CreatedAt": "2026-07-16T09:51:22.1854919",
+      "LastModified": "2026-07-16T09:52:05.1918785"
+    }
+  ],
+  "Suppliers": [
+    {
+      "Name": "SIRPI",
+      "Country": "",
+      "TechnicalContact": "",
+      "Products": [
+        {
+          "Name": "Diluente",
+          "ProductCode": "",
+          "SupplierId": "3d737469-3192-45ba-8637-aba316b41de7",
+          "Supplier": null,
+          "SdsFilePath": "C:\\Users\\Arriscado\\AppData\\Local\\NanopaintHub\\SdsArchives\\639c4760-917c-4337-93ae-1ee80163d529.pdf",
+          "IsArchived": false,
+          "Compositions": [],
+          "Id": "8dc9ccfd-2b49-4a87-90d8-714bf36ed9ad",
+          "CreatedAt": "2026-07-16T09:51:58.7547106",
+          "LastModified": "2026-07-16T09:51:58.7547113"
+        }
+      ],
+      "Id": "3d737469-3192-45ba-8637-aba316b41de7",
+      "CreatedAt": "2026-07-16T09:51:58.7266135",
+      "LastModified": "2026-07-16T09:51:58.7266136"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ namespace NanopaintHub.Infrastructure.Documents.Services;
 
 using System;
 using System.Collections.Generic;
+using NanopaintHub.Domain.Common;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -14,8 +15,11 @@ using NanopaintHub.Infrastructure.Documents.Tds;
 
 public class SdsDataGatherer
 {
-    public SdsDataGatherer()
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<CompanyInfoOptions> _companyInfoOptions;
+
+    public SdsDataGatherer(Microsoft.Extensions.Options.IOptionsMonitor<CompanyInfoOptions> companyInfoOptions)
     {
+        _companyInfoOptions = companyInfoOptions;
     }
 
     public async Task<string> GatherHtmlAsync(Product product, DocumentTemplate template)
@@ -131,6 +135,7 @@ public class SdsDataGatherer
             product.Name,
             product.Code,
             product.Description,
+            Company = _companyInfoOptions.CurrentValue,
             RevisionDate = product.RevisionDate.ToString("dd/MM/yyyy"),
             Version = product.DocumentVersion,
             Features = featuresList,

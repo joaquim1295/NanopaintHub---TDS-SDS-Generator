@@ -6,6 +6,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="Transparent">
     <Grid>
-        <TextBlock Text="Página Eliminada a pedido do utilizador." Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBlock Text="Página em Construção." Style="{ThemeResource TitleTextBlockStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Grid>
 </Page>

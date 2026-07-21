@@ -171,6 +171,15 @@ public partial class TemplateFooter : ObservableObject
 
     [ObservableProperty]
     private string _footerRepeatStyle = "Original";
+
+    [ObservableProperty]
+    private bool _showVersionAndDate = true;
+
+    [ObservableProperty]
+    private string _versionLabel = "Versão:";
+
+    [ObservableProperty]
+    private string _dateLabel = "Data:";
 }
 
 public partial class TemplateBatch : ObservableObject
@@ -233,4 +242,12 @@ public partial class TemplateSection : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanEditContent))]
     private bool _isDataBound = false;
+
+    [ObservableProperty]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    private bool _isTdsContext = false;
+
+    [ObservableProperty]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    private bool _isSdsContext = false;
 }

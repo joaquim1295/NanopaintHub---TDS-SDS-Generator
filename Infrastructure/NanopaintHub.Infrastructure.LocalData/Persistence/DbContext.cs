@@ -18,6 +18,7 @@ public class NanopaintHubDbContext : DbContext
     // SDS Database (ECHA / CLP)
     public DbSet<EchaSubstance> EchaSubstances { get; set; } = null!;
     public DbSet<ClpPhrase> ClpPhrases { get; set; } = null!;
+    public DbSet<ClpPhraseTranslation> ClpPhraseTranslations { get; set; } = null!;
     public DbSet<SubstanceHazard> SubstanceHazards { get; set; } = null!;
     public DbSet<ProductComposition> ProductCompositions { get; set; } = null!;
 
@@ -132,5 +133,24 @@ public class NanopaintHubDbContext : DbContext
         modelBuilder.Entity<ProductComposition>()
             .Property(pc => pc.ExtraMetadataJson)
             .HasDefaultValue("{}");
+
+        // SDS Multi-Language Translations
+        modelBuilder.Entity<ClpPhraseTranslation>()
+            .HasKey(t => new { t.ClpPhraseCode, t.LanguageCode, t.SectionType });
+
+        modelBuilder.Entity<ClpPhraseTranslation>()
+            .HasOne(t => t.Phrase)
+            .WithMany()
+            .HasForeignKey(t => t.ClpPhraseCode)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // SDS Override fields on Product
+        modelBuilder.Entity<Product>()
+            .Property(p => p.SdsOverrideJson)
+            .HasDefaultValue(string.Empty);
+
+        modelBuilder.Entity<Product>()
+            .Property(p => p.HazardProfileHash)
+            .HasDefaultValue(string.Empty);
     }
 }
