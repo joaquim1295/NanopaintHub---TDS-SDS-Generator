@@ -186,34 +186,7 @@ public sealed partial class TemplateEditorPage : Page
         _ = ViewModel.GeneratePreviewPdfAsync();
     }
 
-    private void Undo_Invoked(Microsoft.UI.Xaml.Input.KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
-    {
-        var focused = Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement(this.XamlRoot);
-        if (focused is Microsoft.UI.Xaml.Controls.TextBox || focused is Microsoft.UI.Xaml.Controls.NumberBox)
-        {
-            // Allow native text undo inside textboxes
-            return; 
-        }
+    
 
-        if (ViewModel?.UndoCommand.CanExecute(null) == true)
-        {
-            ViewModel.UndoCommand.Execute(null);
-            args.Handled = true;
-        }
-    }
-
-    private void Redo_Invoked(Microsoft.UI.Xaml.Input.KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
-    {
-        var focused = Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement(this.XamlRoot);
-        if (focused is Microsoft.UI.Xaml.Controls.TextBox || focused is Microsoft.UI.Xaml.Controls.NumberBox)
-        {
-            return; 
-        }
-
-        if (ViewModel?.RedoCommand.CanExecute(null) == true)
-        {
-            ViewModel.RedoCommand.Execute(null);
-            args.Handled = true;
-        }
-    }
+    
 }
