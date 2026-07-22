@@ -76,10 +76,6 @@ public sealed partial class TemplateEditorPage : Page
             {
                 ViewModel.SyncBuilderToHtml();
             }
-            else
-            {
-                ViewModel.SyncHtmlToBuilder();
-            }
         }
     }
 
