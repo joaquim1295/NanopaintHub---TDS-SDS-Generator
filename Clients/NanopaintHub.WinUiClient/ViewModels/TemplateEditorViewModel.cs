@@ -109,6 +109,142 @@ public partial class TemplateEditorViewModel : ObservableObject
         }
     }
 
+    
+    // UNDO/REDO State
+    private readonly System.Collections.Generic.Stack<string> _undoStack = new();
+    private readonly System.Collections.Generic.Stack<string> _redoStack = new();
+    private string? _lastSavedSnapshot;
+    private bool _isRestoringState;
+
+    public bool CanUndo => _undoStack.Count > 0;
+    public bool CanRedo => _redoStack.Count > 0;
+
+    [RelayCommand(CanExecute = nameof(CanUndo))]
+    private void Undo()
+    {
+        if (_undoStack.Count == 0) return;
+        
+        _isRestoringState = true;
+        
+        // Save current to redo
+        if (_lastSavedSnapshot != null)
+        {
+            _redoStack.Push(_lastSavedSnapshot);
+        }
+        
+        var previousStateJson = _undoStack.Pop();
+        var previousState = System.Text.Json.JsonSerializer.Deserialize<NanopaintHub_WinUIClient.Models.TemplateBuilderModel>(previousStateJson);
+        
+        InjectState(previousState);
+        _lastSavedSnapshot = previousStateJson;
+        
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
+        
+        _ = GeneratePreviewPdfAsync(); // Trigger preview for the restored state
+        _isRestoringState = false;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRedo))]
+    private void Redo()
+    {
+        if (_redoStack.Count == 0) return;
+        
+        _isRestoringState = true;
+        
+        if (_lastSavedSnapshot != null)
+        {
+            _undoStack.Push(_lastSavedSnapshot);
+        }
+        
+        var nextStateJson = _redoStack.Pop();
+        var nextState = System.Text.Json.JsonSerializer.Deserialize<NanopaintHub_WinUIClient.Models.TemplateBuilderModel>(nextStateJson);
+        
+        InjectState(nextState);
+        _lastSavedSnapshot = nextStateJson;
+        
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
+        
+        _ = GeneratePreviewPdfAsync();
+        _isRestoringState = false;
+    }
+    
+    private void SaveSnapshot()
+    {
+        if (_isRestoringState || BuilderModel == null) return;
+        
+        var currentJson = System.Text.Json.JsonSerializer.Serialize(BuilderModel);
+        
+        if (_lastSavedSnapshot == null)
+        {
+            _lastSavedSnapshot = currentJson;
+            return;
+        }
+        
+        if (currentJson != _lastSavedSnapshot)
+        {
+            _undoStack.Push(_lastSavedSnapshot);
+            _lastSavedSnapshot = currentJson;
+            _redoStack.Clear(); // Any new action invalidates Redo stack
+            
+            UndoCommand.NotifyCanExecuteChanged();
+            RedoCommand.NotifyCanExecuteChanged();
+        }
+    }
+    
+    private void InjectState(NanopaintHub_WinUIClient.Models.TemplateBuilderModel source)
+    {
+        if (source == null || BuilderModel == null) return;
+        
+        // 1. Theme
+        BuilderModel.Theme.PrimaryColor = source.Theme.PrimaryColor;
+        BuilderModel.Theme.SecondaryColor = source.Theme.SecondaryColor;
+        BuilderModel.Theme.FontFamily = source.Theme.FontFamily;
+        BuilderModel.Theme.BaseFontSize = source.Theme.BaseFontSize;
+        
+        // 2. Layout
+        BuilderModel.Layout.TopMargin = source.Layout.TopMargin;
+        BuilderModel.Layout.BottomMargin = source.Layout.BottomMargin;
+        BuilderModel.Layout.LeftMargin = source.Layout.LeftMargin;
+        BuilderModel.Layout.RightMargin = source.Layout.RightMargin;
+        BuilderModel.Layout.HeaderBaseScalePercentage = source.Layout.HeaderBaseScalePercentage;
+        BuilderModel.Layout.HeaderPaddingTop = source.Layout.HeaderPaddingTop;
+        BuilderModel.Layout.HeaderPaddingBottom = source.Layout.HeaderPaddingBottom;
+        
+        // 3. Header
+        BuilderModel.Header.LogoUrl = source.Header.LogoUrl;
+        BuilderModel.Header.ShowLogo = source.Header.ShowLogo;
+        BuilderModel.Header.LogoHeight = source.Header.LogoHeight;
+        BuilderModel.Header.IdentName = source.Header.IdentName;
+        BuilderModel.Header.InfoDocType = source.Header.InfoDocType;
+        BuilderModel.Header.InfoCategory = source.Header.InfoCategory;
+        BuilderModel.Header.InfoVersion = source.Header.InfoVersion;
+        BuilderModel.Header.InfoRevisedDate = source.Header.InfoRevisedDate;
+        BuilderModel.Header.HeaderRepeatStyle = source.Header.HeaderRepeatStyle;
+        
+        // 4. Footer
+        BuilderModel.Footer.CompanyAddress = source.Footer.CompanyAddress;
+        BuilderModel.Footer.CompanyContact = source.Footer.CompanyContact;
+        BuilderModel.Footer.FooterRepeatStyle = source.Footer.FooterRepeatStyle;
+        
+        // 5. Sections (Collections require Clear + Add)
+        BuilderModel.Sections.Clear();
+        foreach (var sec in source.Sections)
+        {
+            BuilderModel.Sections.Add(new NanopaintHub_WinUIClient.Models.TemplateSection
+            {
+                Id = sec.Id,
+                Title = sec.Title,
+                Content = sec.Content,
+                Type = sec.Type,
+                
+                IsSdsContext = sec.IsSdsContext,
+                IsTdsContext = sec.IsTdsContext
+            });
+        }
+    }
+
     public TemplateEditorViewModel(
         ITemplateRepository templateRepository, 
         INavigationService navigationService, 
@@ -218,7 +354,10 @@ public partial class TemplateEditorViewModel : ObservableObject
                     CssStructure = ""
                 };
                 BuilderModel = new TemplateBuilderModel();
-                PageTitle = "Novo Template";
+                _lastSavedSnapshot = System.Text.Json.JsonSerializer.Serialize(BuilderModel);
+        _undoStack.Clear();
+        _redoStack.Clear();
+PageTitle = "Novo Template";
                 GenerateDefaultLayout();
             }
             UpdateDocumentTypeFlags();
@@ -258,7 +397,10 @@ public partial class TemplateEditorViewModel : ObservableObject
         else if (!hasLoaded)
         {
             BuilderModel = new TemplateBuilderModel();
-        }
+        _lastSavedSnapshot = System.Text.Json.JsonSerializer.Serialize(BuilderModel);
+        _undoStack.Clear();
+        _redoStack.Clear();
+}
 
         if (BuilderModel.Layout != null)
         {
@@ -317,6 +459,9 @@ public partial class TemplateEditorViewModel : ObservableObject
                 try
                 {
                     BuilderModel = System.Text.Json.JsonSerializer.Deserialize<TemplateBuilderModel>(Template.BuilderJson, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new TemplateBuilderModel();
+            _lastSavedSnapshot = Template.BuilderJson;
+            _undoStack.Clear();
+            _redoStack.Clear();
                 }
                 catch
                 {
@@ -352,6 +497,9 @@ public partial class TemplateEditorViewModel : ObservableObject
         try
         {
             await Task.Delay(1500, token); // 1.5s debounce
+        
+        if (token.IsCancellationRequested) return;
+        SaveSnapshot(); // Snapshot after debounce
         }
         catch (TaskCanceledException)
         {

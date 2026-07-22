@@ -91,14 +91,26 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
-                    <StackPanel Grid.Row="0" Spacing="12" Margin="0,0,0,16">
-                        <controls:InfoBar IsOpen="{x:Bind ViewModel.IsQuestPdfSelected, Mode=OneWay}" 
+                    <Grid Grid.Row="0" Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <controls:InfoBar Grid.Column="0" IsOpen="{x:Bind ViewModel.IsQuestPdfSelected, Mode=OneWay}" 
                                       Severity="Informational" Title="QuestPDF Ativo" 
                                       Message="A edição livre está desativada." 
-                                      IsClosable="False" />
-                        
-
-                    </StackPanel>
+                                      IsClosable="False" Margin="0,0,16,0" />
+                                      
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <Button Command="{x:Bind ViewModel.UndoCommand}" ToolTipService.ToolTip="Desfazer" Style="{ThemeResource DefaultButtonStyle}">
+                                <FontIcon Glyph="&#xE7A7;" FontSize="14" />
+                            </Button>
+                            <Button Command="{x:Bind ViewModel.RedoCommand}" ToolTipService.ToolTip="Refazer" Style="{ThemeResource DefaultButtonStyle}">
+                                <FontIcon Glyph="&#xE7A6;" FontSize="14" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
                     
                     
                     <!-- Painel 1: Tema Global -->
