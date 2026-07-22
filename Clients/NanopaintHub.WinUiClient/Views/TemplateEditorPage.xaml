@@ -121,7 +121,7 @@
                                         <Button.Flyout>
                                             <Flyout>
                                                 <StackPanel Spacing="8">
-                                                    <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
+                                                    <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.PrimaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
                                                     <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
                                                 </StackPanel>
                                             </Flyout>
@@ -138,7 +138,7 @@
                                         <Button.Flyout>
                                             <Flyout>
                                                 <StackPanel Spacing="8">
-                                                    <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
+                                                    <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
                                                     <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
                                                 </StackPanel>
                                             </Flyout>
@@ -178,10 +178,11 @@
                                 <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
                             </settings:SettingsCard>
                             <settings:SettingsCard Header="Informação (Tipo, Subtítulo, Versão)">
-                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
                                     <TextBox Grid.Column="0" PlaceholderText="Tipo (ex: TDS)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                                     <TextBox Grid.Column="1" PlaceholderText="Subtítulo" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                                     <TextBox Grid.Column="2" PlaceholderText="Versão" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                                    <CalendarDatePicker Grid.Column="3" PlaceholderText="Data de Revisão" Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" DateChanged="AutoTriggerPreview_Changed" Width="140" />
                                 </Grid>
                             </settings:SettingsCard>
                             <settings:SettingsCard Header="Nome do Produto">
@@ -373,7 +374,7 @@
                                                                              <Button.Flyout>
                                                                                  <Flyout>
                                                                                      <StackPanel Spacing="8">
-                                                                                         <ColorPicker Color="{x:Bind TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" />
+                                                                                         <ColorPicker Color="{x:Bind TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
                                                                                          <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
                                                                                      </StackPanel>
                                                                                  </Flyout>
