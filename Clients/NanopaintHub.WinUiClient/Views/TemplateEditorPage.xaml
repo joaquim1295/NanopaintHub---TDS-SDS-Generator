@@ -459,12 +459,26 @@
                     <!-- Overlay Header -->
                     <Grid Grid.Row="0" Padding="16" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
                         <TextBlock Text="Pré-visualização do Documento" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
-                        <Button Content="Desacoplar" HorizontalAlignment="Right" Style="{ThemeResource DefaultButtonStyle}" ToolTipService.ToolTip="Brevemente" />
+                        <Button Content="Atualizar" HorizontalAlignment="Right" Style="{ThemeResource DefaultButtonStyle}" Click="UpdatePreview_Click" ToolTipService.ToolTip="Forçar recarregamento do PDF" />
                     </Grid>
                     
                     <Grid Grid.Row="1">
                         <!-- Content Base -->
-                        <WebView2 x:Name="PdfWebView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DefaultBackgroundColor="Transparent" />
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.PdfPreviewImages, Mode=OneWay}" 
+                                          Visibility="{x:Bind ViewModel.IsPdfPreviewVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding}" MaxWidth="1000" Stretch="Uniform" Margin="0,8,0,8"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
                         
                         <!-- Anti-Flickering Overlay -->
                         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.7" Canvas.ZIndex="50" Visibility="{x:Bind ViewModel.IsLoadingPreview, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">

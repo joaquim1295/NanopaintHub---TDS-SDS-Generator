@@ -1,4 +1,6 @@
 using System;
+using System.Collections.ObjectModel;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,9 +24,12 @@ public partial class TemplateEditorViewModel : ObservableObject
     private readonly ITdsHtmlGenerator _htmlGenerator;
     private readonly IPdfLayoutService _pdfLayoutService;
     private readonly IDocumentGeneratorService _documentGeneratorRouter;
+    private readonly PdfPreviewService _pdfPreviewService;
 
-    public event EventHandler<IRandomAccessStream>? PreviewPdfGenerated;
     private CancellationTokenSource? _previewCts;
+    
+    [ObservableProperty]
+    private ObservableCollection<BitmapImage> _pdfPreviewImages = new();
 
     public List<string> HeaderRepeatStyles { get; } = new() { "None", "Minimal", "Original" };
     public List<string> FooterRepeatStyles { get; } = new() { "None", "Original" };
@@ -111,6 +116,7 @@ public partial class TemplateEditorViewModel : ObservableObject
         ITdsHtmlGenerator htmlGenerator,
         IPdfLayoutService pdfLayoutService,
         IDocumentGeneratorService documentGeneratorRouter,
+        PdfPreviewService pdfPreviewService,
         IConfiguration configuration,
         Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Domain.Common.CompanyInfoOptions> companyOptions)
     {
@@ -120,6 +126,7 @@ public partial class TemplateEditorViewModel : ObservableObject
         _htmlGenerator = htmlGenerator;
         _pdfLayoutService = pdfLayoutService;
         _documentGeneratorRouter = documentGeneratorRouter;
+        _pdfPreviewService = pdfPreviewService;
         _configuration = configuration;
 
         var engine = configuration["PdfGenerator:TdsEngine"] ?? "questpdf";
@@ -426,28 +433,52 @@ public partial class TemplateEditorViewModel : ObservableObject
 
             if (token.IsCancellationRequested) return;
             
-            // Zero LOH WinRT Interop (avoid converting the byte array multiple times)
-            var winrtStream = new InMemoryRandomAccessStream();
-            using (var dotNetStream = winrtStream.AsStreamForWrite())
-            {
-                await dotNetStream.WriteAsync(pdfBytes, 0, pdfBytes.Length, token);
-                await dotNetStream.FlushAsync(token);
-            }
+            var tempPdfPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".pdf");
+            await File.WriteAllBytesAsync(tempPdfPath, pdfBytes, token);
             
-            PreviewPdfGenerated?.Invoke(this, winrtStream);
-            IsPdfPreviewVisible = true;
+            if (token.IsCancellationRequested) return;
+            
+            var imagePaths = await _pdfPreviewService.RenderPdfToImagesAsync(tempPdfPath);
+            
+            if (token.IsCancellationRequested) return;
+
+            // Update UI on main thread automatically because we are in the ViewModel context, but RenderPdfToImagesAsync usually runs on threadpool.
+            // If we run into thread affinity issues, we might need a DispatcherQueue, but typically ObservableCollection updates here are fine.
+            var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+            if (dispatcher != null)
+            {
+                dispatcher.TryEnqueue(() =>
+                {
+                    PdfPreviewImages.Clear();
+                    foreach (var imgPath in imagePaths)
+                    {
+                        var bitmap = new BitmapImage(new Uri(imgPath));
+                        PdfPreviewImages.Add(bitmap);
+                    }
+                    IsPdfPreviewVisible = true;
+                    IsLoadingPreview = false;
+                });
+            }
+            else
+            {
+                PdfPreviewImages.Clear();
+                foreach (var imgPath in imagePaths)
+                {
+                    var bitmap = new BitmapImage(new Uri(imgPath));
+                    PdfPreviewImages.Add(bitmap);
+                }
+                IsPdfPreviewVisible = true;
+                IsLoadingPreview = false;
+            }
         }
         catch (OperationCanceledException)
         {
             // Omit error handling for cancellation
+            IsLoadingPreview = false;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[TemplateEditorViewModel] Preview Error: {ex.Message}");
-            // Let the UI know to degrade gracefully
-        }
-        finally
-        {
             IsLoadingPreview = false;
         }
     }
