@@ -129,16 +129,39 @@ public sealed partial class TemplateEditorPage : Page
         _ = ViewModel.InitializeAsync(templateId);
     }
 
-    private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void NavigationToggle_Checked(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        var pivot = sender as Pivot;
-        if (pivot?.SelectedIndex == 1) // Advanced Tab
+        if (ViewModel == null) return;
+        
+        if (sender is Microsoft.UI.Xaml.Controls.Primitives.ToggleButton tb)
         {
-            ViewModel.SyncBuilderToHtml();
-        }
-        else if (pivot?.SelectedIndex == 0) // Builder Tab
-        {
-            ViewModel.SyncHtmlToBuilder();
+            // Enforce mutual exclusivity
+            if (tb != TagTheme && TagTheme != null) TagTheme.IsChecked = false;
+            if (tb != TagHeader && TagHeader != null) TagHeader.IsChecked = false;
+            if (tb != TagFooter && TagFooter != null) TagFooter.IsChecked = false;
+            if (tb != TagBatch && TagBatch != null) TagBatch.IsChecked = false;
+            if (tb != TagSections && TagSections != null) TagSections.IsChecked = false;
+            if (tb != TagCode && TagCode != null) TagCode.IsChecked = false;
+
+            // Handle panel visibility
+            if (PanelTheme != null) PanelTheme.Visibility = (tb == TagTheme) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (PanelHeader != null) PanelHeader.Visibility = (tb == TagHeader) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (PanelFooter != null) PanelFooter.Visibility = (tb == TagFooter) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (PanelBatch != null) PanelBatch.Visibility = (tb == TagBatch) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (PanelSections != null) PanelSections.Visibility = (tb == TagSections) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (PanelCode != null) PanelCode.Visibility = (tb == TagCode) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+            // Optional Typography Panel inside Theme
+            if (PanelTypography != null) PanelTypography.Visibility = (tb == TagTheme) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+            if (tb.Name == "TagCode")
+            {
+                ViewModel.SyncBuilderToHtml();
+            }
+            else
+            {
+                ViewModel.SyncHtmlToBuilder();
+            }
         }
     }
 
@@ -201,6 +224,24 @@ public sealed partial class TemplateEditorPage : Page
             {
                 popup.IsOpen = false;
             }
+        }
+    }
+
+    private void TogglePreview_Changed(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (TogglePreviewBtn == null || PreviewColumn == null || PreviewSplitter == null || PreviewContainer == null) return;
+        
+        if (TogglePreviewBtn.IsChecked == true)
+        {
+            PreviewColumn.Width = new Microsoft.UI.Xaml.GridLength(4, Microsoft.UI.Xaml.GridUnitType.Star);
+            PreviewSplitter.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            PreviewContainer.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        }
+        else
+        {
+            PreviewColumn.Width = new Microsoft.UI.Xaml.GridLength(0);
+            PreviewSplitter.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            PreviewContainer.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         }
     }
 
