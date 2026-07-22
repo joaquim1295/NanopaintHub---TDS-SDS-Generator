@@ -151,9 +151,6 @@ public sealed partial class TemplateEditorPage : Page
             if (PanelSections != null) PanelSections.Visibility = (tb == TagSections) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
             if (PanelCode != null) PanelCode.Visibility = (tb == TagCode) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
 
-            // Optional Typography Panel inside Theme
-            if (PanelTypography != null) PanelTypography.Visibility = (tb == TagTheme) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
-
             if (tb.Name == "TagCode")
             {
                 ViewModel.SyncBuilderToHtml();

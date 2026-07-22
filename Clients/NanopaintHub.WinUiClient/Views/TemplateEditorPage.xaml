@@ -100,7 +100,8 @@
 
                     </StackPanel>
                     
-                    <!-- Painel: Tema Global (SettingsControls) -->
+                    
+                    <!-- Painel 1: Tema Global -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PanelTheme" Visibility="Visible">
                         <ScrollViewer.ContentTransitions>
                             <TransitionCollection>
@@ -108,7 +109,7 @@
                             </TransitionCollection>
                         </ScrollViewer.ContentTransitions>
                         <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,0,16">
-                            <TextBlock Text="Tema e Layout" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,8" />
+                            <TextBlock Text="Tema Global" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,8" />
                             
                             <settings:SettingsCard Header="Cor Primária" Description="A cor de destaque do documento.">
                                 <settings:SettingsCard.HeaderIcon>
@@ -147,149 +148,117 @@
                                 </Grid>
                             </settings:SettingsCard>
 
-                            <ScrollViewer x:Name="PanelTypography" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+                            <settings:SettingsCard Header="Tipo de Fonte Global">
+                                <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Theme.FontFamily, Mode=TwoWay}" Width="200" />
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Fonte Base (pt)">
+                                <NumberBox Value="{x:Bind ViewModel.BuilderModel.Theme.BaseFontSize, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="5" Maximum="30" />
+                            </settings:SettingsCard>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Painel 2: Cabeçalho -->
+                    <ScrollViewer x:Name="PanelHeader" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
                         <ScrollViewer.ContentTransitions>
                             <TransitionCollection>
                                 <EntranceThemeTransition />
                             </TransitionCollection>
                         </ScrollViewer.ContentTransitions>
                         <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,0,16">
-
-                                    <settings:SettingsCard Header="Tipo de Fonte Global">
-                                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Theme.FontFamily, Mode=TwoWay}" Width="200" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Fonte Base (pt)">
-                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Theme.BaseFontSize, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="5" Maximum="30" />
-                                    </settings:SettingsCard>
-                                
-                        </StackPanel>
-                    </ScrollViewer>
-
-                            <settings:SettingsExpander Header="Margens da Página (mm)">
-                                <settings:SettingsExpander.HeaderIcon>
-                                    <FontIcon Glyph="&#xE8B3;" />
-                                </settings:SettingsExpander.HeaderIcon>
-                                <settings:SettingsExpander.Items>
-                                    <settings:SettingsCard Header="Topo (T)">
-                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.TopMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Fundo (B)">
-                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.BottomMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Esquerda (L)">
-                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.LeftMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Direita (R)">
-                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.RightMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
-                                    </settings:SettingsCard>
-                                </settings:SettingsExpander.Items>
-                            </settings:SettingsExpander>
+                            <TextBlock Text="Cabeçalho (Header)" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,8" />
                             
-                            <settings:SettingsExpander Header="Informações de Cabeçalho">
-                                <settings:SettingsExpander.Items>
-                                    <settings:SettingsCard Header="URL do Logotipo">
-                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                            <TextBox Grid.Column="0" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay}" Width="200" />
-                                            <Button Grid.Column="1" Content="..." Click="PickLogo_Click" />
-                                        </Grid>
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Altura Logo (px)">
-                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" />
-                                    </settings:SettingsCard>
-                                </settings:SettingsExpander.Items>
-                            </settings:SettingsExpander>
-                            <ScrollViewer x:Name="PanelHeader" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+                            <settings:SettingsCard Header="URL do Logotipo">
+                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                    <TextBox Grid.Column="0" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay}" Width="200"/>
+                                    <Button Grid.Column="1" Content="Procurar Imagem" Click="PickLogo_Click" />
+                                    <CheckBox Grid.Column="2" Content="Mostrar" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" Margin="8,0,0,0"/>
+                                </Grid>
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Altura Logo (px)">
+                                <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100"/>
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Informação (Tipo, Subtítulo, Versão)">
+                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                    <TextBox Grid.Column="0" PlaceholderText="Tipo (ex: TDS)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay}" Width="80"/>
+                                    <TextBox Grid.Column="1" PlaceholderText="Subtítulo" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay}" Width="80"/>
+                                    <TextBox Grid.Column="2" PlaceholderText="Versão" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay}" Width="80"/>
+                                </Grid>
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Nome do Produto">
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay}" Width="250"/>
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Repetição nas Páginas">
+                                <ComboBox ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" Width="200" />
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Escala &amp; Espaçamento Interno">
+                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                    <NumberBox Grid.Column="0" Header="Escala (%)" Value="{Binding BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SpinButtonPlacementMode="Compact" Width="80"/>
+                                    <NumberBox Grid.Column="1" Header="Pad Top" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80"/>
+                                    <NumberBox Grid.Column="2" Header="Pad Bot" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80"/>
+                                </Grid>
+                            </settings:SettingsCard>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Painel 3: Rodapé -->
+                    <ScrollViewer x:Name="PanelFooter" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
                         <ScrollViewer.ContentTransitions>
                             <TransitionCollection>
                                 <EntranceThemeTransition />
                             </TransitionCollection>
                         </ScrollViewer.ContentTransitions>
                         <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,0,16">
-
-                                    <settings:SettingsCard Header="URL do Logotipo">
-                                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-                                            <TextBox Grid.Column="0" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay}" Width="200"/>
-                                            <Button Grid.Column="1" Content="Procurar Imagem" Click="PickLogo_Click" />
-                                            <CheckBox Grid.Column="2" Content="Mostrar" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" Margin="8,0,0,0"/>
-                                        </Grid>
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Altura Logo (px)">
-                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100"/>
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Informação (Tipo, Subtítulo, Versão)">
-                                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
-                                            <TextBox Grid.Column="0" PlaceholderText="Tipo (ex: TDS)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay}" Width="80"/>
-                                            <TextBox Grid.Column="1" PlaceholderText="Subtítulo" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay}" Width="80"/>
-                                            <TextBox Grid.Column="2" PlaceholderText="Versão" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay}" Width="80"/>
-                                        </Grid>
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Nome do Produto">
-                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay}" Width="250"/>
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Repetição nas Páginas">
-                                        <ComboBox ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" Width="200" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Escala &amp; Espaçamento Interno">
-                                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
-                                            <NumberBox Grid.Column="0" Header="Escala (%)" Value="{Binding BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SpinButtonPlacementMode="Compact" Width="80"/>
-                                            <NumberBox Grid.Column="1" Header="Pad Top" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80"/>
-                                            <NumberBox Grid.Column="2" Header="Pad Bot" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80"/>
-                                        </Grid>
-                                    </settings:SettingsCard>
-                                
+                            <TextBlock Text="Rodapé (Footer)" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,8" />
+                            <settings:SettingsCard Header="Endereço / Empresa" ContentAlignment="Left">
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="400" />
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Contactos / Website" ContentAlignment="Left">
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="400" />
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Trademark / Texto Legal" ContentAlignment="Left">
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="50" Width="400" />
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Opções de Rodapé">
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <ComboBox Grid.Column="0" Header="Repetição" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" Width="150"/>
+                                    <ComboBox Grid.Column="1" Header="Fonte Rodapé" ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FontFamily, Mode=TwoWay}" Width="150"/>
+                                </Grid>
+                            </settings:SettingsCard>
                         </StackPanel>
                     </ScrollViewer>
 
-                            <ScrollViewer x:Name="PanelFooter" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+                    <!-- Painel 4: Margens e Lotes -->
+                    <ScrollViewer x:Name="PanelBatch" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
                         <ScrollViewer.ContentTransitions>
                             <TransitionCollection>
                                 <EntranceThemeTransition />
                             </TransitionCollection>
                         </ScrollViewer.ContentTransitions>
                         <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,0,16">
-
-                                    <settings:SettingsCard Header="Endereço / Empresa" ContentAlignment="Left">
-                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="400" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Contactos / Website" ContentAlignment="Left">
-                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="400" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Trademark / Texto Legal" ContentAlignment="Left">
-                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="50" Width="400" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Opções de Rodapé">
-                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                            <ComboBox Grid.Column="0" Header="Repetição" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" Width="150"/>
-                                            <ComboBox Grid.Column="1" Header="Fonte Rodapé" ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FontFamily, Mode=TwoWay}" Width="150"/>
-                                        </Grid>
-                                    </settings:SettingsCard>
-                                
-                        </StackPanel>
-                    </ScrollViewer>
-
-                            <ScrollViewer x:Name="PanelBatch" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
-                        <ScrollViewer.ContentTransitions>
-                            <TransitionCollection>
-                                <EntranceThemeTransition />
-                            </TransitionCollection>
-                        </ScrollViewer.ContentTransitions>
-                        <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,0,16">
-
-                                    <settings:SettingsCard Header="Mostrar nota de aplicação de lote">
-                                        <CheckBox IsChecked="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=TwoWay}" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Formato da Nota de Lote">
-                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Batch.BatchNoteFormat, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=OneWay}" Width="250" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Espaçamentos entre Blocos (mm)">
-                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                            <NumberBox Grid.Column="0" Header="Cabeçalho -> Conteúdo" Value="{x:Bind ViewModel.BuilderModel.Layout.ContentPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100"/>
-                                            <NumberBox Grid.Column="1" Header="Entre Secções" Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100"/>
-                                        </Grid>
-                                    </settings:SettingsCard>
-                                
-                        </StackPanel>
-                    </ScrollViewer>
+                            <TextBlock Text="Margens e Lotes" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,8" />
+                            
+                            <settings:SettingsCard Header="Margens da Página (mm)">
+                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                                    <NumberBox Grid.Column="0" Header="Topo (T)" Value="{x:Bind ViewModel.BuilderModel.Layout.TopMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                    <NumberBox Grid.Column="1" Header="Fundo (B)" Value="{x:Bind ViewModel.BuilderModel.Layout.BottomMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                    <NumberBox Grid.Column="2" Header="Esq. (L)" Value="{x:Bind ViewModel.BuilderModel.Layout.LeftMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                    <NumberBox Grid.Column="3" Header="Dir. (R)" Value="{x:Bind ViewModel.BuilderModel.Layout.RightMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" />
+                                </Grid>
+                            </settings:SettingsCard>
+                            
+                            <settings:SettingsCard Header="Espaçamentos entre Blocos (mm)">
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <NumberBox Grid.Column="0" Header="Cabeçalho -> Conteúdo" Value="{x:Bind ViewModel.BuilderModel.Layout.ContentPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100"/>
+                                    <NumberBox Grid.Column="1" Header="Entre Secções" Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100"/>
+                                </Grid>
+                            </settings:SettingsCard>
+                            
+                            <settings:SettingsCard Header="Mostrar nota de aplicação de lote">
+                                <CheckBox IsChecked="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=TwoWay}" />
+                            </settings:SettingsCard>
+                            <settings:SettingsCard Header="Formato da Nota de Lote">
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Batch.BatchNoteFormat, Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=OneWay}" Width="250" />
+                            </settings:SettingsCard>
                         </StackPanel>
                     </ScrollViewer>
 
