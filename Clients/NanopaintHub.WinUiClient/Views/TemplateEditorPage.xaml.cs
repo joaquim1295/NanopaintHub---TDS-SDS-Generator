@@ -173,11 +173,19 @@ public sealed partial class TemplateEditorPage : Page
         
         ViewModel?.UpdateDocumentTypeFlags();
         
+        // Auto-preview
+        _ = ViewModel?.GeneratePreviewPdfAsync();
+        
         // When Document Type changes, we stay on the current tab, no need to force visibility changes here
         // as the Sections tab is now valid for both SDS and TDS.
     }
 
     private void UpdatePreview_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        _ = ViewModel.GeneratePreviewPdfAsync();
+    }
+
+    private void AutoTriggerPreview_Changed(object sender, object e)
     {
         _ = ViewModel.GeneratePreviewPdfAsync();
     }
