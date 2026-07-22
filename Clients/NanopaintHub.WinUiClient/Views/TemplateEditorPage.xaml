@@ -168,35 +168,45 @@
                             <TextBlock Text="Cabeçalho (Header)" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,8" />
                             
                             <settings:SettingsCard Header="URL do Logotipo">
-                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-                                    <TextBox Grid.Column="0" Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
-                                    <Button Grid.Column="1" Content="Procurar Imagem" Click="PickLogo_Click" />
-                                    <CheckBox Grid.Column="2" Content="Mostrar" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" Margin="8,0,0,0" Checked="AutoTriggerPreview_Changed" Unchecked="AutoTriggerPreview_Changed" />
-                                </Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" />
+                                    <Button Content="Procurar" Click="PickLogo_Click" />
+                                    <CheckBox Content="Mostrar" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" Checked="AutoTriggerPreview_Changed" Unchecked="AutoTriggerPreview_Changed" />
+                                </StackPanel>
                             </settings:SettingsCard>
+                            
                             <settings:SettingsCard Header="Altura Logo (px)">
                                 <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
                             </settings:SettingsCard>
-                            <settings:SettingsCard Header="Informação (Tipo, Subtítulo, Versão)">
-                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
-                                    <TextBox Grid.Column="0" PlaceholderText="Tipo (ex: TDS)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
-                                    <TextBox Grid.Column="1" PlaceholderText="Subtítulo" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
-                                    <TextBox Grid.Column="2" PlaceholderText="Versão" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
-                                    <CalendarDatePicker Grid.Column="3" PlaceholderText="Data de Revisão" Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" DateChanged="AutoTriggerPreview_Changed" Width="140" />
-                                </Grid>
+
+                            <settings:SettingsCard Header="Identificação e Subtítulo">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox PlaceholderText="Tipo (ex: TDS)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <TextBox PlaceholderText="Subtítulo" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
+                                </StackPanel>
                             </settings:SettingsCard>
+                            
+                            <settings:SettingsCard Header="Versão e Revisão">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox PlaceholderText="Versão" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                                    <CalendarDatePicker PlaceholderText="Data de Revisão" Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" DateChanged="AutoTriggerPreview_Changed" Width="150" />
+                                </StackPanel>
+                            </settings:SettingsCard>
+                            
                             <settings:SettingsCard Header="Nome do Produto">
                                 <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
                             </settings:SettingsCard>
+                            
                             <settings:SettingsCard Header="Repetição nas Páginas">
                                 <ComboBox ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" Width="200" SelectionChanged="AutoTriggerPreview_Changed" />
                             </settings:SettingsCard>
-                            <settings:SettingsCard Header="Escala &amp; Espaçamento Interno">
-                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
-                                    <NumberBox Grid.Column="0" Header="Escala (%)" Value="{Binding BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Column="1" Header="Pad Top" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Column="2" Header="Pad Bot" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
-                                </Grid>
+                            
+                            <settings:SettingsCard Header="Escala &amp; Margens">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <NumberBox Header="Escala (%)" Value="{Binding BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
+                                    <NumberBox Header="Pad Top" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
+                                    <NumberBox Header="Pad Bot" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
+                                </StackPanel>
                             </settings:SettingsCard>
                         </StackPanel>
                     </ScrollViewer>
