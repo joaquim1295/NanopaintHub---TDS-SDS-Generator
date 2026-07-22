@@ -58,7 +58,7 @@
                     <ColumnDefinition Width="Auto" /> <!-- Coluna 0: Sidebar Navegação -->
                     <ColumnDefinition Width="*" />    <!-- Coluna 1: Conteúdo/Editor -->
                     <ColumnDefinition Width="Auto" /> <!-- Coluna 2: Grid Splitter -->
-                    <ColumnDefinition Width="4*" x:Name="PreviewColumn" />   <!-- Coluna 3: Live Preview -->
+                    <ColumnDefinition Width="2*" x:Name="PreviewColumn" />   <!-- Coluna 3: Live Preview -->
                     <ColumnDefinition Width="Auto" /> <!-- Coluna 4: Preview Sidebar -->
                 </Grid.ColumnDefinitions>
                 
@@ -465,7 +465,7 @@
                     
                     <Grid Grid.Row="1">
                         <!-- Content Base -->
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{x:Bind ViewModel.PdfPreviewImages, Mode=OneWay}" 
                                           Visibility="{x:Bind ViewModel.IsPdfPreviewVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <ItemsControl.ItemsPanel>
