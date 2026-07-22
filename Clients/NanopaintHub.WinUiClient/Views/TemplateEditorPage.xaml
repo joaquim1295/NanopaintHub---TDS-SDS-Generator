@@ -56,9 +56,9 @@
             <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='negate'}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" /> <!-- Coluna 0: Sidebar Navegação -->
-                    <ColumnDefinition Width="*" />    <!-- Coluna 1: Conteúdo/Editor -->
+                    <ColumnDefinition Width="2*" />    <!-- Coluna 1: Conteúdo/Editor -->
                     <ColumnDefinition Width="Auto" /> <!-- Coluna 2: Grid Splitter -->
-                    <ColumnDefinition Width="2*" x:Name="PreviewColumn" />   <!-- Coluna 3: Live Preview -->
+                    <ColumnDefinition Width="3*" x:Name="PreviewColumn" />   <!-- Coluna 3: Live Preview -->
                     <ColumnDefinition Width="Auto" /> <!-- Coluna 4: Preview Sidebar -->
                 </Grid.ColumnDefinitions>
                 
