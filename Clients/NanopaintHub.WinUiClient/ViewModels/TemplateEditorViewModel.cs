@@ -197,51 +197,33 @@ public partial class TemplateEditorViewModel : ObservableObject
     {
         if (source == null || BuilderModel == null) return;
         
-        // 1. Theme
-        BuilderModel.Theme.PrimaryColor = source.Theme.PrimaryColor;
-        BuilderModel.Theme.SecondaryColor = source.Theme.SecondaryColor;
-        BuilderModel.Theme.FontFamily = source.Theme.FontFamily;
-        BuilderModel.Theme.BaseFontSize = source.Theme.BaseFontSize;
+        CopyProperties(source.Theme, BuilderModel.Theme);
+        CopyProperties(source.Layout, BuilderModel.Layout);
+        CopyProperties(source.Header, BuilderModel.Header);
+        CopyProperties(source.Footer, BuilderModel.Footer);
+        CopyProperties(source.Batch, BuilderModel.Batch);
         
-        // 2. Layout
-        BuilderModel.Layout.TopMargin = source.Layout.TopMargin;
-        BuilderModel.Layout.BottomMargin = source.Layout.BottomMargin;
-        BuilderModel.Layout.LeftMargin = source.Layout.LeftMargin;
-        BuilderModel.Layout.RightMargin = source.Layout.RightMargin;
-        BuilderModel.Layout.HeaderBaseScalePercentage = source.Layout.HeaderBaseScalePercentage;
-        BuilderModel.Layout.HeaderPaddingTop = source.Layout.HeaderPaddingTop;
-        BuilderModel.Layout.HeaderPaddingBottom = source.Layout.HeaderPaddingBottom;
-        
-        // 3. Header
-        BuilderModel.Header.LogoUrl = source.Header.LogoUrl;
-        BuilderModel.Header.ShowLogo = source.Header.ShowLogo;
-        BuilderModel.Header.LogoHeight = source.Header.LogoHeight;
-        BuilderModel.Header.IdentName = source.Header.IdentName;
-        BuilderModel.Header.InfoDocType = source.Header.InfoDocType;
-        BuilderModel.Header.InfoCategory = source.Header.InfoCategory;
-        BuilderModel.Header.InfoVersion = source.Header.InfoVersion;
-        BuilderModel.Header.InfoRevisedDate = source.Header.InfoRevisedDate;
-        BuilderModel.Header.HeaderRepeatStyle = source.Header.HeaderRepeatStyle;
-        
-        // 4. Footer
-        BuilderModel.Footer.CompanyAddress = source.Footer.CompanyAddress;
-        BuilderModel.Footer.CompanyContact = source.Footer.CompanyContact;
-        BuilderModel.Footer.FooterRepeatStyle = source.Footer.FooterRepeatStyle;
-        
-        // 5. Sections (Collections require Clear + Add)
         BuilderModel.Sections.Clear();
         foreach (var sec in source.Sections)
         {
-            BuilderModel.Sections.Add(new NanopaintHub_WinUIClient.Models.TemplateSection
+            var newSec = new NanopaintHub_WinUIClient.Models.TemplateSection();
+            CopyProperties(sec, newSec);
+            BuilderModel.Sections.Add(newSec);
+        }
+    }
+
+    private void CopyProperties<T>(T source, T target)
+    {
+        if (source == null || target == null) return;
+        foreach (var prop in typeof(T).GetProperties())
+        {
+            if (prop.CanRead && prop.CanWrite && prop.PropertyType != typeof(System.Collections.ObjectModel.ObservableCollection<NanopaintHub_WinUIClient.Models.TemplateSection>))
             {
-                Id = sec.Id,
-                Title = sec.Title,
-                Content = sec.Content,
-                Type = sec.Type,
-                
-                IsSdsContext = sec.IsSdsContext,
-                IsTdsContext = sec.IsTdsContext
-            });
+                var val = prop.GetValue(source);
+                // Avoid self-referential or unnecessary updates for ignored properties
+                if (prop.Name == "HeaderBaseScalePercentage" || prop.Name == "SectionBaseScalePercentage") continue;
+                prop.SetValue(target, val);
+            }
         }
     }
 
