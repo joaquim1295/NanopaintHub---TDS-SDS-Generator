@@ -113,7 +113,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         var secondary = schema.Theme.SecondaryColor;
         float scale = schema.Layout.HeaderBaseScale > 0 ? (float)schema.Layout.HeaderBaseScale : 1.0f;
 
-        container.Background(secondary) // Simplified gradient for PoC
+        container.Background(primary) // Changed to primary color
             .PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre)
             .PaddingTop((float)schema.Layout.HeaderPaddingTop * scale, Unit.Millimetre)
             .PaddingBottom((float)schema.Layout.HeaderPaddingBottom * scale, Unit.Millimetre)
