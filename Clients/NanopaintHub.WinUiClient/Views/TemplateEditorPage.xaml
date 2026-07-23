@@ -240,12 +240,12 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     
-                                    <NumberBox Grid.Row="0" Grid.Column="0" Header="Escala (%)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Row="0" Grid.Column="1" Header="Pad Top" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Row="0" Grid.Column="2" Header="Pad Bot" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
+                                    <NumberBox Grid.Row="0" Grid.Column="0" Header="Escala (%)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
+                                    <NumberBox Grid.Row="0" Grid.Column="1" Header="Pad Top" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
+                                    <NumberBox Grid.Row="0" Grid.Column="2" Header="Pad Bot" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
                                     
-                                    <NumberBox Grid.Row="1" Grid.Column="1" Header="Pad Esq" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingLeft, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Row="1" Grid.Column="2" Header="Pad Dir" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingRight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
+                                    <NumberBox Grid.Row="1" Grid.Column="1" Header="Pad Esq" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingLeft, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
+                                    <NumberBox Grid.Row="1" Grid.Column="2" Header="Pad Dir" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingRight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
                                 </Grid>
                             </settings:SettingsCard>
                         </StackPanel>
