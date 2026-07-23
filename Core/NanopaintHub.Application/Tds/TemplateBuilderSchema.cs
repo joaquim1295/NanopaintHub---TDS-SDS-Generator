@@ -32,18 +32,18 @@ public class TemplateLayoutSchema
     public double SectionBaseScale { get; set; } = 1.0;
 
     [System.Text.Json.Serialization.JsonIgnore]
-    public int SectionBaseScalePercentage
+    public double SectionBaseScalePercentage
     {
-        get => (int)System.Math.Round(SectionBaseScale * 100);
+        get => System.Math.Round(SectionBaseScale * 100);
         set => SectionBaseScale = value / 100.0;
     }
 
     public double HeaderBaseScale { get; set; } = 1.0;
 
     [System.Text.Json.Serialization.JsonIgnore]
-    public int HeaderBaseScalePercentage
+    public double HeaderBaseScalePercentage
     {
-        get => (int)System.Math.Round(HeaderBaseScale * 100);
+        get => System.Math.Round(HeaderBaseScale * 100);
         set => HeaderBaseScale = value / 100.0;
     }
 }

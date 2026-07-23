@@ -47,18 +47,20 @@ public static class TemplateHtmlParser
 
         if (schema.Layout != null)
         {
-            model.Layout.TopMargin = schema.Layout.TopMargin;
-            model.Layout.BottomMargin = schema.Layout.BottomMargin;
-            model.Layout.LeftMargin = schema.Layout.LeftMargin;
-            model.Layout.RightMargin = schema.Layout.RightMargin;
-            model.Layout.HeaderPaddingTop = schema.Layout.HeaderPaddingTop;
-            model.Layout.HeaderPaddingBottom = schema.Layout.HeaderPaddingBottom;
-            model.Layout.ContentPaddingTop = schema.Layout.ContentPaddingTop;
-            model.Layout.BatchNotePaddingBottom = schema.Layout.BatchNotePaddingBottom;
-            model.Layout.SectionSpacing = schema.Layout.SectionSpacing;
-            model.Layout.FooterPaddingTop = schema.Layout.FooterPaddingTop;
-            model.Layout.FooterPaddingBottom = schema.Layout.FooterPaddingBottom;
-            model.Layout.SectionMarginBottom = schema.Layout.SectionMarginBottom;
+            model.Layout.TopMargin = (int)schema.Layout.TopMargin;
+            model.Layout.BottomMargin = (int)schema.Layout.BottomMargin;
+            model.Layout.LeftMargin = (int)schema.Layout.LeftMargin;
+            model.Layout.RightMargin = (int)schema.Layout.RightMargin;
+            model.Layout.HeaderPaddingTop = (int)schema.Layout.HeaderPaddingTop;
+            model.Layout.HeaderPaddingBottom = (int)schema.Layout.HeaderPaddingBottom;
+            model.Layout.HeaderPaddingLeft = (int)schema.Layout.HeaderPaddingLeft;
+            model.Layout.HeaderPaddingRight = (int)schema.Layout.HeaderPaddingRight;
+            model.Layout.ContentPaddingTop = (int)schema.Layout.ContentPaddingTop;
+            model.Layout.BatchNotePaddingBottom = (int)schema.Layout.BatchNotePaddingBottom;
+            model.Layout.SectionSpacing = (int)schema.Layout.SectionSpacing;
+            model.Layout.FooterPaddingTop = (int)schema.Layout.FooterPaddingTop;
+            model.Layout.FooterPaddingBottom = (int)schema.Layout.FooterPaddingBottom;
+            model.Layout.SectionMarginBottom = (int)schema.Layout.SectionMarginBottom;
             model.Layout.SectionBaseScale = schema.Layout.SectionBaseScale;
             model.Layout.HeaderBaseScale = schema.Layout.HeaderBaseScale;
         }
@@ -126,6 +128,8 @@ public static class TemplateHtmlParser
             schema.Layout.RightMargin = model.Layout.RightMargin;
             schema.Layout.HeaderPaddingTop = model.Layout.HeaderPaddingTop;
             schema.Layout.HeaderPaddingBottom = model.Layout.HeaderPaddingBottom;
+            schema.Layout.HeaderPaddingLeft = model.Layout.HeaderPaddingLeft;
+            schema.Layout.HeaderPaddingRight = model.Layout.HeaderPaddingRight;
             schema.Layout.ContentPaddingTop = model.Layout.ContentPaddingTop;
             schema.Layout.BatchNotePaddingBottom = model.Layout.BatchNotePaddingBottom;
             schema.Layout.SectionSpacing = model.Layout.SectionSpacing;

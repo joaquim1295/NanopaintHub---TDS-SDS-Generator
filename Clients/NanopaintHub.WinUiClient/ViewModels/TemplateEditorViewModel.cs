@@ -423,10 +423,10 @@ PageTitle = "Novo Template";
         // Sync normalized values back to BuilderModel UI properties
         if (BuilderModel.Layout != null)
         {
-            BuilderModel.Layout.TopMargin = schema.Layout.TopMargin;
-            BuilderModel.Layout.BottomMargin = schema.Layout.BottomMargin;
-            BuilderModel.Layout.LeftMargin = schema.Layout.LeftMargin;
-            BuilderModel.Layout.RightMargin = schema.Layout.RightMargin;
+            BuilderModel.Layout.TopMargin = (int)schema.Layout.TopMargin;
+            BuilderModel.Layout.BottomMargin = (int)schema.Layout.BottomMargin;
+            BuilderModel.Layout.LeftMargin = (int)schema.Layout.LeftMargin;
+            BuilderModel.Layout.RightMargin = (int)schema.Layout.RightMargin;
         }
 
         // Serialize Builder UI state

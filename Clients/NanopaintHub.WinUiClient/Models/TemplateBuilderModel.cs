@@ -28,46 +28,46 @@ public partial class TemplateBuilderModel : ObservableObject
 public partial class TemplateLayout : ObservableObject
 {
     [ObservableProperty]
-    private double _topMargin = 24;
+    private int _topMargin = 24;
 
     [ObservableProperty]
-    private double _bottomMargin = 20;
+    private int _bottomMargin = 20;
 
     [ObservableProperty]
-    private double _leftMargin = 20;
+    private int _leftMargin = 20;
 
     [ObservableProperty]
-    private double _rightMargin = 20;
+    private int _rightMargin = 20;
 
     [ObservableProperty]
-    private double _headerPaddingTop = 14;
+    private int _headerPaddingTop = 14;
 
     [ObservableProperty]
-    private double _headerPaddingBottom = 10;
+    private int _headerPaddingBottom = 10;
 
     [ObservableProperty]
-    private double _headerPaddingLeft = 20;
+    private int _headerPaddingLeft = 20;
 
     [ObservableProperty]
-    private double _headerPaddingRight = 20;
+    private int _headerPaddingRight = 20;
 
     [ObservableProperty]
-    private double _contentPaddingTop = 10;
+    private int _contentPaddingTop = 10;
 
     [ObservableProperty]
-    private double _batchNotePaddingBottom = 12;
+    private int _batchNotePaddingBottom = 12;
 
     [ObservableProperty]
-    private double _sectionSpacing = 16;
+    private int _sectionSpacing = 16;
 
     [ObservableProperty]
-    private double _footerPaddingTop = 8;
+    private int _footerPaddingTop = 8;
 
     [ObservableProperty]
-    private double _footerPaddingBottom = 10;
+    private int _footerPaddingBottom = 10;
 
     [ObservableProperty]
-    private double _sectionMarginBottom = 14;
+    private int _sectionMarginBottom = 14;
 
     [ObservableProperty]
     private double _headerBaseScale = 1.0;
@@ -77,7 +77,7 @@ public partial class TemplateLayout : ObservableObject
         get => (int)System.Math.Round(HeaderBaseScale * 100);
         set 
         {
-            if (HeaderBaseScale != value / 100.0)
+            if (System.Math.Round(HeaderBaseScale * 100) != value)
             {
                 HeaderBaseScale = value / 100.0;
                 OnPropertyChanged(nameof(HeaderBaseScalePercentage));
@@ -90,7 +90,7 @@ public partial class TemplateLayout : ObservableObject
         get => (int)System.Math.Round(SectionBaseScale * 100);
         set 
         {
-            if (SectionBaseScale != value / 100.0)
+            if (System.Math.Round(SectionBaseScale * 100) != value)
             {
                 SectionBaseScale = value / 100.0;
                 OnPropertyChanged(nameof(SectionBaseScalePercentage));
