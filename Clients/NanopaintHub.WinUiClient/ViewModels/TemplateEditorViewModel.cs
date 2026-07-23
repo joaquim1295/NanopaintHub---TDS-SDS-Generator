@@ -115,6 +115,7 @@ public partial class TemplateEditorViewModel : ObservableObject
     private readonly System.Collections.Generic.Stack<string> _redoStack = new();
     private string? _lastSavedSnapshot;
     private bool _isRestoringState;
+    private bool _skipNextSnapshot;
 
     public bool CanUndo => _undoStack.Count > 0;
     public bool CanRedo => _redoStack.Count > 0;
@@ -125,6 +126,7 @@ public partial class TemplateEditorViewModel : ObservableObject
         if (_undoStack.Count == 0) return;
         
         _isRestoringState = true;
+        _skipNextSnapshot = true;
         
         // Save current to redo
         if (_lastSavedSnapshot != null)
@@ -151,6 +153,7 @@ public partial class TemplateEditorViewModel : ObservableObject
         if (_redoStack.Count == 0) return;
         
         _isRestoringState = true;
+        _skipNextSnapshot = true;
         
         if (_lastSavedSnapshot != null)
         {
@@ -172,6 +175,12 @@ public partial class TemplateEditorViewModel : ObservableObject
     
     private void SaveSnapshot()
     {
+        if (_skipNextSnapshot)
+        {
+            _skipNextSnapshot = false;
+            return;
+        }
+
         if (_isRestoringState || BuilderModel == null) return;
         
         var currentJson = System.Text.Json.JsonSerializer.Serialize(BuilderModel);
