@@ -36,6 +36,11 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         _phraseRepo = phraseRepo;
     }
 
+    private float SafeMargin(double margin, float min = 0f, float max = 80f)
+    {
+        return Math.Clamp((float)margin, min, max);
+    }
+
     public Task<byte[]> GenerateTdsAsync(Product product, DocumentTemplate template, TestBatch? testBatch = null, PdfGenerationSettings? settings = null)
     {
 
@@ -92,11 +97,13 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                 });
                 
                 page.Content()
-                    .PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre)
+                    .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
+                    .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
                     .Element(c => ComposeContent(c, schema, featuresList, liquidProps, mechanicalProps, mergedSpecs, chartSvgs, batchNumber));
                 
                 page.Footer()
-                    .PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre)
+                    .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
+                    .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
                     .PaddingBottom((float)schema.Layout.BottomMargin, Unit.Millimetre)
                     .Element(c => ComposeFooter(c, schema, product, template));
             });
@@ -114,7 +121,8 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         float scale = schema.Layout.HeaderBaseScale > 0 ? (float)schema.Layout.HeaderBaseScale : 1.0f;
 
         container.Background(primary) // Changed to primary color
-            .PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre)
+            .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
+            .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
             .PaddingTop((float)schema.Layout.HeaderPaddingTop * scale, Unit.Millimetre)
             .PaddingBottom((float)schema.Layout.HeaderPaddingBottom * scale, Unit.Millimetre)
             .Column(col =>
@@ -183,8 +191,9 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         
         float scale = schema.Layout.HeaderBaseScale > 0 ? (float)schema.Layout.HeaderBaseScale : 1.0f;
 
-        container.PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre)
-                 .PaddingTop((float)schema.Layout.HeaderPaddingTop * scale, Unit.Millimetre)
+        container.PaddingTop(SafeMargin(schema.Layout.TopMargin) * scale, Unit.Millimetre)
+                 .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
+                 .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
                  .PaddingBottom(4 * scale, Unit.Millimetre)
                  .BorderBottom(2).BorderColor(schema.Theme.PrimaryColor)
                  .PaddingBottom((float)schema.Layout.HeaderPaddingBottom * scale, Unit.Millimetre)
@@ -536,7 +545,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     col.Item().SkipOnce().Element(c => ComposeMinimalHeader(c, schema, product, template));
                 });
 
-                page.Content().PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre).PaddingTop((float)schema.Layout.ContentPaddingTop, Unit.Millimetre).Column(col =>
+                page.Content().PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre).PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre).PaddingTop((float)schema.Layout.ContentPaddingTop, Unit.Millimetre).Column(col =>
                 {
                 col.Spacing(8);
 
@@ -610,7 +619,8 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                 });
 
                 page.Footer()
-                    .PaddingHorizontal((float)schema.Layout.LeftMargin, Unit.Millimetre)
+                    .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
+                    .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
                     .PaddingBottom((float)schema.Layout.BottomMargin, Unit.Millimetre)
                     .Element(c => ComposeFooter(c, schema, product, template));
             });

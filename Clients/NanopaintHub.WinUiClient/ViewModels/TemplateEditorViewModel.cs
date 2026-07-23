@@ -504,7 +504,7 @@ PageTitle = "Novo Template";
         {
             SyncBuilderToJson();
 
-            string loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in odio in metus consequat aliquet. Phasellus eget nunc sit amet metus aliquet varius. Sed et felis et ante luctus dignissim vel ac ex. Vivamus varius ex id velit vulputate, sed consequat tellus pulvinar. Maecenas bibendum magna nisi, non tristique nisl mattis vitae. Cras in nulla quis justo tincidunt faucibus eu nec mi. Vestibulum tristique sapien vitae dui vulputate volutpat.\n\nPhasellus id fermentum metus, eget euismod nunc. Quisque id ligula nisl. In eleifend odio nisi, id condimentum orci scelerisque id. Curabitur vel leo id urna hendrerit aliquet vel et mi. Nunc lacinia metus id est gravida fermentum. Mauris egestas magna lectus, a sagittis risus sollicitudin imperdiet. Nullam tempor massa id arcu cursus porttitor.";
+            string loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in odio in metus consequat aliquet. Phasellus eget nunc sit amet metus aliquet varius. Sed et felis et ante luctus dignissim vel ac ex. Vivamus varius ex id velit vulputate, sed consequat tellus pulvinar.";
 
             var dummyProduct = new Product
             {
