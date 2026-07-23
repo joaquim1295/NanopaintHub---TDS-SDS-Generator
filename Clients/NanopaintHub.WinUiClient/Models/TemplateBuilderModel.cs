@@ -46,6 +46,12 @@ public partial class TemplateLayout : ObservableObject
     private double _headerPaddingBottom = 10;
 
     [ObservableProperty]
+    private double _headerPaddingLeft = 20;
+
+    [ObservableProperty]
+    private double _headerPaddingRight = 20;
+
+    [ObservableProperty]
     private double _contentPaddingTop = 10;
 
     [ObservableProperty]

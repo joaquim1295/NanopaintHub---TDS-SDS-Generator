@@ -176,6 +176,8 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine($"  --margin-right: {schema.Layout.RightMargin.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --header-padding-top: {schema.Layout.HeaderPaddingTop.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --header-padding-bottom: {schema.Layout.HeaderPaddingBottom.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
+        sb.AppendLine($"  --header-padding-left: {schema.Layout.HeaderPaddingLeft.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
+        sb.AppendLine($"  --header-padding-right: {schema.Layout.HeaderPaddingRight.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --content-padding-top: {schema.Layout.ContentPaddingTop.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --batch-note-padding-bottom: {schema.Layout.BatchNotePaddingBottom.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --footer-padding-top: {schema.Layout.FooterPaddingTop.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;");
@@ -193,7 +195,7 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine("}");
         sb.AppendLine();
         sb.AppendLine(".page { max-width: 210mm; width: 100%; min-height: 297mm; margin: 0 auto; background: #fff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); position: relative; display: block; overflow: hidden; }");
-        sb.AppendLine(".header-banner { background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; padding: var(--header-padding-top) var(--margin-right) var(--header-padding-bottom) var(--margin-left); }");
+        sb.AppendLine(".header-banner { background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; padding: var(--header-padding-top) var(--header-padding-right) var(--header-padding-bottom) var(--header-padding-left); }");
         sb.AppendLine(".header-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.28); padding-bottom: 8px; margin-bottom: 10px; }");
         sb.AppendLine(".logo-wrap { min-height: 30px; display: flex; align-items: center; background: transparent; }");
         sb.AppendLine(".logo-wrap img.logo-image { width: auto; object-fit: contain; display: block; background: transparent; }");
@@ -249,11 +251,11 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine("@media print { ");
         sb.AppendLine("  body { background: #fff; } ");
         sb.AppendLine("  .page { box-shadow: none; margin: 0; width: 100%; min-height: auto; }");
-        sb.AppendLine("  .header-banner { position: relative; z-index: 10; padding: var(--header-padding-top) var(--margin-right) var(--header-padding-bottom) var(--margin-left); } ");
+        sb.AppendLine("  .header-banner { position: relative; z-index: 10; padding: var(--header-padding-top) var(--header-padding-right) var(--header-padding-bottom) var(--header-padding-left); } ");
         sb.AppendLine("  .section { page-break-inside: avoid; break-inside: avoid; }");
         sb.AppendLine("  table { page-break-inside: auto; }");
         sb.AppendLine("  tr { page-break-inside: avoid; page-break-after: auto; }");
-        sb.AppendLine("  .header-banner { padding: var(--header-padding-top) var(--margin-right) var(--header-padding-bottom) var(--margin-left); } ");
+        sb.AppendLine("  .header-banner { padding: var(--header-padding-top) var(--header-padding-right) var(--header-padding-bottom) var(--header-padding-left); } ");
         sb.AppendLine("  .main-content { padding: var(--content-padding-top) var(--margin-right) 13mm var(--margin-left); } ");
         sb.AppendLine("  .footer-area { padding: 6mm var(--margin-right) 4mm var(--margin-left); } ");
         sb.AppendLine("  .footer-legal { display: none; } ");

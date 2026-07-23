@@ -21,6 +21,8 @@ public class TemplateLayoutSchema
     public double RightMargin { get; set; } = 20;
     public double HeaderPaddingTop { get; set; } = 14;     // in mm
     public double HeaderPaddingBottom { get; set; } = 10;  // in mm
+    public double HeaderPaddingLeft { get; set; } = 20;    // in mm
+    public double HeaderPaddingRight { get; set; } = 20;   // in mm
     public double ContentPaddingTop { get; set; } = 10;
     public double BatchNotePaddingBottom { get; set; } = 12;
     public double SectionSpacing { get; set; } = 16;

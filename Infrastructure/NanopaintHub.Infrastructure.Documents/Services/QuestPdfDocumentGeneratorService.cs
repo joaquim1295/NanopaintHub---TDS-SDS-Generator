@@ -121,8 +121,8 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         float scale = schema.Layout.HeaderBaseScale > 0 ? (float)schema.Layout.HeaderBaseScale : 1.0f;
 
         container.Background(primary) // Changed to primary color
-            .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
-            .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
+            .PaddingLeft(SafeMargin(schema.Layout.HeaderPaddingLeft), Unit.Millimetre)
+            .PaddingRight(SafeMargin(schema.Layout.HeaderPaddingRight), Unit.Millimetre)
             .PaddingTop((float)schema.Layout.HeaderPaddingTop * scale, Unit.Millimetre)
             .PaddingBottom((float)schema.Layout.HeaderPaddingBottom * scale, Unit.Millimetre)
             .Column(col =>
