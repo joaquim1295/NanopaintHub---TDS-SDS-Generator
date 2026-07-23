@@ -240,7 +240,7 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     
-                                    <NumberBox Grid.Row="0" Grid.Column="0" Header="Escala (%)" Value="{Binding BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
+                                    <NumberBox Grid.Row="0" Grid.Column="0" Header="Escala (%)" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderBaseScalePercentage, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
                                     <NumberBox Grid.Row="0" Grid.Column="1" Header="Pad Top" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
                                     <NumberBox Grid.Row="0" Grid.Column="2" Header="Pad Bot" Value="{x:Bind ViewModel.BuilderModel.Layout.HeaderPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="80" ValueChanged="AutoTriggerPreview_Changed" />
                                     
