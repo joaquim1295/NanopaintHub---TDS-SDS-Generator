@@ -186,7 +186,17 @@ public sealed partial class TemplateEditorPage : Page
         _ = ViewModel.GeneratePreviewPdfAsync();
     }
 
-    
-
-    
+    private void HeaderFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is CommunityToolkit.WinUI.Controls.Segmented segmented)
+        {
+            if (ContainerTextos == null || ContainerLogo == null || ContainerLayout == null) return;
+            
+            int index = segmented.SelectedIndex;
+            
+            ContainerTextos.Visibility = (index == 0 || index == 1) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            ContainerLogo.Visibility = (index == 0 || index == 2) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            ContainerLayout.Visibility = (index == 0 || index == 3) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+        }
+    }
 }
