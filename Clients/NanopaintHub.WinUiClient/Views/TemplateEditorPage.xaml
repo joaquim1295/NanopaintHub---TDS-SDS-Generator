@@ -195,14 +195,15 @@
                             </Grid>
                             
                             <settings:SettingsCard Header="Nome do Produto">
-                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" />
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350" />
                             </settings:SettingsCard>
 
-                            <settings:SettingsCard Header="Identificação e Subtítulo">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBox PlaceholderText="Tipo (ex: TDS)" Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
-                                    <TextBox PlaceholderText="Subtítulo" Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
-                                </StackPanel>
+                            <settings:SettingsCard Header="Tipo de Documento (ex: TDS)">
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
+                            </settings:SettingsCard>
+
+                            <settings:SettingsCard Header="Subtítulo da Classificação">
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
                             </settings:SettingsCard>
                             
                             <settings:SettingsExpander Header="Controlo de Versão" Description="Gerir versão e data de emissão do documento">
@@ -210,11 +211,11 @@
                                     <FontIcon Glyph="&#xE787;" />
                                 </settings:SettingsExpander.HeaderIcon>
                                 <settings:SettingsExpander.Items>
-                                    <settings:SettingsCard ContentAlignment="Left">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <TextBox PlaceholderText="Versão" Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
-                                            <CalendarDatePicker PlaceholderText="Data de Revisão" Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" DateChanged="AutoTriggerPreview_Changed" Width="150" />
-                                        </StackPanel>
+                                    <settings:SettingsCard Header="Número da Versão">
+                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Data de Revisão">
+                                        <CalendarDatePicker Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" DateChanged="AutoTriggerPreview_Changed" Width="150" />
                                     </settings:SettingsCard>
                                 </settings:SettingsExpander.Items>
                             </settings:SettingsExpander>
@@ -224,14 +225,16 @@
                                     <FontIcon Glyph="&#xE114;" />
                                 </settings:SettingsExpander.HeaderIcon>
                                 <settings:SettingsExpander.Items>
-                                    <settings:SettingsCard ContentAlignment="Left" Header="Ficheiro">
+                                    <settings:SettingsCard Header="URL do Ficheiro">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                             <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.LogoUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="250" />
                                             <Button Content="Procurar" Click="PickLogo_Click" />
-                                            <CheckBox Content="Mostrar" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" Checked="AutoTriggerPreview_Changed" Unchecked="AutoTriggerPreview_Changed" />
                                         </StackPanel>
                                     </settings:SettingsCard>
-                                    <settings:SettingsCard ContentAlignment="Left" Header="Tamanho (px)">
+                                    <settings:SettingsCard Header="Visibilidade">
+                                        <CheckBox Content="Mostrar Logótipo no Documento" IsChecked="{x:Bind ViewModel.BuilderModel.Header.ShowLogo, Mode=TwoWay}" Checked="AutoTriggerPreview_Changed" Unchecked="AutoTriggerPreview_Changed" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Tamanho (px)">
                                         <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
                                     </settings:SettingsCard>
                                 </settings:SettingsExpander.Items>
@@ -242,7 +245,7 @@
                                     <FontIcon Glyph="&#xE71C;" />
                                 </settings:SettingsExpander.HeaderIcon>
                                 <settings:SettingsExpander.Items>
-                                    <settings:SettingsCard ContentAlignment="Left" Header="Comportamento">
+                                    <settings:SettingsCard Header="Comportamento de Repetição">
                                         <ComboBox ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" Width="200" SelectionChanged="AutoTriggerPreview_Changed" />
                                     </settings:SettingsCard>
                                     <settings:SettingsCard ContentAlignment="Left" Header="Escala &amp; Margens">
