@@ -201,7 +201,7 @@
                                 </StackPanel>
                             </settings:SettingsCard>
                             
-                            <settings:SettingsCard Header="Altura Logo (px)">
+                            <settings:SettingsCard Header="Tamanho do Logótipo">
                                 <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
                             </settings:SettingsCard>
 

@@ -21,6 +21,7 @@ public partial class TemplateBuilderModel : ObservableObject
     [ObservableProperty]
     private TemplateLayout _layout = new();
 
+    [System.Text.Json.Serialization.JsonObjectCreationHandling(System.Text.Json.Serialization.JsonObjectCreationHandling.Populate)]
     public ObservableCollection<TemplateSection> Sections { get; } = new();
 }
 

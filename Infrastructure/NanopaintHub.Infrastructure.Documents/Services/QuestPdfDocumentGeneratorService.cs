@@ -126,7 +126,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                         var logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Nanopaint_logo.png");
                         if (File.Exists(logoPath))
                         {
-                            row.ConstantItem(120 * scale).Image(logoPath).FitArea();
+                            row.AutoItem().MaxWidth(160 * scale).Height((float)schema.Header.LogoHeight * scale).Image(logoPath).FitArea();
                         }
                     }
 
@@ -195,7 +195,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                          var logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Nanopaint_logo.png");
                          if (File.Exists(logoPath))
                          {
-                             row.ConstantItem(80 * scale).AlignBottom().Image(logoPath).FitArea();
+                             row.AutoItem().MaxWidth(100 * scale).Height((float)schema.Header.LogoHeight * 0.75f * scale).AlignBottom().Image(logoPath).FitArea();
                              row.ConstantItem(15 * scale);
                          }
                      }
