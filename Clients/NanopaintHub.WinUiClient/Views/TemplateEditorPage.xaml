@@ -177,7 +177,7 @@
                                 <EntranceThemeTransition />
                             </TransitionCollection>
                         </ScrollViewer.ContentTransitions>
-                        <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,0,16">
+                        <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,24,16">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -220,7 +220,7 @@
                                     <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
                                 </settings:SettingsCard>
                                 
-                                <settings:SettingsExpander Header="Controlo de Versão" Description="Gerir versão e data de emissão do documento">
+                                <settings:SettingsExpander Header="Controlo de Versão" Description="Gerir versão e data de emissão do documento" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xE787;" />
                                     </settings:SettingsExpander.HeaderIcon>
@@ -243,7 +243,7 @@
                                     </TransitionCollection>
                                 </StackPanel.ChildrenTransitions>
 
-                                <settings:SettingsExpander Header="Design do Logótipo" Description="Configurar visibilidade, imagem e tamanho do logotipo no cabeçalho">
+                                <settings:SettingsExpander Header="Design do Logótipo" Description="Configurar visibilidade, imagem e tamanho do logotipo no cabeçalho" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xE114;" />
                                     </settings:SettingsExpander.HeaderIcon>
@@ -272,7 +272,7 @@
                                     </TransitionCollection>
                                 </StackPanel.ChildrenTransitions>
 
-                                <settings:SettingsExpander Header="Geometria e Layout" Description="Ajuste de margens, escalas e repetição">
+                                <settings:SettingsExpander Header="Geometria e Layout" Description="Ajuste de margens, escalas e repetição" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xE71C;" />
                                     </settings:SettingsExpander.HeaderIcon>
