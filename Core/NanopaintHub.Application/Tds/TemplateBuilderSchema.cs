@@ -64,6 +64,14 @@ public class TemplateHeaderSchema
     public string TextColor { get; set; } = "";
     public string HeaderRepeatStyle { get; set; } = "Original";
     public double FontSize { get; set; } = -1;
+    
+    // New Styling Properties for the default Layout
+    public string HeaderBackgroundColor { get; set; } = "#0f2a4a"; 
+    public string TitleFontFamily { get; set; } = "Segoe UI";
+    public string TitleColor { get; set; } = "#ffffff";
+    public string SubtitleFontFamily { get; set; } = "Segoe UI";
+    public string SubtitleColor { get; set; } = "#9ac7f4";
+    public string DescriptionColor { get; set; } = "#b7d7f6";
 }
 
 public class TemplateThemeSchema

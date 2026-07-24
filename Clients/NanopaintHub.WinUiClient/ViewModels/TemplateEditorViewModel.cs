@@ -508,9 +508,10 @@ PageTitle = "Novo Template";
 
             var dummyProduct = new Product
             {
-                Name = "Produto Exemplo Preview",
+                Name = "PRODUTO DE TESTE (PREVIEW)",
                 Code = "PRV-001",
                 Description = loremIpsum,
+                ProductCategory = new ProductCategory { Name = "Tinta Funcional" },
                 RevisionDate = DateTime.Today,
                 DocumentVersion = 1,
                 FeaturesJson = "[\"Resistência alta (Lorem ipsum dolor sit amet)\", \"Flexível (Consectetur adipiscing elit)\", \"Durável (Phasellus eget nunc sit amet metus aliquet)\", \"Ecológico (Sed et felis et ante luctus dignissim)\"]",

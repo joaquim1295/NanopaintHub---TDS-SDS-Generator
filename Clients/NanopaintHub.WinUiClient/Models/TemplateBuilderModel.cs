@@ -142,6 +142,25 @@ public partial class TemplateHeader : ObservableObject
 
     [ObservableProperty]
     private string _headerRepeatStyle = "Original";
+    
+    // New Styling Properties for the default Layout
+    [ObservableProperty]
+    private string _headerBackgroundColor = "#0f2a4a";
+    
+    [ObservableProperty]
+    private string _titleFontFamily = "Segoe UI";
+    
+    [ObservableProperty]
+    private string _titleColor = "#ffffff";
+    
+    [ObservableProperty]
+    private string _subtitleFontFamily = "Segoe UI";
+    
+    [ObservableProperty]
+    private string _subtitleColor = "#9ac7f4";
+    
+    [ObservableProperty]
+    private string _descriptionColor = "#b7d7f6";
 }
 
 public partial class TemplateTheme : ObservableObject

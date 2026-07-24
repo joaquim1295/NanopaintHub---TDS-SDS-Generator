@@ -119,8 +119,10 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         var primary = schema.Theme.PrimaryColor;
         var secondary = schema.Theme.SecondaryColor;
         float scale = schema.Layout.HeaderBaseScale > 0 ? (float)schema.Layout.HeaderBaseScale : 1.0f;
+        
+        var bgColor = !string.IsNullOrWhiteSpace(schema.Header.HeaderBackgroundColor) ? schema.Header.HeaderBackgroundColor : primary;
 
-        container.Background(primary) // Changed to primary color
+        container.Background(bgColor) // Changed to support HeaderBackgroundColor
             .PaddingLeft(SafeMargin(schema.Layout.HeaderPaddingLeft), Unit.Millimetre)
             .PaddingRight(SafeMargin(schema.Layout.HeaderPaddingRight), Unit.Millimetre)
             .PaddingTop((float)schema.Layout.HeaderPaddingTop * scale, Unit.Millimetre)
@@ -140,23 +142,45 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
                     row.RelativeItem().AlignRight().Text(text =>
                     {
-                        text.Line(string.IsNullOrWhiteSpace(schema.Header.InfoCategory) ? "Functional Inks" : ReplacePlaceholders(schema.Header.InfoCategory, product, template))
-                            .FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).Bold().FontColor("#9ac7f4").LetterSpacing(0.06f);
-                        text.Line(string.IsNullOrWhiteSpace(schema.Header.InfoDocType) ? "Technical Data Sheet" : ReplacePlaceholders(schema.Header.InfoDocType, product, template))
-                            .FontSize((float)schema.Theme.BaseFontSize * scale).FontColor(Colors.White);
+                        var categoryText = string.IsNullOrWhiteSpace(schema.Header.InfoCategory) 
+                            ? (string.IsNullOrWhiteSpace(product.Category) ? "Functional Inks" : product.Category) 
+                            : ReplacePlaceholders(schema.Header.InfoCategory, product, template);
+                            
+                        text.Line(categoryText)
+                            .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).Bold().FontColor(schema.Header.SubtitleColor).LetterSpacing(0.06f);
+                        
+                        var docTypeText = string.IsNullOrWhiteSpace(schema.Header.InfoDocType) 
+                            ? "Technical Data Sheet" 
+                            : ReplacePlaceholders(schema.Header.InfoDocType, product, template);
+                            
+                        text.Line(docTypeText)
+                            .FontFamily(schema.Header.SubtitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * scale).FontColor(Colors.White);
+                            
                         text.Line($"Revised: {product.RevisionDate:yyyy-MM-dd} · Version {product.DocumentVersion}")
-                            .FontSize(((float)schema.Theme.BaseFontSize - 1f) * scale).FontColor("#d5e4f5");
+                            .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize - 1f) * scale).FontColor(schema.Header.DescriptionColor);
                     });
                 });
 
-                col.Item().PaddingTop(10 * scale).Text(string.IsNullOrWhiteSpace(schema.Header.IdentType) ? "Piezoresistive Ink" : ReplacePlaceholders(schema.Header.IdentType, product, template))
-                    .FontSize((float)schema.Theme.BaseFontSize * 2f * scale).Bold().FontColor(Colors.White).LetterSpacing(0.06f);
+                var productTypeText = string.IsNullOrWhiteSpace(schema.Header.IdentType) 
+                    ? (string.IsNullOrWhiteSpace(product.ProductType) ? "Piezoresistive Ink" : product.ProductType) 
+                    : ReplacePlaceholders(schema.Header.IdentType, product, template);
                     
-                col.Item().PaddingTop(4 * scale).Text(string.IsNullOrWhiteSpace(schema.Header.IdentName) ? product.Name : ReplacePlaceholders(schema.Header.IdentName, product, template))
-                    .FontSize(((float)schema.Theme.BaseFontSize + 2f) * scale).Medium().FontColor("#b7d7f6");
+                col.Item().PaddingTop(10 * scale).Text(productTypeText)
+                    .FontFamily(schema.Header.TitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * 2f * scale).Bold().FontColor(schema.Header.TitleColor).LetterSpacing(0.06f);
+                    
+                var productNameText = string.IsNullOrWhiteSpace(schema.Header.IdentName) 
+                    ? product.Name 
+                    : ReplacePlaceholders(schema.Header.IdentName, product, template);
 
-                col.Item().PaddingTop(8 * scale).Text(string.IsNullOrWhiteSpace(schema.Header.IdentDesc) ? product.Description : ReplacePlaceholders(schema.Header.IdentDesc, product, template))
-                    .FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor("#e6f0fb");
+                col.Item().PaddingTop(4 * scale).Text(productNameText)
+                    .FontFamily(schema.Header.TitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 2f) * scale).Medium().FontColor(schema.Header.SubtitleColor);
+
+                var productDescText = string.IsNullOrWhiteSpace(schema.Header.IdentDesc) 
+                    ? product.Description 
+                    : ReplacePlaceholders(schema.Header.IdentDesc, product, template);
+
+                col.Item().PaddingTop(8 * scale).Text(productDescText)
+                    .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
             });
     }
 

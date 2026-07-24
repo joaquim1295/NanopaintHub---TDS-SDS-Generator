@@ -208,17 +208,128 @@
                                     </TransitionCollection>
                                 </StackPanel.ChildrenTransitions>
 
-                                <settings:SettingsCard Header="Nome do Produto">
-                                    <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350" />
-                                </settings:SettingsCard>
+                                <!-- Substituímos TextBoxes literais por Styling para o cabeçalho base -->
+                                <settings:SettingsExpander Header="Fundo do Cabeçalho" Description="Define a cor de fundo predefinida do cabeçalho">
+                                    <settings:SettingsExpander.HeaderIcon>
+                                        <FontIcon Glyph="&#xE790;" />
+                                    </settings:SettingsExpander.HeaderIcon>
+                                    <settings:SettingsExpander.Items>
+                                        <settings:SettingsCard Header="Cor de Fundo">
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Button Grid.Column="0" Padding="4" Background="Transparent" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                                                    <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Header.HeaderBackgroundColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                    <Button.Flyout>
+                                                        <Flyout>
+                                                            <StackPanel Spacing="8">
+                                                                <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Header.HeaderBackgroundColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                                <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                            </StackPanel>
+                                                        </Flyout>
+                                                    </Button.Flyout>
+                                                </Button>
+                                                <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.HeaderBackgroundColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </settings:SettingsCard>
+                                    </settings:SettingsExpander.Items>
+                                </settings:SettingsExpander>
+                                
+                                <settings:SettingsExpander Header="Estilo do Nome do Produto" Description="Fonte e cor para o Nome principal">
+                                    <settings:SettingsExpander.HeaderIcon>
+                                        <FontIcon Glyph="&#xE8D2;" />
+                                    </settings:SettingsExpander.HeaderIcon>
+                                    <settings:SettingsExpander.Items>
+                                        <settings:SettingsCard Header="Fonte">
+                                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.TitleFontFamily, Mode=TwoWay}" Width="150" SelectionChanged="AutoTriggerPreview_Changed" />
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Cor">
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Button Grid.Column="0" Padding="4" Background="Transparent" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                                                    <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Header.SubtitleColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                    <Button.Flyout>
+                                                        <Flyout>
+                                                            <StackPanel Spacing="8">
+                                                                <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Header.SubtitleColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                                <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                            </StackPanel>
+                                                        </Flyout>
+                                                    </Button.Flyout>
+                                                </Button>
+                                                <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.SubtitleColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Fallback (Texto Fixo Opcional)">
+                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" PlaceholderText="Nome automático" ToolTipService.ToolTip="Substitui o Nome do Produto caso preenchido" />
+                                        </settings:SettingsCard>
+                                    </settings:SettingsExpander.Items>
+                                </settings:SettingsExpander>
 
-                                <settings:SettingsCard Header="Tipo de Documento (ex: TDS)">
-                                    <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
-                                </settings:SettingsCard>
-
-                                <settings:SettingsCard Header="Subtítulo da Classificação">
-                                    <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="350"/>
-                                </settings:SettingsCard>
+                                <settings:SettingsExpander Header="Estilo da Classificação e Tipo" Description="Fonte e cor para a Categoria, Tipo e Detalhes do Produto">
+                                    <settings:SettingsExpander.HeaderIcon>
+                                        <FontIcon Glyph="&#xE8D2;" />
+                                    </settings:SettingsExpander.HeaderIcon>
+                                    <settings:SettingsExpander.Items>
+                                        <settings:SettingsCard Header="Fonte">
+                                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.SubtitleFontFamily, Mode=TwoWay}" Width="150" SelectionChanged="AutoTriggerPreview_Changed" />
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Cor da Categoria">
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Button Grid.Column="0" Padding="4" Background="Transparent" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                                                    <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Header.TitleColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                    <Button.Flyout>
+                                                        <Flyout>
+                                                            <StackPanel Spacing="8">
+                                                                <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Header.TitleColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                                <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                            </StackPanel>
+                                                        </Flyout>
+                                                    </Button.Flyout>
+                                                </Button>
+                                                <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.TitleColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Cor da Descrição">
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Button Grid.Column="0" Padding="4" Background="Transparent" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                                                    <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Header.DescriptionColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                    <Button.Flyout>
+                                                        <Flyout>
+                                                            <StackPanel Spacing="8">
+                                                                <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Header.DescriptionColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                                <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                            </StackPanel>
+                                                        </Flyout>
+                                                    </Button.Flyout>
+                                                </Button>
+                                                <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.DescriptionColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Fallback (Tipo Fixo Opcional)">
+                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" PlaceholderText="Automático" ToolTipService.ToolTip="Ex: Piezoresistive Ink" />
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Fallback (Classe Opcional)">
+                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" PlaceholderText="Automático" ToolTipService.ToolTip="Ex: Functional Inks" />
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Fallback (Documento)">
+                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" PlaceholderText="Technical Data Sheet" />
+                                        </settings:SettingsCard>
+                                    </settings:SettingsExpander.Items>
+                                </settings:SettingsExpander>
                                 
                                 <settings:SettingsExpander Header="Controlo de Versão" Description="Gerir versão e data de emissão do documento" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
