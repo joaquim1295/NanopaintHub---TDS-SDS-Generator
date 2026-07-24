@@ -159,7 +159,9 @@ public sealed partial class TemplateEditorPage : Page
         }
     }
 
-    private void DocumentType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private int _questPdfInfoBarTimeoutId = 0;
+    
+    private async void DocumentType_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         // Forçar binding source update
         if (sender is ComboBox cb && cb.SelectedValue != null && ViewModel?.Template != null)
@@ -168,6 +170,20 @@ public sealed partial class TemplateEditorPage : Page
         }
         
         ViewModel?.UpdateDocumentTypeFlags();
+        
+        if (ViewModel != null && ViewModel.IsQuestPdfSelected && QuestPdfInfoBar != null)
+        {
+            QuestPdfInfoBar.IsOpen = true;
+            var currentId = ++_questPdfInfoBarTimeoutId;
+            
+            await System.Threading.Tasks.Task.Delay(5000);
+            
+            // Apenas fecha se não tiver havido uma nova seleção pelo meio
+            if (currentId == _questPdfInfoBarTimeoutId && QuestPdfInfoBar != null)
+            {
+                QuestPdfInfoBar.IsOpen = false;
+            }
+        }
         
         // Auto-preview
         _ = ViewModel?.GeneratePreviewPdfAsync();

@@ -93,10 +93,10 @@
                     </Grid.RowDefinitions>
                     
                     <StackPanel Grid.Row="0" Spacing="12" Margin="0,0,0,16">
-                        <controls:InfoBar IsOpen="{x:Bind ViewModel.IsQuestPdfSelected, Mode=OneWay}" 
+                        <controls:InfoBar x:Name="QuestPdfInfoBar" IsOpen="{x:Bind ViewModel.IsQuestPdfSelected, Mode=OneWay}" 
                                       Severity="Informational" Title="QuestPDF Ativo" 
                                       Message="A edição livre está desativada." 
-                                      IsClosable="False" />
+                                      IsClosable="True" />
                     </StackPanel>
                     
                     
