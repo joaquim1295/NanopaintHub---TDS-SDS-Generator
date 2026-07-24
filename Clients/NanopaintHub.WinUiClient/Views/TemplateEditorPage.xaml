@@ -171,13 +171,13 @@
                     </ScrollViewer>
 
                     <!-- Painel 2: Cabeçalho -->
-                    <ScrollViewer x:Name="PanelHeader" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+                    <ScrollViewer x:Name="PanelHeader" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed" Margin="0,0,-12,0" Padding="0,0,12,0">
                         <ScrollViewer.ContentTransitions>
                             <TransitionCollection>
                                 <EntranceThemeTransition />
                             </TransitionCollection>
                         </ScrollViewer.ContentTransitions>
-                        <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,24,16">
+                        <StackPanel Spacing="16" MaxWidth="1200" HorizontalAlignment="Stretch" Padding="0,0,0,16">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
