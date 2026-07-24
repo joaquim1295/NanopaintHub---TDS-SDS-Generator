@@ -595,10 +595,10 @@
                 </Grid>
 
                 <!-- GRID SPLITTER (Coluna 2) -->
-                <sizers:GridSplitter x:Name="PreviewSplitter" Grid.Column="2" Width="16" Background="Transparent" ResizeBehavior="BasedOnAlignment" ResizeDirection="Columns" />
+                <sizers:GridSplitter x:Name="PreviewSplitter" Grid.Column="2" Width="8" Background="Transparent" ResizeBehavior="BasedOnAlignment" ResizeDirection="Columns" />
 
                 <!-- LIVE PREVIEW ANTI-FLICKERING (Coluna 3) -->
-                <Grid x:Name="PreviewContainer" Grid.Column="3" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Margin="16,0,0,0">
+                <Grid x:Name="PreviewContainer" Grid.Column="3" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Margin="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
