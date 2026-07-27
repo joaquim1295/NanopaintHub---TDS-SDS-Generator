@@ -35,7 +35,7 @@ public class NanopaintHubDbContext : DbContext
 
 
         modelBuilder.Entity<Product>()
-            .HasOne<ProductCategory>()
+            .HasOne(p => p.ProductCategory)
             .WithMany()
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict); 
