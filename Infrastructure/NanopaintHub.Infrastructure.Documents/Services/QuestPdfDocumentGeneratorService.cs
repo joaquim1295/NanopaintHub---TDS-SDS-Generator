@@ -181,6 +181,8 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         var companyInfo = _companyInfoOptions.CurrentValue;
 
         return text
+            .Replace("\r\n", "\n")
+            .Replace("\r", "\n")
             .Replace("{{Name}}", product.Name ?? "")
             .Replace("{{Product.Name}}", product.Name ?? "")
             .Replace("{{Code}}", product.Code ?? "")

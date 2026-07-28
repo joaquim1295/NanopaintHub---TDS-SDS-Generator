@@ -138,10 +138,10 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         }
         sb.AppendLine($"    <footer class=\"footer-area\"{footerStyle}>");
         sb.AppendLine("      <div class=\"footer-cols\">");
-        sb.AppendLine($"        <div class=\"footer-col1\">{(schema.Footer.Column1 ?? "").Replace("\r\n", "<br/>").Replace("\n", "<br/>")}</div>");
-        sb.AppendLine($"        <div class=\"footer-col2\">{(schema.Footer.Column2 ?? "").Replace("\r\n", "<br/>").Replace("\n", "<br/>")}</div>");
+        sb.AppendLine($"        <div class=\"footer-col1\">{(schema.Footer.Column1 ?? "").Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "<br/>")}</div>");
+        sb.AppendLine($"        <div class=\"footer-col2\">{(schema.Footer.Column2 ?? "").Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "<br/>")}</div>");
         sb.AppendLine("      </div>");
-        sb.AppendLine($"      <p class=\"footer-legal\">{(schema.Footer.LegalText ?? "").Replace("\r\n", "<br/>").Replace("\n", "<br/>")}</p>");
+        sb.AppendLine($"      <p class=\"footer-legal\">{(schema.Footer.LegalText ?? "").Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "<br/>")}</p>");
         sb.AppendLine("    </footer>");
 
         sb.AppendLine("  </div>");
