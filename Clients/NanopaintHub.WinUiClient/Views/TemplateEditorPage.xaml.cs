@@ -141,6 +141,54 @@ public sealed partial class TemplateEditorPage : Page
         }
     }
 
+    private async void OpenAddressDialog_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (AddressDialog != null)
+        {
+            AddressDialog.XamlRoot = this.XamlRoot;
+            AddressTextBox.Text = ViewModel.BuilderModel.Footer.Column1 ?? string.Empty;
+            
+            var result = await AddressDialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                ViewModel.BuilderModel.Footer.Column1 = AddressTextBox.Text;
+                _ = ViewModel.GeneratePreviewPdfAsync();
+            }
+        }
+    }
+
+    private async void OpenContactsDialog_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (ContactsDialog != null)
+        {
+            ContactsDialog.XamlRoot = this.XamlRoot;
+            ContactsTextBox.Text = ViewModel.BuilderModel.Footer.Column2 ?? string.Empty;
+            
+            var result = await ContactsDialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                ViewModel.BuilderModel.Footer.Column2 = ContactsTextBox.Text;
+                _ = ViewModel.GeneratePreviewPdfAsync();
+            }
+        }
+    }
+
+    private async void OpenLegalTextDialog_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (LegalTextDialog != null)
+        {
+            LegalTextDialog.XamlRoot = this.XamlRoot;
+            LegalTextBox.Text = ViewModel.BuilderModel.Footer.LegalText ?? string.Empty;
+            
+            var result = await LegalTextDialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                ViewModel.BuilderModel.Footer.LegalText = LegalTextBox.Text;
+                _ = ViewModel.GeneratePreviewPdfAsync();
+            }
+        }
+    }
+
     private void TogglePreview_Changed(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         if (TogglePreviewBtn == null || PreviewColumn == null || PreviewSplitter == null || PreviewContainer == null) return;

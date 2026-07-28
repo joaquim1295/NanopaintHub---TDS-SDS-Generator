@@ -454,22 +454,40 @@
 
 
 
-                            <settings:SettingsExpander Header="Fallbacks de Texto (Opcionais)" Description="Overrides para as moradas e legal default do sistema">
-                                <settings:SettingsExpander.HeaderIcon>
+                            <TextBlock Text="Dados e Moradas (Padrão do Template)" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,16,0,8" />
+                            
+                            <settings:SettingsCard Header="Endereço da Empresa" Description="Informação principal exibida no rodapé (Coluna 1)">
+                                <settings:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE821;" />
+                                </settings:SettingsCard.HeaderIcon>
+                                <Button Content="Editar Endereço" Click="OpenAddressDialog_Click">
+                                    <Button.ContentTransitions>
+                                        <TransitionCollection />
+                                    </Button.ContentTransitions>
+                                </Button>
+                            </settings:SettingsCard>
+
+                            <settings:SettingsCard Header="Contactos" Description="Informação secundária exibida no rodapé (Coluna 2)">
+                                <settings:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE717;" />
+                                </settings:SettingsCard.HeaderIcon>
+                                <Button Content="Editar Contactos" Click="OpenContactsDialog_Click">
+                                    <Button.ContentTransitions>
+                                        <TransitionCollection />
+                                    </Button.ContentTransitions>
+                                </Button>
+                            </settings:SettingsCard>
+
+                            <settings:SettingsCard Header="Rodapé Legal" Description="Disclaimer de direitos reservados e conformidade REACH">
+                                <settings:SettingsCard.HeaderIcon>
                                     <FontIcon Glyph="&#xE8D2;" />
-                                </settings:SettingsExpander.HeaderIcon>
-                                <settings:SettingsExpander.Items>
-                                    <settings:SettingsCard Header="Endereço da Empresa">
-                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="300" PlaceholderText="Automático: Dados da Empresa" ToolTipService.ToolTip="Substitui o endereço nativo do sistema" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Contactos">
-                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="300" PlaceholderText="Automático: Contactos Gerais" ToolTipService.ToolTip="Substitui os contactos nativos do sistema" />
-                                    </settings:SettingsCard>
-                                    <settings:SettingsCard Header="Rodapé Legal">
-                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="50" Width="300" PlaceholderText="Automático: Direitos Reservados" ToolTipService.ToolTip="Substitui o texto de copyright e REACH nativo do sistema" />
-                                    </settings:SettingsCard>
-                                </settings:SettingsExpander.Items>
-                            </settings:SettingsExpander>
+                                </settings:SettingsCard.HeaderIcon>
+                                <Button Content="Editar Texto Legal" Click="OpenLegalTextDialog_Click">
+                                    <Button.ContentTransitions>
+                                        <TransitionCollection />
+                                    </Button.ContentTransitions>
+                                </Button>
+                            </settings:SettingsCard>
                         </StackPanel>
                     </ScrollViewer>
 
@@ -769,5 +787,53 @@
                 </StackPanel>
             </Grid>
         </Grid>
+        <!-- Diálogo para Edição de Endereço -->
+        <ContentDialog x:Name="AddressDialog"
+                       Title="Editar Endereço da Empresa"
+                       PrimaryButtonText="Gravar e Fechar"
+                       CloseButtonText="Cancelar"
+                       DefaultButton="Primary"
+                       CornerRadius="8">
+            <Grid Width="500" Margin="0,8,0,0">
+                <TextBox x:Name="AddressTextBox" 
+                         AcceptsReturn="True" TextWrapping="Wrap" 
+                         MinHeight="100" MaxHeight="300" 
+                         HorizontalAlignment="Stretch" 
+                         PlaceholderText="Ex: Rua da Empresa, 123&#10;Código Postal, Cidade&#10;País" />
+            </Grid>
+        </ContentDialog>
+
+        <!-- Diálogo para Edição de Contactos -->
+        <ContentDialog x:Name="ContactsDialog"
+                       Title="Editar Contactos"
+                       PrimaryButtonText="Gravar e Fechar"
+                       CloseButtonText="Cancelar"
+                       DefaultButton="Primary"
+                       CornerRadius="8">
+            <Grid Width="500" Margin="0,8,0,0">
+                <TextBox x:Name="ContactsTextBox" 
+                         AcceptsReturn="True" TextWrapping="Wrap" 
+                         MinHeight="100" MaxHeight="300" 
+                         HorizontalAlignment="Stretch" 
+                         PlaceholderText="Ex: Tlf: +351 900 000 000&#10;Email: geral@empresa.com" />
+            </Grid>
+        </ContentDialog>
+        
+
+        <!-- Diálogo para Edição de Texto Legal -->
+        <ContentDialog x:Name="LegalTextDialog"
+                       Title="Editar Texto Legal do Rodapé"
+                       PrimaryButtonText="Gravar e Fechar"
+                       CloseButtonText="Cancelar"
+                       DefaultButton="Primary"
+                       CornerRadius="8">
+            <Grid Width="500" Margin="0,8,0,0">
+                <TextBox x:Name="LegalTextBox" 
+                         AcceptsReturn="True" TextWrapping="Wrap" 
+                         MinHeight="150" MaxHeight="400" 
+                         HorizontalAlignment="Stretch" 
+                         PlaceholderText="Digite o texto de compliance e direitos reservados..." />
+            </Grid>
+        </ContentDialog>
     </Grid>
 </Page>
