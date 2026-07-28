@@ -142,10 +142,11 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
                     row.RelativeItem().AlignRight().Text(text =>
                     {
-                        var categoryText = string.IsNullOrWhiteSpace(product.Category) ? "Functional Inks" : product.Category;
-                            
-                        text.Line(categoryText)
-                            .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).Bold().FontColor(schema.Header.SubtitleColor).LetterSpacing(0.06f);
+                        if (product.ProductCategory != null && !string.IsNullOrWhiteSpace(product.ProductCategory.Name))
+                        {
+                            text.Line(product.ProductCategory.Name)
+                                .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).Bold().FontColor(schema.Header.SubtitleColor).LetterSpacing(0.06f);
+                        }
                         
                         var docTypeText = "Technical Data Sheet";
                             
@@ -157,10 +158,11 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     });
                 });
 
-                var productTypeText = string.IsNullOrWhiteSpace(product.ProductType) ? "Piezoresistive Ink" : product.ProductType;
-                    
-                col.Item().PaddingTop(10 * scale).Text(productTypeText)
-                    .FontFamily(schema.Header.TitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * 2f * scale).Bold().FontColor(schema.Header.TitleColor).LetterSpacing(0.06f);
+                if (!string.IsNullOrWhiteSpace(product.ProductType))
+                {
+                    col.Item().PaddingTop(10 * scale).Text(product.ProductType)
+                        .FontFamily(schema.Header.TitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * 2f * scale).Bold().FontColor(schema.Header.TitleColor).LetterSpacing(0.06f);
+                }
                     
                 var productNameText = product.Name;
 

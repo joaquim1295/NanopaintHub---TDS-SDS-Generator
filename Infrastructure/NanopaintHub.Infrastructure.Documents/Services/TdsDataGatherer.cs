@@ -47,8 +47,8 @@ public class TdsDataGatherer
         var templateData = TdsTemplateViewModelBuilder.Build(
             product.Name,
             product.Code,
-            product.Category,
-            product.ProductType,
+            product.ProductCategory?.Name ?? string.Empty,
+            product.ProductType ?? string.Empty,
             product.Description,
             product.RevisionDate.ToString("dd/MM/yyyy"),
             product.DocumentVersion,

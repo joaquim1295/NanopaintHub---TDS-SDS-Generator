@@ -251,6 +251,9 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
                         .HasColumnType("TEXT")
                         .HasDefaultValue("[]");
 
+                    b.Property<string>("ProductType")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("RevisionDate")
                         .HasColumnType("TEXT");
 
@@ -529,11 +532,13 @@ namespace NanopaintHub.Infrastructure.LocalData.Migrations
 
             modelBuilder.Entity("NanopaintHub.Domain.Entities.Product", b =>
                 {
-                    b.HasOne("NanopaintHub.Domain.Entities.ProductCategory", null)
+                    b.HasOne("NanopaintHub.Domain.Entities.ProductCategory", "ProductCategory")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("ProductCategory");
                 });
 
             modelBuilder.Entity("NanopaintHub.Domain.Entities.ProductComposition", b =>

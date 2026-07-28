@@ -177,11 +177,11 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine($"  --footer-padding-top: {schema.Layout.FooterPaddingTop.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;");
         sb.AppendLine($"  --footer-padding-bottom: {schema.Layout.FooterPaddingBottom.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;");
         sb.AppendLine($"  --section-spacing: {schema.Layout.SectionSpacing.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;");
-        sb.AppendLine("  font-size: 8pt;");
-        sb.AppendLine("  color: var(--secondary);");
-        sb.AppendLine("  text-align: right;");
         sb.AppendLine("}");
-        sb.AppendLine(".minimal-rev {");
+        sb.AppendLine();
+        sb.AppendLine("*:empty { display: none !important; }");
+        sb.AppendLine();
+        sb.AppendLine(".minimal-title {");
         sb.AppendLine("  font-size: 6pt;");
         sb.AppendLine("  color: #777;");
         sb.AppendLine("  margin-top: 2px;");

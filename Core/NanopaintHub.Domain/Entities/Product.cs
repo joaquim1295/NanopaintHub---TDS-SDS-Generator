@@ -13,11 +13,7 @@ public class Product : Entity
     // Virtual navigation properties (if EF Core) or string metadata properties
     public ProductCategory? ProductCategory { get; set; }
     
-    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
-    public string Category => ProductCategory?.Name ?? "Functional Inks";
-    
-    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
-    public string ProductType => "Piezoresistive Ink"; // Fallback to be loaded dynamically if there's a type
+    public string? ProductType { get; set; }
 
     public string FeaturesJson { get; set; } = "[]";
     // Os 3 grupos de caracterização industrial da Nanopaint
