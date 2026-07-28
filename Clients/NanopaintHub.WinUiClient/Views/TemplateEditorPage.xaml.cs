@@ -13,11 +13,54 @@ public sealed partial class TemplateEditorPage : Page
     public Microsoft.UI.Xaml.Visibility NullableBoolToVisibility(bool? isChecked) 
         => isChecked == true ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
 
+    private double _savedPreviewScrollOffset = 0;
+
     public TemplateEditorPage()
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<TemplateEditorViewModel>();
         DataContext = ViewModel;
+        
+        this.Loaded += TemplateEditorPage_Loaded;
+        this.Unloaded += TemplateEditorPage_Unloaded;
+    }
+
+    private void TemplateEditorPage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (ViewModel != null)
+        {
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+    }
+
+    private void TemplateEditorPage_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (ViewModel != null)
+        {
+            ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+        }
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ViewModel.IsLoadingPreview))
+        {
+            if (ViewModel.IsLoadingPreview)
+            {
+                _savedPreviewScrollOffset = PreviewScrollViewer?.VerticalOffset ?? 0;
+            }
+            else
+            {
+                if (PreviewScrollViewer != null)
+                {
+                    DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        await System.Threading.Tasks.Task.Delay(100);
+                        PreviewScrollViewer.ChangeView(null, _savedPreviewScrollOffset, null, true);
+                    });
+                }
+            }
+        }
     }
 
     private void RemoveSection_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
