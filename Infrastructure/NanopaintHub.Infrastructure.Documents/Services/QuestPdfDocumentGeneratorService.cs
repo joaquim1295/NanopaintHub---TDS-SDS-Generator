@@ -228,8 +228,13 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                      row.RelativeItem().AlignBottom().Text($"{product.Name} · {product.Code}")
                         .FontSize(10 * scale).Bold().FontColor(schema.Theme.PrimaryColor);
                      
-                     row.RelativeItem().AlignRight().AlignBottom().Text("Technical Data Sheet")
-                        .FontSize(9 * scale).FontColor(schema.Theme.SecondaryColor);
+                     row.RelativeItem().AlignRight().AlignBottom().Column(c =>
+                     {
+                         c.Item().AlignRight().Text("Technical Data Sheet")
+                          .FontSize(9 * scale).FontColor(schema.Theme.SecondaryColor);
+                         c.Item().AlignRight().Text($"Rev: {product.DocumentVersion} | {product.RevisionDate:yyyy-MM-dd}")
+                          .FontSize(7 * scale).FontColor(Colors.Grey.Medium);
+                     });
                  });
     }
 
@@ -465,21 +470,11 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
             var defaultLegal = "© 2026 NanoPaint Lda. All rights reserved. This Technical Data Sheet is generated from product records in NanopaintHub. Values shown reflect stored product data with optional batch overlay.";
             var legalText = string.IsNullOrWhiteSpace(schema.Footer.LegalText) ? defaultLegal : schema.Footer.LegalText;
-            col.Item().PaddingTop(2).Text(ReplacePlaceholders(legalText, product, template))
+            col.Item().PaddingTop(6, Unit.Millimetre).Text(ReplacePlaceholders(legalText, product, template))
                .FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Medium);
             
             col.Item().Row(row =>
             {
-                row.RelativeItem().AlignLeft().Text(x =>
-                {
-                    var ver = product.DocumentVersion.ToString();
-                    var dat = product.RevisionDate.ToString("yyyy-MM-dd");
-                    
-                    x.Span($"Versão: {ver}").FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                    x.Span("   |   ").FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Lighten1);
-                    x.Span($"Data: {dat}").FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                });
-
                 row.RelativeItem().AlignRight().Text(x =>
                 {
                     x.Span("Page ").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);

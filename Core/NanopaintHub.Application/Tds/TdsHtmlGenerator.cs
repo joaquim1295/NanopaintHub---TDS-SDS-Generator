@@ -58,7 +58,10 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
             }
             sb.AppendLine("                <span class=\"minimal-title\">{{TemplateName}}</span>");
             sb.AppendLine("              </div>");
-            sb.AppendLine($"              <div class=\"minimal-doctype\">{{DocumentKind}}</div>");
+            sb.AppendLine("              <div class=\"minimal-doctype\">");
+            sb.AppendLine($"                <div>{{DocumentKind}}</div>");
+            sb.AppendLine($"                <div class=\"minimal-rev\">Rev: {{{{Version}}}} | {{{{RevisionDate}}}}</div>");
+            sb.AppendLine("              </div>");
             sb.AppendLine("            </div>");
             sb.AppendLine("          </td>");
             sb.AppendLine("        </tr>");
@@ -174,6 +177,20 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine($"  --footer-padding-top: {schema.Layout.FooterPaddingTop.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;");
         sb.AppendLine($"  --footer-padding-bottom: {schema.Layout.FooterPaddingBottom.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;");
         sb.AppendLine($"  --section-spacing: {schema.Layout.SectionSpacing.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;");
+        sb.AppendLine("  font-size: 8pt;");
+        sb.AppendLine("  color: var(--secondary);");
+        sb.AppendLine("  text-align: right;");
+        sb.AppendLine("}");
+        sb.AppendLine(".minimal-rev {");
+        sb.AppendLine("  font-size: 6pt;");
+        sb.AppendLine("  color: #777;");
+        sb.AppendLine("  margin-top: 2px;");
+        sb.AppendLine("}");
+        sb.AppendLine(".main-content {");
+        sb.AppendLine("  margin: 0; padding: 0; background: #e2e2e2; color: var(--text-main);");
+        sb.AppendLine($"  font-family: \"{schema.Theme.FontFamily}\", \"Helvetica Neue\", Arial, sans-serif;");
+        var baseSize = schema.Theme.BaseFontSize > 0 ? schema.Theme.BaseFontSize : 10;
+        sb.AppendLine($"  font-size: {baseSize}pt; line-height: 1.45;");
         sb.AppendLine("}");
         sb.AppendLine();
         sb.AppendLine("* { box-sizing: border-box; }");
@@ -181,7 +198,6 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine("body {");
         sb.AppendLine("  margin: 0; padding: 0; background: #e2e2e2; color: var(--text-main);");
         sb.AppendLine($"  font-family: \"{schema.Theme.FontFamily}\", \"Helvetica Neue\", Arial, sans-serif;");
-        var baseSize = schema.Theme.BaseFontSize > 0 ? schema.Theme.BaseFontSize : 10;
         sb.AppendLine($"  font-size: {baseSize}pt; line-height: 1.45;");
         sb.AppendLine("}");
         sb.AppendLine();
@@ -225,7 +241,7 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine(".chart-block img, .chart-block svg, .chart-block figure { max-width: 100%; height: auto; display: block; }");
         sb.AppendLine(".footer-area { padding: 6mm var(--margin-right) 4mm var(--margin-left); border-top: 1px solid var(--line); background: #fff; }");
         sb.AppendLine(".footer-cols { display: flex; gap: 20px; font-size: 0.85em; font-weight: 600; color: var(--primary); margin-bottom: 4px; }");
-        sb.AppendLine(".footer-legal { margin: 10px 0 0; color: var(--text-muted); font-size: 0.8em; line-height: 1.35; text-align: justify; }");
+        sb.AppendLine(".footer-legal { margin: 25px 0 0; color: var(--text-muted); font-size: 0.8em; line-height: 1.35; text-align: justify; }");
         sb.AppendLine(".page-break-preview { display: flex; align-items: center; justify-content: center; margin: 18px 0; border-top: 1px dashed var(--line); position: relative; }");
         sb.AppendLine(".page-break-preview span { background: #fff; padding: 0 8px; font-size: 0.75em; color: var(--text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; }");
         sb.AppendLine("/* Custom inheritance rules when section specifies custom styles */");
