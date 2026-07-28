@@ -148,10 +148,11 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                                 .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).Bold().FontColor(schema.Header.SubtitleColor).LetterSpacing(0.06f);
                         }
                         
-                        var docTypeText = "Technical Data Sheet";
-                            
-                        text.Line(docTypeText)
-                            .FontFamily(schema.Header.SubtitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * scale).FontColor(Colors.White);
+                        if (!string.IsNullOrWhiteSpace(schema.Header.DocumentSubtitle))
+                        {
+                            text.Line(schema.Header.DocumentSubtitle)
+                                .FontFamily(schema.Header.SubtitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * scale).FontColor(Colors.White);
+                        }
                             
                         text.Line($"Revised: {product.RevisionDate:yyyy-MM-dd} · Version {product.DocumentVersion}")
                             .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize - 1f) * scale).FontColor(schema.Header.DescriptionColor);

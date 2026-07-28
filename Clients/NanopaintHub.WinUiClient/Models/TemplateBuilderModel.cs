@@ -124,6 +124,9 @@ public partial class TemplateHeader : ObservableObject
     [ObservableProperty]
     private string _headerRepeatStyle = "Original";
     
+    [ObservableProperty]
+    private string _documentSubtitle = "Technical Data Sheet";
+    
     // New Styling Properties for the default Layout
     [ObservableProperty]
     private string _headerBackgroundColor = "#0f2a4a";

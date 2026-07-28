@@ -56,6 +56,7 @@ public class TemplateHeaderSchema
     public string FontFamily { get; set; } = "";
     public string TextColor { get; set; } = "";
     public string HeaderRepeatStyle { get; set; } = "Original";
+    public string DocumentSubtitle { get; set; } = "Technical Data Sheet";
     public double FontSize { get; set; } = -1;
     
     // New Styling Properties for the default Layout

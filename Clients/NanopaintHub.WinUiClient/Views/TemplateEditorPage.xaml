@@ -324,6 +324,10 @@
 
                             </StackPanel>
 
+                            <settings:SettingsCard Header="Subtítulo do Documento" Description="O texto principal do documento (ex: Technical Data Sheet).">
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.DocumentSubtitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="250" TextChanged="AutoTriggerPreview_Changed" />
+                            </settings:SettingsCard>
+
                             <StackPanel x:Name="ContainerLogo" Spacing="16">
                                 <StackPanel.ChildrenTransitions>
                                     <TransitionCollection>
