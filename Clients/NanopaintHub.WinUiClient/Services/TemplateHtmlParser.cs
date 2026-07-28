@@ -21,13 +21,7 @@ public static class TemplateHtmlParser
         model.Theme.FontFamily = schema.Theme.FontFamily;
         model.Theme.BaseFontSize = schema.Theme.BaseFontSize;
 
-        model.Header.InfoDocType = schema.Header.InfoDocType;
-        model.Header.InfoCategory = schema.Header.InfoCategory;
-        model.Header.InfoRevisedDate = schema.Header.InfoRevisedDate;
-        model.Header.InfoVersion = schema.Header.InfoVersion;
-        model.Header.IdentType = schema.Header.IdentType;
-        model.Header.IdentName = schema.Header.IdentName;
-        model.Header.IdentDesc = schema.Header.IdentDesc;
+
         model.Header.LogoUrl = schema.Header.LogoUrl;
         model.Header.LogoHeight = schema.Header.LogoHeight;
         model.Header.ShowLogo = schema.Header.ShowLogo;
@@ -96,13 +90,7 @@ public static class TemplateHtmlParser
         schema.Theme.FontFamily = model.Theme.FontFamily;
         schema.Theme.BaseFontSize = model.Theme.BaseFontSize;
 
-        schema.Header.InfoDocType = model.Header.InfoDocType;
-        schema.Header.InfoCategory = model.Header.InfoCategory;
-        schema.Header.InfoRevisedDate = model.Header.InfoRevisedDate;
-        schema.Header.InfoVersion = model.Header.InfoVersion;
-        schema.Header.IdentType = model.Header.IdentType;
-        schema.Header.IdentName = model.Header.IdentName;
-        schema.Header.IdentDesc = model.Header.IdentDesc;
+
         schema.Header.LogoUrl = model.Header.LogoUrl;
         schema.Header.LogoHeight = model.Header.LogoHeight;
         schema.Header.ShowLogo = model.Header.ShowLogo;

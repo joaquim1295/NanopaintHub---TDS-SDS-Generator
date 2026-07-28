@@ -143,6 +143,8 @@ public sealed class TdsFullExampleGenerationTest
         var templateData = TdsTemplateViewModelBuilder.Build(
             productName,
             productCode,
+            "Functional Inks",
+            "Piezoresistive Ink",
             description,
             "11/06/2026",
             3,

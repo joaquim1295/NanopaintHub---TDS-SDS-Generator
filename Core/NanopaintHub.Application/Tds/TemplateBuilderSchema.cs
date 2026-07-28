@@ -50,13 +50,6 @@ public class TemplateLayoutSchema
 
 public class TemplateHeaderSchema
 {
-    public string InfoDocType { get; set; } = "";
-    public string InfoCategory { get; set; } = "";
-    public DateTimeOffset? InfoRevisedDate { get; set; }
-    public string InfoVersion { get; set; } = "";
-    public string IdentType { get; set; } = "";
-    public string IdentName { get; set; } = "";
-    public string IdentDesc { get; set; } = "";
     public string LogoUrl { get; set; } = "";
     public int LogoHeight { get; set; } = 34;
     public bool ShowLogo { get; set; } = true;
@@ -90,9 +83,7 @@ public class TemplateFooterSchema
     public string FontFamily { get; set; } = "";
     public string TextColor { get; set; } = "";
     public string FooterRepeatStyle { get; set; } = "Original";
-    public bool ShowVersionAndDate { get; set; } = true;
-    public string VersionLabel { get; set; } = "Versão:";
-    public string DateLabel { get; set; } = "Data:";
+
 }
 
 public class TemplateBatchSchema

@@ -31,24 +31,15 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         }
         sb.AppendLine("        </div>");
         sb.AppendLine("        <div class=\"doc-meta\">");
-        var infoCat = string.IsNullOrWhiteSpace(schema.Header.InfoCategory) ? "Functional Inks" : schema.Header.InfoCategory;
-        var infoType = string.IsNullOrWhiteSpace(schema.Header.InfoDocType) ? "Technical Data Sheet" : schema.Header.InfoDocType;
-        var infoRev = schema.Header.InfoRevisedDate.HasValue ? schema.Header.InfoRevisedDate.Value.ToString("yyyy-MM-dd") : "{{RevisionDate}}";
-        var infoVer = string.IsNullOrWhiteSpace(schema.Header.InfoVersion) ? "Version {{Version}}" : schema.Header.InfoVersion;
-        
-        sb.AppendLine($"          <strong>{infoCat}</strong>");
-        sb.AppendLine($"          {infoType}<br />");
-        sb.AppendLine($"          Revised: {infoRev} · {infoVer}");
+        sb.AppendLine($"          <strong>{{{{Category}}}}</strong>");
+        sb.AppendLine($"          {{{{DocumentKind}}}}<br />");
+        sb.AppendLine($"          Revised: {{{{RevisionDate}}}} · Version {{{{Version}}}}");
         sb.AppendLine("        </div>");
         sb.AppendLine("      </div>");
         
-        var idType = string.IsNullOrWhiteSpace(schema.Header.IdentType) ? "Piezoresistive Ink" : schema.Header.IdentType;
-        var idName = string.IsNullOrWhiteSpace(schema.Header.IdentName) ? "{{Name}} · {{Code}}" : schema.Header.IdentName;
-        var idDesc = string.IsNullOrWhiteSpace(schema.Header.IdentDesc) ? "{{Description}}" : schema.Header.IdentDesc;
-
-        sb.AppendLine($"      <h1 class=\"product-title\">{idType}</h1>");
-        sb.AppendLine($"      <p class=\"product-subtitle\">{idName}</p>");
-        sb.AppendLine($"      <p class=\"product-description\">{idDesc}</p>");
+        sb.AppendLine($"      <h1 class=\"product-title\">{{{{ProductType}}}}</h1>");
+        sb.AppendLine($"      <p class=\"product-subtitle\">{{{{Name}}}} · {{{{Code}}}}</p>");
+        sb.AppendLine($"      <p class=\"product-description\">{{{{Description}}}}</p>");
         sb.AppendLine("    </header>");
 
         // Main Content in Table
@@ -67,7 +58,7 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
             }
             sb.AppendLine("                <span class=\"minimal-title\">{{TemplateName}}</span>");
             sb.AppendLine("              </div>");
-            sb.AppendLine($"              <div class=\"minimal-doctype\">{infoType}</div>");
+            sb.AppendLine($"              <div class=\"minimal-doctype\">{{DocumentKind}}</div>");
             sb.AppendLine("            </div>");
             sb.AppendLine("          </td>");
             sb.AppendLine("        </tr>");

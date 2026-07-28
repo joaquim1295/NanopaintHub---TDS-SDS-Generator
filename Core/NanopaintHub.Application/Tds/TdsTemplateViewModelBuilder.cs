@@ -6,6 +6,8 @@ public static class TdsTemplateViewModelBuilder
     public static object Build(
         string productName,
         string productCode,
+        string category,
+        string productType,
         string description,
         string revisionDate,
         int version,
@@ -63,6 +65,8 @@ public static class TdsTemplateViewModelBuilder
         {
             Name = productName,
             Code = productCode,
+            Category = category,
+            ProductType = productType,
             Description = description,
             RevisionDate = revisionDate,
             Version = version,

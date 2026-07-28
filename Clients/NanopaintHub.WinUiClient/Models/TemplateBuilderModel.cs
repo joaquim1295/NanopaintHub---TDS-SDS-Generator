@@ -104,26 +104,7 @@ public partial class TemplateLayout : ObservableObject
 
 public partial class TemplateHeader : ObservableObject
 {
-    [ObservableProperty]
-    private string _infoDocType = "";
 
-    [ObservableProperty]
-    private string _infoCategory = "";
-
-    [ObservableProperty]
-    private DateTimeOffset? _infoRevisedDate;
-
-    [ObservableProperty]
-    private string _infoVersion = "";
-
-    [ObservableProperty]
-    private string _identType = "";
-
-    [ObservableProperty]
-    private string _identName = "";
-
-    [ObservableProperty]
-    private string _identDesc = "";
 
     [ObservableProperty]
     private string _logoUrl = "";
@@ -198,14 +179,7 @@ public partial class TemplateFooter : ObservableObject
     [ObservableProperty]
     private string _footerRepeatStyle = "Original";
 
-    [ObservableProperty]
-    private bool _showVersionAndDate = true;
 
-    [ObservableProperty]
-    private string _versionLabel = "Versão:";
-
-    [ObservableProperty]
-    private string _dateLabel = "Data:";
 }
 
 public partial class TemplateBatch : ObservableObject

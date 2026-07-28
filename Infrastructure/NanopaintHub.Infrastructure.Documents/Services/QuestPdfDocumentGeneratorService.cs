@@ -142,16 +142,12 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
                     row.RelativeItem().AlignRight().Text(text =>
                     {
-                        var categoryText = string.IsNullOrWhiteSpace(schema.Header.InfoCategory) 
-                            ? (string.IsNullOrWhiteSpace(product.Category) ? "Functional Inks" : product.Category) 
-                            : ReplacePlaceholders(schema.Header.InfoCategory, product, template);
+                        var categoryText = string.IsNullOrWhiteSpace(product.Category) ? "Functional Inks" : product.Category;
                             
                         text.Line(categoryText)
                             .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).Bold().FontColor(schema.Header.SubtitleColor).LetterSpacing(0.06f);
                         
-                        var docTypeText = string.IsNullOrWhiteSpace(schema.Header.InfoDocType) 
-                            ? "Technical Data Sheet" 
-                            : ReplacePlaceholders(schema.Header.InfoDocType, product, template);
+                        var docTypeText = "Technical Data Sheet";
                             
                         text.Line(docTypeText)
                             .FontFamily(schema.Header.SubtitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * scale).FontColor(Colors.White);
@@ -161,23 +157,17 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     });
                 });
 
-                var productTypeText = string.IsNullOrWhiteSpace(schema.Header.IdentType) 
-                    ? (string.IsNullOrWhiteSpace(product.ProductType) ? "Piezoresistive Ink" : product.ProductType) 
-                    : ReplacePlaceholders(schema.Header.IdentType, product, template);
+                var productTypeText = string.IsNullOrWhiteSpace(product.ProductType) ? "Piezoresistive Ink" : product.ProductType;
                     
                 col.Item().PaddingTop(10 * scale).Text(productTypeText)
                     .FontFamily(schema.Header.TitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * 2f * scale).Bold().FontColor(schema.Header.TitleColor).LetterSpacing(0.06f);
                     
-                var productNameText = string.IsNullOrWhiteSpace(schema.Header.IdentName) 
-                    ? product.Name 
-                    : ReplacePlaceholders(schema.Header.IdentName, product, template);
+                var productNameText = product.Name;
 
                 col.Item().PaddingTop(4 * scale).Text(productNameText)
                     .FontFamily(schema.Header.TitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 2f) * scale).Medium().FontColor(schema.Header.SubtitleColor);
 
-                var productDescText = string.IsNullOrWhiteSpace(schema.Header.IdentDesc) 
-                    ? product.Description 
-                    : ReplacePlaceholders(schema.Header.IdentDesc, product, template);
+                var productDescText = product.Description;
 
                 col.Item().PaddingTop(8 * scale).Text(productDescText)
                     .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
@@ -233,10 +223,10 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                          }
                      }
 
-                     row.RelativeItem().AlignBottom().Text(string.IsNullOrWhiteSpace(schema.Header.IdentName) ? $"{product.Name} · {product.Code}" : ReplacePlaceholders(schema.Header.IdentName, product, template))
+                     row.RelativeItem().AlignBottom().Text($"{product.Name} · {product.Code}")
                         .FontSize(10 * scale).Bold().FontColor(schema.Theme.PrimaryColor);
                      
-                     row.RelativeItem().AlignRight().AlignBottom().Text(string.IsNullOrWhiteSpace(schema.Header.InfoDocType) ? "Technical Data Sheet" : ReplacePlaceholders(schema.Header.InfoDocType, product, template))
+                     row.RelativeItem().AlignRight().AlignBottom().Text("Technical Data Sheet")
                         .FontSize(9 * scale).FontColor(schema.Theme.SecondaryColor);
                  });
     }
@@ -456,49 +446,37 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
         container.BorderTop(1).BorderColor("#d8e1ec").PaddingTop(4, Unit.Millimetre).Column(col =>
         {
+            var footerTextColor = string.IsNullOrWhiteSpace(schema.Footer.TextColor) ? schema.Theme.PrimaryColor : schema.Footer.TextColor;
+            var footerFontFamily = string.IsNullOrWhiteSpace(schema.Footer.FontFamily) ? schema.Theme.FontFamily : schema.Footer.FontFamily;
+
             col.Item().Row(row =>
             {
                 var col1Text = string.IsNullOrWhiteSpace(schema.Footer.Column1) ? $"{companyInfo.Name}\n{companyInfo.Address}" : schema.Footer.Column1;
                 var col2Text = string.IsNullOrWhiteSpace(schema.Footer.Column2) ? "www.nanopaint-tech.com\ninfo@nanopaint-tech.com" : schema.Footer.Column2;
 
                 row.RelativeItem().Text(ReplacePlaceholders(col1Text, product, template))
-                   .FontSize((float)schema.Theme.BaseFontSize - 1f).Bold().FontColor(schema.Theme.PrimaryColor);
+                   .FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).Bold().FontColor(footerTextColor);
                 
                 row.RelativeItem().AlignRight().Text(ReplacePlaceholders(col2Text, product, template))
-                   .FontSize((float)schema.Theme.BaseFontSize - 1f).Bold().FontColor(schema.Theme.PrimaryColor);
+                   .FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).Bold().FontColor(footerTextColor);
             });
 
             var defaultLegal = "© 2026 NanoPaint Lda. All rights reserved. This Technical Data Sheet is generated from product records in NanopaintHub. Values shown reflect stored product data with optional batch overlay.";
             var legalText = string.IsNullOrWhiteSpace(schema.Footer.LegalText) ? defaultLegal : schema.Footer.LegalText;
             col.Item().PaddingTop(2).Text(ReplacePlaceholders(legalText, product, template))
-               .FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Medium);
+               .FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Medium);
             
             col.Item().Row(row =>
             {
-                if (schema.Footer.ShowVersionAndDate)
+                row.RelativeItem().AlignLeft().Text(x =>
                 {
-                    row.RelativeItem().AlignLeft().Text(x =>
-                    {
-                        var ver = string.IsNullOrWhiteSpace(schema.Header.InfoVersion) ? product.DocumentVersion.ToString() : schema.Header.InfoVersion;
-                        var dat = schema.Header.InfoRevisedDate.HasValue ? schema.Header.InfoRevisedDate.Value.ToString("yyyy-MM-dd") : product.RevisionDate.ToString("yyyy-MM-dd");
-                        
-                        if (!string.IsNullOrWhiteSpace(schema.Footer.VersionLabel))
-                            x.Span($"{schema.Footer.VersionLabel} {ver}").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                        else
-                            x.Span(ver).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                            
-                        x.Span("   |   ").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Lighten1);
-                        
-                        if (!string.IsNullOrWhiteSpace(schema.Footer.DateLabel))
-                            x.Span($"{schema.Footer.DateLabel} {dat}").FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                        else
-                            x.Span(dat).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
-                    });
-                }
-                else
-                {
-                    row.RelativeItem();
-                }
+                    var ver = product.DocumentVersion.ToString();
+                    var dat = product.RevisionDate.ToString("yyyy-MM-dd");
+                    
+                    x.Span($"Versão: {ver}").FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                    x.Span("   |   ").FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Lighten1);
+                    x.Span($"Data: {dat}").FontFamily(footerFontFamily).FontSize((float)schema.Theme.BaseFontSize - 1f).FontColor(Colors.Grey.Darken1);
+                });
 
                 row.RelativeItem().AlignRight().Text(x =>
                 {
@@ -546,11 +524,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             schema = new TemplateBuilderSchema();
         }
 
-        // Use standard SDS doc type if not defined
-        if (string.IsNullOrWhiteSpace(schema.Header.InfoDocType))
-            schema.Header.InfoDocType = "Safety Data Sheet";
-        if (string.IsNullOrWhiteSpace(schema.Header.InfoCategory))
-            schema.Header.InfoCategory = "according to Regulation (EC) n° 1907/2006";
+
 
         _progress.Report("Gerando matriz GHS SDS com QuestPDF...", 50);
 

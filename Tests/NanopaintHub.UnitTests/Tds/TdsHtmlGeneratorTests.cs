@@ -11,9 +11,7 @@ public class TdsHtmlGeneratorTests
         // Arrange
         var generator = new TdsHtmlGenerator();
         var schema = new TemplateBuilderSchema();
-        schema.Header.InfoCategory = "Functional Materials";
-        schema.Header.InfoDocType = "TDS Special";
-        schema.Header.IdentName = "NP-SILVER-100";
+
         schema.Footer.LegalText = "This is a legal footer disclaimer.";
         
         schema.Sections.Add(new TemplateSectionSchema
@@ -27,9 +25,9 @@ public class TdsHtmlGeneratorTests
         var html = generator.GenerateHtml(schema);
 
         // Assert
-        Assert.Contains("Functional Materials", html);
-        Assert.Contains("TDS Special", html);
-        Assert.Contains("NP-SILVER-100", html);
+        Assert.Contains("{{Category}}", html);
+        Assert.Contains("{{DocumentKind}}", html);
+        Assert.Contains("{{Name}}", html);
         Assert.Contains("This is a legal footer disclaimer.", html);
         Assert.Contains("Section A", html);
         Assert.Contains("<p>Rich Content A</p>", html);
@@ -54,7 +52,7 @@ public class TdsHtmlGeneratorTests
         Assert.Contains("--primary: #aabbcc;", css);
         Assert.Contains("--secondary: #ddeeff;", css);
         Assert.Contains("font-family: \"Outfit\"", css);
-        Assert.Contains("--margin-top: 50px;", css);
-        Assert.Contains("--margin-bottom: 45px;", css);
+        Assert.Contains("--margin-top: 50mm;", css);
+        Assert.Contains("--margin-bottom: 45mm;", css);
     }
 }

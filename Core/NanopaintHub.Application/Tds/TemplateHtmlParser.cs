@@ -159,46 +159,6 @@ public static class TemplateHtmlParser
             }
             else schema.Header.ShowLogo = false;
 
-            var categoryMatch = Regex.Match(html, @"<strong>(.*?)</strong>\s*(.*?)<br");
-            if (categoryMatch.Success)
-            {
-                schema.Header.InfoCategory = StripHtmlTags(categoryMatch.Groups[1].Value);
-                schema.Header.InfoDocType = StripHtmlTags(categoryMatch.Groups[2].Value);
-            }
-
-            var revisionMatch = Regex.Match(html, @"Revised:\s*(.*?)\s*·\s*(.*?)\s*</div>");
-            if (revisionMatch.Success)
-            {
-                var dateStr = revisionMatch.Groups[1].Value.Trim();
-                if (dateStr == "{{RevisionDate}}") {
-                    schema.Header.InfoRevisedDate = null;
-                }
-                else if (DateTimeOffset.TryParse(dateStr, out var parsedDate))
-                {
-                    schema.Header.InfoRevisedDate = parsedDate;
-                }
-                else
-                {
-                    schema.Header.InfoRevisedDate = null;
-                }
-                
-                schema.Header.InfoVersion = StripHtmlTags(revisionMatch.Groups[2].Value);
-            }
-
-            var typeMatch = Regex.Match(html, @"<h1 class=""product-title"">(.*?)</h1>");
-            if (typeMatch.Success) {
-                schema.Header.IdentType = StripHtmlTags(UnprotectMce(typeMatch.Groups[1].Value));
-            }
-
-            var nameMatch = Regex.Match(html, @"<p class=""product-subtitle"">(.*?)</p>");
-            if (nameMatch.Success) {
-                schema.Header.IdentName = StripHtmlTags(UnprotectMce(nameMatch.Groups[1].Value));
-            }
-
-            var descMatch = Regex.Match(html, @"<p class=""product-description"">(.*?)</p>");
-            if (descMatch.Success) {
-                schema.Header.IdentDesc = StripHtmlTags(UnprotectMce(descMatch.Groups[1].Value));
-            }
 
             // Fallback font families if empty (inherit from body/theme font)
             if (string.IsNullOrWhiteSpace(schema.Header.FontFamily))

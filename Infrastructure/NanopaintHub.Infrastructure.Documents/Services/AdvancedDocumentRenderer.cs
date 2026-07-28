@@ -39,8 +39,7 @@ public static class AdvancedDocumentRenderer
             }
             sb.AppendLine("        <span class=\"minimal-title\">{{TemplateName}}</span>");
             sb.AppendLine("      </div>");
-            var infoTypeStr = string.IsNullOrWhiteSpace(model.Header.InfoDocType) ? "Technical Data Sheet" : model.Header.InfoDocType;
-            sb.AppendLine($"      <div class=\"minimal-doctype\">{infoTypeStr}</div>");
+            sb.AppendLine($"      <div class=\"minimal-doctype\">{{{{DocumentKind}}}}</div>");
             sb.AppendLine("    </div>");
         }
 
@@ -78,24 +77,15 @@ public static class AdvancedDocumentRenderer
         }
         sb.AppendLine("        </div>");
         sb.AppendLine("        <div class=\"doc-meta\">");
-        var infoCat = string.IsNullOrWhiteSpace(model.Header.InfoCategory) ? "Functional Inks" : model.Header.InfoCategory;
-        var infoType = string.IsNullOrWhiteSpace(model.Header.InfoDocType) ? "Technical Data Sheet" : model.Header.InfoDocType;
-        var infoRev = model.Header.InfoRevisedDate.HasValue ? model.Header.InfoRevisedDate.Value.ToString("yyyy-MM-dd") : "{{RevisionDate}}";
-        var infoVer = string.IsNullOrWhiteSpace(model.Header.InfoVersion) ? "Version {{Version}}" : model.Header.InfoVersion;
-        
-        sb.AppendLine($"          <strong>{infoCat}</strong>");
-        sb.AppendLine($"          {infoType}<br />");
-        sb.AppendLine($"          Revised: {infoRev} · {infoVer}");
+        sb.AppendLine($"          <strong>{{{{Category}}}}</strong>");
+        sb.AppendLine($"          {{{{DocumentKind}}}}<br />");
+        sb.AppendLine($"          Revised: {{{{RevisionDate}}}} · Version {{{{Version}}}}");
         sb.AppendLine("        </div>");
         sb.AppendLine("      </div>");
         
-        var idType = string.IsNullOrWhiteSpace(model.Header.IdentType) ? "Piezoresistive Ink" : model.Header.IdentType;
-        var idName = string.IsNullOrWhiteSpace(model.Header.IdentName) ? "{{Name}} · {{Code}}" : model.Header.IdentName;
-        var idDesc = string.IsNullOrWhiteSpace(model.Header.IdentDesc) ? "{{Description}}" : model.Header.IdentDesc;
-
-        sb.AppendLine($"      <h1 class=\"product-title\">{idType}</h1>");
-        sb.AppendLine($"      <p class=\"product-subtitle\">{idName}</p>");
-        sb.AppendLine($"      <p class=\"product-description\">{idDesc}</p>");
+        sb.AppendLine($"      <h1 class=\"product-title\">{{{{ProductType}}}}</h1>");
+        sb.AppendLine($"      <p class=\"product-subtitle\">{{{{Name}}}} · {{{{Code}}}}</p>");
+        sb.AppendLine($"      <p class=\"product-description\">{{{{Description}}}}</p>");
         sb.AppendLine("    </header>");
 
         sb.AppendLine("    <main class=\"main-content\">");

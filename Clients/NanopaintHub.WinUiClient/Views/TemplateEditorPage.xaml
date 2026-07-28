@@ -265,9 +265,7 @@
                                                 <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.SubtitleColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
                                             </Grid>
                                         </settings:SettingsCard>
-                                        <settings:SettingsCard Header="Fallback (Texto Fixo Opcional)">
-                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" PlaceholderText="Nome automático" ToolTipService.ToolTip="Substitui o Nome do Produto caso preenchido" />
-                                        </settings:SettingsCard>
+
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
 
@@ -319,31 +317,11 @@
                                                 <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.DescriptionColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
                                             </Grid>
                                         </settings:SettingsCard>
-                                        <settings:SettingsCard Header="Fallback (Tipo Fixo Opcional)">
-                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.IdentType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" PlaceholderText="Automático" ToolTipService.ToolTip="Ex: Piezoresistive Ink" />
-                                        </settings:SettingsCard>
-                                        <settings:SettingsCard Header="Fallback (Classe Opcional)">
-                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" PlaceholderText="Automático" ToolTipService.ToolTip="Ex: Functional Inks" />
-                                        </settings:SettingsCard>
-                                        <settings:SettingsCard Header="Fallback (Documento)">
-                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoDocType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150" PlaceholderText="Technical Data Sheet" />
-                                        </settings:SettingsCard>
+
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
                                 
-                                <settings:SettingsExpander Header="Controlo de Versão" Description="Gerir versão e data de emissão do documento" IsExpanded="True">
-                                    <settings:SettingsExpander.HeaderIcon>
-                                        <FontIcon Glyph="&#xE787;" />
-                                    </settings:SettingsExpander.HeaderIcon>
-                                    <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard Header="Número da Versão">
-                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.InfoVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
-                                        </settings:SettingsCard>
-                                        <settings:SettingsCard Header="Data de Revisão">
-                                            <CalendarDatePicker Date="{x:Bind ViewModel.BuilderModel.Header.InfoRevisedDate, Mode=TwoWay}" DateChanged="AutoTriggerPreview_Changed" Width="150" />
-                                        </settings:SettingsCard>
-                                    </settings:SettingsExpander.Items>
-                                </settings:SettingsExpander>
+
                             </StackPanel>
 
                             <StackPanel x:Name="ContainerLogo" Spacing="16">
@@ -440,21 +418,58 @@
                                     </Button>
                             </StackPanel>
                             </Grid>
-                            <settings:SettingsCard Header="Endereço / Empresa" ContentAlignment="Left">
-                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="400" />
-                            </settings:SettingsCard>
-                            <settings:SettingsCard Header="Contactos / Website" ContentAlignment="Left">
-                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="400" />
-                            </settings:SettingsCard>
-                            <settings:SettingsCard Header="Trademark / Texto Legal" ContentAlignment="Left">
-                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="50" Width="400" />
-                            </settings:SettingsCard>
-                            <settings:SettingsCard Header="Opções de Rodapé">
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                    <ComboBox Grid.Column="0" Header="Repetição" ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" Width="150" SelectionChanged="AutoTriggerPreview_Changed" />
-                                    <ComboBox Grid.Column="1" Header="Fonte Rodapé" ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FontFamily, Mode=TwoWay}" Width="150" SelectionChanged="AutoTriggerPreview_Changed" />
-                                </Grid>
-                            </settings:SettingsCard>
+                            <settings:SettingsExpander Header="Estilo e Comportamento" Description="Definições visuais e mecânicas do rodapé" IsExpanded="True">
+                                <settings:SettingsExpander.HeaderIcon>
+                                    <FontIcon Glyph="&#xE790;" />
+                                </settings:SettingsExpander.HeaderIcon>
+                                <settings:SettingsExpander.Items>
+                                    <settings:SettingsCard Header="Repetição">
+                                        <ComboBox ItemsSource="{x:Bind ViewModel.FooterRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FooterRepeatStyle, Mode=TwoWay}" Width="150" SelectionChanged="AutoTriggerPreview_Changed" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Fonte do Rodapé">
+                                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Footer.FontFamily, Mode=TwoWay}" Width="150" SelectionChanged="AutoTriggerPreview_Changed" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Cor do Texto">
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Button Grid.Column="0" Padding="4" Background="Transparent" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                                                <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Footer.TextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                <Button.Flyout>
+                                                    <Flyout>
+                                                        <StackPanel Spacing="8">
+                                                            <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Footer.TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                            <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                            <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Footer.TextColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </settings:SettingsCard>
+                                </settings:SettingsExpander.Items>
+                            </settings:SettingsExpander>
+
+
+
+                            <settings:SettingsExpander Header="Fallbacks de Texto (Opcionais)" Description="Overrides para as moradas e legal default do sistema">
+                                <settings:SettingsExpander.HeaderIcon>
+                                    <FontIcon Glyph="&#xE8D2;" />
+                                </settings:SettingsExpander.HeaderIcon>
+                                <settings:SettingsExpander.Items>
+                                    <settings:SettingsCard Header="Endereço da Empresa">
+                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="300" PlaceholderText="Automático: Dados da Empresa" ToolTipService.ToolTip="Substitui o endereço nativo do sistema" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Contactos">
+                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.Column2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" Width="300" PlaceholderText="Automático: Contactos Gerais" ToolTipService.ToolTip="Substitui os contactos nativos do sistema" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Rodapé Legal">
+                                        <TextBox Text="{x:Bind ViewModel.BuilderModel.Footer.LegalText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="50" Width="300" PlaceholderText="Automático: Direitos Reservados" ToolTipService.ToolTip="Substitui o texto de copyright e REACH nativo do sistema" />
+                                    </settings:SettingsCard>
+                                </settings:SettingsExpander.Items>
+                            </settings:SettingsExpander>
                         </StackPanel>
                     </ScrollViewer>
 

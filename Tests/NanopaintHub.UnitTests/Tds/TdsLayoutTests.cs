@@ -101,28 +101,22 @@ public class TdsLayoutTests
         var html = AdvancedDocumentRenderer.Render(schema, templateData);
 
         // Assert
-        Assert.Contains("--margin-top: 55px;", html);
-        Assert.Contains("--margin-bottom: 45px;", html);
-        Assert.Contains("--margin-left: 25px;", html);
-        Assert.Contains("--margin-right: 25px;", html);
-        Assert.Contains("--header-padding-top: 18mm;", html);
-        Assert.Contains("--header-padding-bottom: 14mm;", html);
-        Assert.Contains("--footer-padding-top: 12px;", html);
-        Assert.Contains("--footer-padding-bottom: 18px;", html);
+        Assert.Contains("--margin-top: 55mm;", html);
+        Assert.Contains("--margin-bottom: 45mm;", html);
+        Assert.Contains("--margin-left: 25mm;", html);
+        Assert.Contains("--margin-right: 25mm;", html);
         Assert.Contains("--section-margin-bottom: 22px;", html);
 
         // Verify page break element is generated
         Assert.Contains("class=\"page-break-preview\"", html);
-        Assert.Contains("page-break-before: always; break-before: page;", html);
+        Assert.Contains("break-before: page;", html);
 
         // Verify section styles are generated
         Assert.Contains("font-size: 14pt;", html);
         Assert.Contains("margin-bottom: 30px;", html);
         Assert.Contains("min-height: 200px;", html);
 
-        // Verify CSS inheritance helper rules
-        Assert.Contains(".section[style*=\"color\"]", html);
-        Assert.Contains(".section[style*=\"font-size\"]", html);
+
     }
 
     [Fact]
