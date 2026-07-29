@@ -518,28 +518,53 @@
                                     </Button>
                             </StackPanel>
                             </Grid>
+                            <settings:SettingsExpander Header="Margens da Página (mm)" Description="Define as margens globais do documento">
+                                <settings:SettingsExpander.HeaderIcon>
+                                    <FontIcon Glyph="&#xE71C;" />
+                                </settings:SettingsExpander.HeaderIcon>
+                                <settings:SettingsExpander.Items>
+                                    <settings:SettingsCard Header="Margem Superior (Topo)">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.TopMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Margem Inferior (Fundo)">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.BottomMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Margem Esquerda">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.LeftMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Margem Direita">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.RightMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                </settings:SettingsExpander.Items>
+                            </settings:SettingsExpander>
                             
-                            <settings:SettingsCard Header="Margens da Página (mm)">
-                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
-                                    <NumberBox Grid.Column="0" Header="Topo (T)" Value="{x:Bind ViewModel.BuilderModel.Layout.TopMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Column="1" Header="Fundo (B)" Value="{x:Bind ViewModel.BuilderModel.Layout.BottomMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Column="2" Header="Esq. (L)" Value="{x:Bind ViewModel.BuilderModel.Layout.LeftMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Column="3" Header="Dir. (R)" Value="{x:Bind ViewModel.BuilderModel.Layout.RightMargin, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" />
-                                </Grid>
-                            </settings:SettingsCard>
+                            <settings:SettingsExpander Header="Espaçamentos entre Blocos (mm)" Description="Define o espaçamento interno e entre secções">
+                                <settings:SettingsExpander.HeaderIcon>
+                                    <FontIcon Glyph="&#xE737;" />
+                                </settings:SettingsExpander.HeaderIcon>
+                                <settings:SettingsExpander.Items>
+                                    <settings:SettingsCard Header="Cabeçalho -&gt; Conteúdo">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.ContentPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Entre Secções">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Conteúdo -&gt; Rodapé">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.FooterPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Rodapé -&gt; Fundo da Página">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.FooterPaddingBottom, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                </settings:SettingsExpander.Items>
+                            </settings:SettingsExpander>
+
+                            <TextBlock Text="Informação de Lote" Style="{ThemeResource BodyStrongTextBlockStyle}" Margin="0,16,0,8" />
                             
-                            <settings:SettingsCard Header="Espaçamentos entre Blocos (mm)">
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                    <NumberBox Grid.Column="0" Header="Cabeçalho -&gt; Conteúdo" Value="{x:Bind ViewModel.BuilderModel.Layout.ContentPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
-                                    <NumberBox Grid.Column="1" Header="Entre Secções" Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
-                                </Grid>
-                            </settings:SettingsCard>
-                            
-                            <settings:SettingsCard Header="Mostrar nota de aplicação de lote">
-                                <CheckBox IsChecked="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=TwoWay}" Checked="AutoTriggerPreview_Changed" Unchecked="AutoTriggerPreview_Changed" />
+                            <settings:SettingsCard Header="Mostrar nota de aplicação de lote" Description="Adiciona automaticamente uma nota sobre os dados do lote no fundo">
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
                             </settings:SettingsCard>
                             <settings:SettingsCard Header="Formato da Nota de Lote">
-                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Batch.BatchNoteFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=OneWay}" Width="250" />
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Batch.BatchNoteFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{x:Bind ViewModel.BuilderModel.Batch.ShowBatchNote, Mode=OneWay}" Width="400" />
                             </settings:SettingsCard>
                         </StackPanel>
                     </ScrollViewer>
