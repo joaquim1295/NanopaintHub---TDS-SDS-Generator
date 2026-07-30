@@ -508,17 +508,17 @@ PageTitle = "Novo Template";
 
             var dummyProduct = new Product
             {
-                Name = "PRODUTO DE TESTE (PREVIEW)",
+                Name = "TEST PRODUCT (PREVIEW)",
                 Code = "PRV-001",
                 Description = loremIpsum,
-                ProductCategory = new ProductCategory { Name = "Categoria de Exemplo" },
-                ProductType = "Tecnologia de Tinta",
+                ProductCategory = new ProductCategory { Name = "Example Category" },
+                ProductType = "Ink Technology",
                 RevisionDate = DateTime.Today,
                 DocumentVersion = 1,
-                FeaturesJson = "[\"Resistência alta (Lorem ipsum dolor sit amet)\", \"Flexível (Consectetur adipiscing elit)\", \"Durável (Phasellus eget nunc sit amet metus aliquet)\", \"Ecológico (Sed et felis et ante luctus dignissim)\"]",
-                LiquidPropertiesJson = $"{{\"Viscosidade\":\"100 cP\", \"Densidade\":\"1.2 g/cm³\", \"Sólidos\":\"45%\", \"Ph\":\"7.2\"}}",
-                MechanicalPropertiesJson = $"{{\"Dureza\":\"60 Shore A\", \"Alongamento\":\"300%\", \"Tração\":\"5 MPa\"}}",
-                FunctionalPropertiesJson = $"{{\"Resistência\":\"1 kOhm\", \"Sensibilidade\":\"0.87 V/N\"}}",
+                FeaturesJson = "[\"High resistance (Lorem ipsum dolor sit amet)\", \"Flexible (Consectetur adipiscing elit)\", \"Durable (Phasellus eget nunc sit amet metus aliquet)\", \"Eco-friendly (Sed et felis et ante luctus dignissim)\"]",
+                LiquidPropertiesJson = $"{{\"Viscosity\":\"100 cP\", \"Density\":\"1.2 g/cm³\", \"Solids\":\"45%\", \"Ph\":\"7.2\"}}",
+                MechanicalPropertiesJson = $"{{\"Hardness\":\"60 Shore A\", \"Elongation\":\"300%\", \"Tensile strength\":\"5 MPa\"}}",
+                FunctionalPropertiesJson = $"{{\"Resistance\":\"1 kOhm\", \"Sensitivity\":\"0.87 V/N\"}}",
                 TdsSensorSpecsJson = $"{{\"ForceUnit\":\"N\", \"SensitivityVolts\":0.87, \"SensitivityPerUnit\":0.082, \"ResponseTimeSec\":0.018, \"RecoveryTimeSec\":0.025, \"RepeatabilityPercent\":2.1, \"RestResistanceOhms\":118000, \"HysteresisPercent\":4.2, \"OperatingTempMinC\":-10, \"OperatingTempMaxC\":85, \"RangeMin\":0, \"RangeMax\":50}}",
                 Compositions = new List<ProductComposition>
                 {
@@ -825,13 +825,13 @@ PageTitle = "Novo Template";
   {{#each Pictograms}}<div>{{this}}</div>{{/each}}
 </div>",
             "SdsSection3" => @"<table class=""sds-table"">
-  <tr class=""sds-table-header""><th colspan=""5"">3. COMPOSIÇÃO/INFORMAÇÃO SOBRE OS COMPONENTES</th></tr>
+  <tr class=""sds-table-header""><th colspan=""5"">3. COMPOSITION/INFORMATION ON INGREDIENTS</th></tr>
   <tr>
-    <th>Nome Químico</th>
-    <th>Nº CAS</th>
-    <th>Nº CE</th>
-    <th>Concentração</th>
-    <th>Perigos (Códigos H)</th>
+    <th>Chemical Name</th>
+    <th>CAS No</th>
+    <th>EC No</th>
+    <th>Concentration</th>
+    <th>Hazards (H Codes)</th>
   </tr>
   {{#each Components}}
   <tr>
@@ -844,8 +844,8 @@ PageTitle = "Novo Template";
   {{/each}}
 </table>",
             "SdsSection9" => @"<table class=""sds-table"">
-  <tr class=""sds-table-header""><th colspan=""2"">9. PROPRIEDADES FÍSICAS E QUÍMICAS</th></tr>
-  <tr><td width=""40%""><b>Estado Físico</b></td><td>Líquido</td></tr>
+  <tr class=""sds-table-header""><th colspan=""2"">9. PHYSICAL AND CHEMICAL PROPERTIES</th></tr>
+  <tr><td width=""40%""><b>Physical State</b></td><td>Liquid</td></tr>
   {{#each LiquidProperties}}
   <tr><td><b>{{@key}}</b></td><td>{{this}}</td></tr>
   {{/each}}

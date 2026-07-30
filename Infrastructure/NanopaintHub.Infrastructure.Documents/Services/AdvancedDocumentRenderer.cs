@@ -127,7 +127,7 @@ public static class AdvancedDocumentRenderer
             if (sec.PageBreakBefore)
             {
                 FlushHalfWidthQueue();
-                sb.AppendLine("      <div class=\"page-break-preview\"><span>--- QUEBRA DE PÁGINA ---</span></div>");
+                sb.AppendLine("      <div class=\"page-break-preview\"><span>--- PAGE BREAK ---</span></div>");
                 sb.AppendLine("      <div style=\"break-before: page;\"></div>");
             }
 
