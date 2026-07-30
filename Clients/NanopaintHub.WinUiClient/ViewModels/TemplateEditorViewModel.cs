@@ -16,6 +16,12 @@ using System.IO;
 
 namespace NanopaintHub_WinUIClient.ViewModels;
 
+public class SdsOfficialSection
+{
+    public string Title { get; set; }
+    public string Content { get; set; }
+}
+
 public partial class TemplateEditorViewModel : ObservableObject
 {
     private readonly ITemplateRepository _templateRepository;
@@ -89,6 +95,26 @@ public partial class TemplateEditorViewModel : ObservableObject
     private string _companyResponsiblePerson;
 
     private readonly string _appSettingsPath;
+
+    public ObservableCollection<SdsOfficialSection> SdsOfficialSections { get; } = new()
+    {
+        new SdsOfficialSection { Title = "SECTION 1: Identification of the substance/mixture and of the company/undertaking", Content = "1.1. Product identifier\n1.2. Relevant identified uses of the substance or mixture and uses advised against\n1.3. Details of the supplier of the safety data sheet\n1.4. Emergency telephone number" },
+        new SdsOfficialSection { Title = "SECTION 2: Hazards identification", Content = "2.1. Classification of the substance or mixture\n2.2. Label elements\n2.3. Other hazards" },
+        new SdsOfficialSection { Title = "SECTION 3: Composition/information on ingredients", Content = "3.1. Substances\n3.2. Mixtures" },
+        new SdsOfficialSection { Title = "SECTION 4: First aid measures", Content = "4.1. Description of first aid measures\n4.2. Most important symptoms and effects, both acute and delayed\n4.3. Indication of any immediate medical attention and special treatment needed" },
+        new SdsOfficialSection { Title = "SECTION 5: Firefighting measures", Content = "5.1. Extinguishing media\n5.2. Special hazards arising from the substance or mixture\n5.3. Advice for firefighters" },
+        new SdsOfficialSection { Title = "SECTION 6: Accidental release measures", Content = "6.1. Personal precautions, protective equipment and emergency procedures\n6.2. Environmental precautions\n6.3. Methods and material for containment and cleaning up\n6.4. Reference to other sections" },
+        new SdsOfficialSection { Title = "SECTION 7: Handling and storage", Content = "7.1. Precautions for safe handling\n7.2. Conditions for safe storage, including any incompatibilities\n7.3. Specific end use(s)" },
+        new SdsOfficialSection { Title = "SECTION 8: Exposure controls/personal protection", Content = "8.1. Control parameters\n8.2. Exposure controls\nPersonal protective equipment (PPE) requirements." },
+        new SdsOfficialSection { Title = "SECTION 9: Physical and chemical properties", Content = "9.1. Information on basic physical and chemical properties\n9.2. Other information (e.g. VOC content, specific gravity)." },
+        new SdsOfficialSection { Title = "SECTION 10: Stability and reactivity", Content = "10.1. Reactivity\n10.2. Chemical stability\n10.3. Possibility of hazardous reactions\n10.4. Conditions to avoid\n10.5. Incompatible materials\n10.6. Hazardous decomposition products" },
+        new SdsOfficialSection { Title = "SECTION 11: Toxicological information", Content = "11.1. Information on toxicological effects\nAcute toxicity, skin corrosion/irritation, serious eye damage/irritation, respiratory or skin sensitisation, germ cell mutagenicity, carcinogenicity, reproductive toxicity, STOT-single exposure, STOT-repeated exposure, aspiration hazard." },
+        new SdsOfficialSection { Title = "SECTION 12: Ecological information", Content = "12.1. Toxicity\n12.2. Persistence and degradability\n12.3. Bioaccumulative potential\n12.4. Mobility in soil\n12.5. Results of PBT and vPvB assessment\n12.6. Other adverse effects" },
+        new SdsOfficialSection { Title = "SECTION 13: Disposal considerations", Content = "13.1. Waste treatment methods\nWaste codes, disposal of packaging, special precautions." },
+        new SdsOfficialSection { Title = "SECTION 14: Transport information", Content = "14.1. UN number\n14.2. UN proper shipping name\n14.3. Transport hazard class(es)\n14.4. Packing group\n14.5. Environmental hazards\n14.6. Special precautions for user\n14.7. Transport in bulk according to Annex II of Marpol and the IBC Code" },
+        new SdsOfficialSection { Title = "SECTION 15: Regulatory information", Content = "15.1. Safety, health and environmental regulations/legislation specific for the substance or mixture\n15.2. Chemical safety assessment" },
+        new SdsOfficialSection { Title = "SECTION 16: Other information", Content = "Indication of changes, abbreviations and acronyms, key literature references, classification methods, list of relevant hazard statements." }
+    };
 
     public void UpdateDocumentTypeFlags()
     {

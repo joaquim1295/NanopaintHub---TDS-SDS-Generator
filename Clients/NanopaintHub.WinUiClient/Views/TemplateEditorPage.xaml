@@ -601,8 +601,18 @@
                             <InfoBar IsOpen="True" Severity="Informational" Title="Design de Elementos GHS" Message="A Ficha de Segurança segue um formato estrito de 16 secções exigido pela regulamentação ECHA/GHS. Pode alterar a cor, tipografia e espaçamentos, mas o seu conteúdo e ordenação estão legalmente bloqueados." Visibility="{x:Bind ViewModel.IsSdsSelected, Mode=OneWay}" Margin="0,0,0,16"/>
                         </StackPanel>
                         
+                        <StackPanel Grid.Row="1" Visibility="{x:Bind ViewModel.IsSdsSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,16,16">
+                            <Button Content="Ver Textos Oficiais GHS" 
+                                    Style="{ThemeResource AccentButtonStyle}" 
+                                    HorizontalAlignment="Stretch" 
+                                    Click="OpenSdsOfficialSectionsDialog_Click" 
+                                    ToolTipService.ToolTip="Clique para ler o conteúdo integral (REACH/CLP) de cada secção legal." />
+                        </StackPanel>
+
+                        <!-- Painel TDS: Drag & Drop Sections -->
                         <ListView Grid.Row="1" ItemsSource="{x:Bind ViewModel.BuilderModel.Sections, Mode=OneWay}" DragItemsCompleted="AutoTriggerPreview_Changed"
                                   CanReorderItems="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected}"
+                                  Visibility="{x:Bind ViewModel.IsTdsSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                   AllowDrop="True"
                                   SelectionMode="None"
                                   IsItemClickEnabled="False"
@@ -731,6 +741,9 @@
                                                                 <settings:SettingsCard Header="Forçar Quebra de Página Antes">
                                                                     <ToggleSwitch IsOn="{x:Bind PageBreakBefore, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
                                                                 </settings:SettingsCard>
+                                                                <settings:SettingsCard Header="Manter secção inteira na mesma página" Description="Evita quebrar o conteúdo. Cuidado: Pode causar erro de paginação em secções grandes.">
+                                                                    <ToggleSwitch IsOn="{x:Bind PreventPageBreak, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
+                                                                </settings:SettingsCard>
                                                             </settings:SettingsExpander.Items>
                                                         </settings:SettingsExpander>
 
@@ -810,6 +823,7 @@
                     </Grid>
                     
                     <Grid Grid.Row="1">
+                        <InfoBar Canvas.ZIndex="100" VerticalAlignment="Top" Margin="16,16,16,0" IsOpen="{x:Bind ViewModel.HasPreviewError, Mode=OneWay}" Severity="Error" Title="Erro de Paginação" Message="{x:Bind ViewModel.PreviewErrorMessage, Mode=OneWay}" IsClosable="False" />
                         <!-- Content Base -->
                         <ScrollViewer x:Name="PreviewScrollViewer" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{x:Bind ViewModel.PdfPreviewImages, Mode=OneWay}" 
@@ -889,6 +903,24 @@
                          HorizontalAlignment="Stretch" 
                          PlaceholderText="Digite o texto de compliance e direitos reservados..." />
             </Grid>
+        </ContentDialog>
+
+        <!-- Diálogo para Leitura das Secções Oficiais SDS -->
+        <ContentDialog x:Name="SdsOfficialSectionsDialog"
+                       Title="Textos Oficiais (REACH/CLP)"
+                       CloseButtonText="Fechar"
+                       CornerRadius="8">
+            <ScrollViewer MaxHeight="500" Width="600" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+                <ItemsControl ItemsSource="{x:Bind ViewModel.SdsOfficialSections, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Expander Header="{Binding Title}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,0,0,8">
+                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Margin="0,8,0,8" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </Expander>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
         </ContentDialog>
     </Grid>
 </Page>

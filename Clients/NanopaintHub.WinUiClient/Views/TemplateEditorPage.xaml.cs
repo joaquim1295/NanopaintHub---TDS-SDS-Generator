@@ -232,6 +232,15 @@ public sealed partial class TemplateEditorPage : Page
         }
     }
 
+    private async void OpenSdsOfficialSectionsDialog_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (SdsOfficialSectionsDialog != null)
+        {
+            SdsOfficialSectionsDialog.XamlRoot = this.XamlRoot;
+            await SdsOfficialSectionsDialog.ShowAsync();
+        }
+    }
+
     private void TogglePreview_Changed(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         if (TogglePreviewBtn == null || PreviewColumn == null || PreviewSplitter == null || PreviewContainer == null) return;
