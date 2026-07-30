@@ -710,6 +710,7 @@ PageTitle = "Novo Template";
 
         BuilderModel.Header.FontFamily = "Segoe UI";
         BuilderModel.Header.TextColor = "#ffffff";
+        BuilderModel.Header.ShowLogo = true;
 
         BuilderModel.Footer.FontFamily = "Segoe UI";
         BuilderModel.Footer.TextColor = "#0f2a4a";
@@ -718,6 +719,7 @@ PageTitle = "Novo Template";
 
         if (Template.DocumentType == "SDS")
         {
+            BuilderModel.Header.DocumentSubtitle = "Safety Data Sheet";
             BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 1: Identification of the substance/mixture and of the company/undertaking", Type = "SdsSection", DataSource = "SdsSection1", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
             BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 2: Hazards identification", Type = "SdsSection", DataSource = "SdsSection2", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
             BuilderModel.Sections.Add(new TemplateSection { Title = "SECTION 3: Composition/information on ingredients", Type = "SdsSection", DataSource = "SdsSection3", IsHalfWidth = false, FontFamily = "Segoe UI", TextColor = "#223145", IsDataBound = true });
