@@ -741,9 +741,6 @@
                                                                 <settings:SettingsCard Header="Forçar Quebra de Página Antes">
                                                                     <ToggleSwitch IsOn="{x:Bind PageBreakBefore, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
                                                                 </settings:SettingsCard>
-                                                                <settings:SettingsCard Header="Manter secção inteira na mesma página" Description="Evita quebrar o conteúdo. Cuidado: Pode causar erro de paginação em secções grandes.">
-                                                                    <ToggleSwitch IsOn="{x:Bind PreventPageBreak, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
-                                                                </settings:SettingsCard>
                                                             </settings:SettingsExpander.Items>
                                                         </settings:SettingsExpander>
 
@@ -823,7 +820,6 @@
                     </Grid>
                     
                     <Grid Grid.Row="1">
-                        <InfoBar Canvas.ZIndex="100" VerticalAlignment="Top" Margin="16,16,16,0" IsOpen="{x:Bind ViewModel.HasPreviewError, Mode=OneWay}" Severity="Error" Title="Erro de Paginação" Message="{x:Bind ViewModel.PreviewErrorMessage, Mode=OneWay}" IsClosable="False" />
                         <!-- Content Base -->
                         <ScrollViewer x:Name="PreviewScrollViewer" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{x:Bind ViewModel.PdfPreviewImages, Mode=OneWay}" 

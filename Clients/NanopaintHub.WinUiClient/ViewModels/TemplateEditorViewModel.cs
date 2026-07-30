@@ -18,8 +18,8 @@ namespace NanopaintHub_WinUIClient.ViewModels;
 
 public class SdsOfficialSection
 {
-    public string Title { get; set; }
-    public string Content { get; set; }
+    public string? Title { get; set; }
+    public string? Content { get; set; }
 }
 
 public partial class TemplateEditorViewModel : ObservableObject
