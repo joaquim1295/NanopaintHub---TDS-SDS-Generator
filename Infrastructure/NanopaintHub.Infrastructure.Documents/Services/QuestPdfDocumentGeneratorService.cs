@@ -547,33 +547,25 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                 {
                 col.Spacing(8);
 
-                    if (schema.Sections == null || schema.Sections.Count == 0)
-                    {
-                        // Fallback Se o Builder não tiver gerado secções
-                        ComposeSdsSection1(col, product, schema);
-                        ComposeSdsSection2(col, uniqueHazards, hazardCodes, pPhrases, schema);
-                        ComposeSdsSection3(col, compositions, schema);
-                        ComposeSdsSection4(col, hazardCodes, product.SdsSection4CustomText, schema);
-                        ComposeSdsSection5(col, hazardCodes, schema);
-                        ComposeSdsSection6(col, schema);
-                        ComposeSdsSection7(col, hazardCodes, product.SdsSection7CustomText, schema);
-                        ComposeSdsSection8(col, schema);
-                        ComposeSdsSection9(col, liquidProps, schema);
-                        ComposeSdsSection10(col, schema);
-                        ComposeSdsSection11(col, hazardCodes, schema);
-                        ComposeSdsSection12(col, hazardCodes, schema);
-                        ComposeSdsSection13(col, schema);
-                        ComposeSdsSection14(col, hazardCodes, schema);
-                        ComposeSdsSection15(col, schema);
-                        ComposeSdsSection16(col, hazardPhrases, schema);
-                    }
-                    else
-                    {
-                        foreach (var sec in schema.Sections)
-                        {
-                            col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases, pPhrases));
-                        }
-                    }
+                    // As Fichas de Segurança (SDS) têm de cumprir as normais globais GHS. 
+                    // O conteúdo principal são sempre estas 16 secções, ignorando quaisquer secções customizadas do Template.
+                    // O Template serve apenas para fornecer as Margens, o Header, Footer, Fontes e Cores.
+                    ComposeSdsSection1(col, product, schema);
+                    ComposeSdsSection2(col, uniqueHazards, hazardCodes, pPhrases, schema);
+                    ComposeSdsSection3(col, compositions, schema);
+                    ComposeSdsSection4(col, hazardCodes, product.SdsSection4CustomText, schema);
+                    ComposeSdsSection5(col, hazardCodes, schema);
+                    ComposeSdsSection6(col, schema);
+                    ComposeSdsSection7(col, hazardCodes, product.SdsSection7CustomText, schema);
+                    ComposeSdsSection8(col, schema);
+                    ComposeSdsSection9(col, liquidProps, schema);
+                    ComposeSdsSection10(col, schema);
+                    ComposeSdsSection11(col, hazardCodes, schema);
+                    ComposeSdsSection12(col, hazardCodes, schema);
+                    ComposeSdsSection13(col, schema);
+                    ComposeSdsSection14(col, hazardCodes, schema);
+                    ComposeSdsSection15(col, schema);
+                    ComposeSdsSection16(col, hazardPhrases, schema);
                 });
 
                 page.Footer()
