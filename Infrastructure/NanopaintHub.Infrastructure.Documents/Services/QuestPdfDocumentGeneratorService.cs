@@ -569,50 +569,10 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     }
                     else
                     {
-                        var halfWidthQueue = new List<TemplateSectionSchema>();
-            
-                        void FlushHalfWidthQueue()
-                        {
-                            if (halfWidthQueue.Count > 0)
-                            {
-                                col.Item().Row(row =>
-                                {
-                                    row.RelativeItem().Column(leftCol =>
-                                    {
-                                        for (int i = 0; i < halfWidthQueue.Count; i += 2)
-                                        {
-                                            var sec = halfWidthQueue[i];
-                                            leftCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases, pPhrases));
-                                        }
-                                    });
-                                    row.ConstantItem(10);
-                                    row.RelativeItem().Column(rightCol =>
-                                    {
-                                        for (int i = 1; i < halfWidthQueue.Count; i += 2)
-                                        {
-                                            var sec = halfWidthQueue[i];
-                                            rightCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases, pPhrases));
-                                        }
-                                    });
-                                });
-                                halfWidthQueue.Clear();
-                            }
-                        }
-            
                         foreach (var sec in schema.Sections)
                         {
-                            if (sec.IsHalfWidth)
-                            {
-                                halfWidthQueue.Add(sec);
-                            }
-                            else
-                            {
-                                FlushHalfWidthQueue();
-                                col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases, pPhrases));
-                            }
+                            col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSdsSection(inner, sec, schema, product, uniqueHazards, hazardCodes, compositions, liquidProps, hazardPhrases, pPhrases));
                         }
-            
-                        FlushHalfWidthQueue();
                     }
                 });
 
