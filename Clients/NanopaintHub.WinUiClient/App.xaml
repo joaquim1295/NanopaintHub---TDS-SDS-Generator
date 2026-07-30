@@ -4,7 +4,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:NanopaintHub_WinUIClient.Converters"
-    xmlns:local="using:NanopaintHub_WinUIClient">
+    xmlns:local="using:NanopaintHub_WinUIClient"
+    RequestedTheme="Dark">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

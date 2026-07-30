@@ -32,7 +32,11 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine("        </div>");
         sb.AppendLine("        <div class=\"doc-meta\">");
         sb.AppendLine($"          <strong>{{{{Category}}}}</strong>");
-        sb.AppendLine($"          {System.Net.WebUtility.HtmlEncode(schema.Header.DocumentSubtitle)}<br />");
+        string safeSubtitle = System.Net.WebUtility.HtmlEncode(schema.Header.DocumentSubtitle);
+        if (!string.IsNullOrWhiteSpace(safeSubtitle))
+        {
+            sb.AppendLine($"          {safeSubtitle}<br />");
+        }
         sb.AppendLine($"          Revised: {{{{RevisionDate}}}} · Version {{{{Version}}}}");
         sb.AppendLine("        </div>");
         sb.AppendLine("      </div>");

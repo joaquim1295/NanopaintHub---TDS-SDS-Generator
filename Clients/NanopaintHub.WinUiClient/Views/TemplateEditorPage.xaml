@@ -325,7 +325,7 @@
                             </StackPanel>
 
                             <settings:SettingsCard Header="Subtítulo do Documento" Description="O texto principal do documento (ex: Technical Data Sheet).">
-                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.DocumentSubtitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="250" TextChanged="AutoTriggerPreview_Changed" />
+                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.DocumentSubtitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="250" TextChanged="AutoTriggerPreview_Changed" PlaceholderText="Deixe em branco para ocultar" />
                             </settings:SettingsCard>
 
                             <StackPanel x:Name="ContainerLogo" Spacing="16">
@@ -624,104 +624,130 @@
                                                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                                                   CornerRadius="8"
                                                   Translation="0,0,32">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
                                                 
-                                                <!-- Left Grabber Handle -->
-                                                <Border Grid.Column="0" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Width="32" CornerRadius="8,0,0,8" Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <!-- Left Grabber Handle (Spans both rows) -->
+                                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Width="32" CornerRadius="8,0,0,8" Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <FontIcon Glyph="&#xE76F;" FontFamily="{ThemeResource SymbolThemeFontFamily}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" ToolTipService.ToolTip="Arraste para reordenar" />
                                                 </Border>
                                                 
-                                                 <StackPanel Grid.Column="1" Spacing="0">
-                                                     <Grid Padding="16">
-                                                         <Grid.ColumnDefinitions>
-                                                             <ColumnDefinition Width="*" />
-                                                         </Grid.ColumnDefinitions>
-                                                         <TextBox Text="{x:Bind Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" PlaceholderText="Título da Secção" IsReadOnly="{Binding ElementName=RootGrid, Path=DataContext.IsSdsSelected}"/>
-                                                     </Grid>
-                                                     
-                                                     <Grid Padding="16,0,16,16" Visibility="{x:Bind IsExpanded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                         <Grid ColumnDefinitions="*,*,*" ColumnSpacing="24" HorizontalAlignment="Stretch">
-                                                             <StackPanel Grid.Column="0" Spacing="8" VerticalAlignment="Top" Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                 <ComboBox Header="Tipo de Secção" SelectedValue="{x:Bind Type, Mode=TwoWay}" SelectedValuePath="Content" HorizontalAlignment="Stretch"  SelectionChanged="AutoTriggerPreview_Changed" >
-                                                                     <ComboBoxItem Content="RichText" />
-                                                                     <ComboBoxItem Content="Text" />
-                                                                     <ComboBoxItem Content="Table" />
-                                                                     <ComboBoxItem Content="BulletPoints" />
-                                                                     <ComboBoxItem Content="Charts" />
-                                                                     <ComboBoxItem Content="SdsSection1" />
-                                                                     <ComboBoxItem Content="SdsSection2" />
-                                                                     <ComboBoxItem Content="SdsSection3" />
-                                                                     <ComboBoxItem Content="SdsSection9" />
-                                                                     <ComboBoxItem Content="SdsSectionText" />
-                                                                 </ComboBox>
-                                                                 <ComboBox Header="Layout" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" HorizontalAlignment="Stretch"  SelectionChanged="AutoTriggerPreview_Changed" >
-                                                                     <ComboBoxItem Content="1 Coluna">
-                                                                         <ComboBoxItem.Tag>
-                                                                             <x:Boolean>False</x:Boolean>
-                                                                         </ComboBoxItem.Tag>
-                                                                     </ComboBoxItem>
-                                                                    <ComboBoxItem Content="2 Colunas">
-                                                                         <ComboBoxItem.Tag>
-                                                                             <x:Boolean>True</x:Boolean>
-                                                                         </ComboBoxItem.Tag>
-                                                                     </ComboBoxItem>
-                                                                 </ComboBox>
-                                                                 <Button Content="Editar Conteúdo" 
-                                                                         Margin="0,8,0,0"
-                                                                         HorizontalAlignment="Stretch"
-                                                                         Command="{Binding ElementName=RootGrid, Path=DataContext.EditSectionContentCommand}"
-                                                                         CommandParameter="{Binding}"
-                                                                         Visibility="{Binding CanEditContent, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                                         IsEnabled="{Binding ElementName=RootGrid, Path=DataContext.IsNotQuestPdfSelected}"
-                                                                         Style="{ThemeResource AccentButtonStyle}"/>
-                                                                 <InfoBar IsOpen="True" Severity="Informational" 
-                                                                          Title="Automático" Message="Gerado dinamicamente via ECHA." 
-                                                                          IsClosable="False" Margin="0,8,0,0" 
-                                                                          Visibility="{Binding IsDataBound, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                                             </StackPanel>
-                                                             <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Top">
-                                                                 <ComboBox Header="Tipo de Fonte" ItemsSource="{Binding ElementName=RootGrid, Path=DataContext.AvailableFonts}" SelectedItem="{x:Bind FontFamily, Mode=TwoWay}" HorizontalAlignment="Stretch" SelectionChanged="AutoTriggerPreview_Changed" />
-                                                                 
-                                                                 <StackPanel Spacing="4">
-                                                                     <TextBlock Text="Cor do Texto" Style="{ThemeResource BodyTextBlockStyle}" />
-                                                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                                                         <Button Grid.Column="0" Width="36" Height="36" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="18">
-                                                                             <Rectangle Width="26" Height="26" RadiusX="13" RadiusY="13" Fill="{x:Bind TextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
-                                                                             <Button.Flyout>
-                                                                                 <Flyout>
-                                                                                     <StackPanel Spacing="8">
-                                                                                         <ColorPicker Color="{x:Bind TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
-                                                                                         <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
-                                                                                     </StackPanel>
-                                                                                 </Flyout>
-                                                                             </Button.Flyout>
-                                                                         </Button>
-                                                                         <TextBox Grid.Column="1" Text="{x:Bind TextColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                                                                     </Grid>
-                                                                 </StackPanel>
-                                                                 <NumberBox Header="Tamanho da Fonte (pt)" Value="{x:Bind FontSize, Mode=TwoWay}" SmallChange="0.5" LargeChange="2" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Padrão (-1)" Margin="0,4,0,0" ValueChanged="AutoTriggerPreview_Changed" />
-                                                             </StackPanel>
-                                                             <StackPanel Grid.Column="2" Spacing="8" VerticalAlignment="Top">
-                                                                 <NumberBox Header="Margem Inferior (px)" Value="{x:Bind MarginBottom, Mode=TwoWay}" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Padrão (-1)" ValueChanged="AutoTriggerPreview_Changed" />
-                                                                 <NumberBox Header="Altura Mínima (px)" Value="{x:Bind MinHeight, Mode=TwoWay}" SmallChange="10" LargeChange="50" SpinButtonPlacementMode="Compact" HorizontalAlignment="Stretch" PlaceholderText="Nenhuma (0)" ValueChanged="AutoTriggerPreview_Changed" />
-                                                                 <CheckBox Content="Quebra de Página Antes" IsChecked="{x:Bind PageBreakBefore, Mode=TwoWay}" Margin="0,8,0,0" Checked="AutoTriggerPreview_Changed" Unchecked="AutoTriggerPreview_Changed" />
-                                                             </StackPanel>
-                                                         </Grid>
-                                                     </Grid>
-                                                 </StackPanel>
+                                                <!-- Title TextBox (Row 0, Col 1) -->
+                                                <Grid Grid.Row="0" Grid.Column="1" Padding="16">
+                                                    <TextBox Text="{x:Bind Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" PlaceholderText="Título da Secção" IsReadOnly="{Binding ElementName=RootGrid, Path=DataContext.IsSdsSelected}"/>
+                                                </Grid>
                                                 
-                                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,12,12,0" Spacing="4">
-                                                     <ToggleButton IsChecked="{x:Bind IsExpanded, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Expandir/Recolher Definições">
-                                                         <FontIcon Glyph="&#xE713;" FontFamily="{ThemeResource SymbolThemeFontFamily}" />
-                                                     </ToggleButton>
-                                                     <Button Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Remover Secção" Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveSectionCommand}" CommandParameter="{Binding}" Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                         <FontIcon Glyph="&#xE74D;" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
-                                                     </Button>
-                                                 </StackPanel>
+                                                <!-- Right Icons (Row 0, Col 2) -->
+                                                <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0" Spacing="4">
+                                                    <ToggleButton IsChecked="{x:Bind IsExpanded, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Expandir/Recolher Definições">
+                                                        <FontIcon Glyph="&#xE713;" FontFamily="{ThemeResource SymbolThemeFontFamily}" />
+                                                    </ToggleButton>
+                                                    <Button Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Remover Secção" Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveSectionCommand}" CommandParameter="{Binding}" Visibility="{Binding ElementName=RootGrid, Path=DataContext.IsTdsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <FontIcon Glyph="&#xE74D;" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                    </Button>
+                                                </StackPanel>
+
+                                                <!-- Expanded Settings (Row 1, Cols 1 & 2) -->
+                                                <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Padding="16,0,16,16" Visibility="{x:Bind IsExpanded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <StackPanel Spacing="16">
+                                                        <settings:SettingsCard>
+                                                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Left">
+                                                                <ComboBox Header="Tipo de Secção" SelectedValue="{x:Bind Type, Mode=TwoWay}" SelectedValuePath="Content" Width="200" SelectionChanged="AutoTriggerPreview_Changed" >
+                                                                    <ComboBoxItem Content="RichText" />
+                                                                    <ComboBoxItem Content="Text" />
+                                                                    <ComboBoxItem Content="Table" />
+                                                                    <ComboBoxItem Content="BulletPoints" />
+                                                                    <ComboBoxItem Content="Charts" />
+                                                                    <ComboBoxItem Content="SdsSection1" />
+                                                                    <ComboBoxItem Content="SdsSection2" />
+                                                                    <ComboBoxItem Content="SdsSection3" />
+                                                                    <ComboBoxItem Content="SdsSection9" />
+                                                                    <ComboBoxItem Content="SdsSectionText" />
+                                                                </ComboBox>
+                                                                <ComboBox Header="Layout" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" Width="150" SelectionChanged="AutoTriggerPreview_Changed" >
+                                                                    <ComboBoxItem Content="1 Coluna">
+                                                                        <ComboBoxItem.Tag>
+                                                                            <x:Boolean>False</x:Boolean>
+                                                                        </ComboBoxItem.Tag>
+                                                                    </ComboBoxItem>
+                                                                   <ComboBoxItem Content="2 Colunas">
+                                                                        <ComboBoxItem.Tag>
+                                                                            <x:Boolean>True</x:Boolean>
+                                                                        </ComboBoxItem.Tag>
+                                                                    </ComboBoxItem>
+                                                                </ComboBox>
+                                                            </StackPanel>
+                                                        </settings:SettingsCard>
+
+                                                        <settings:SettingsExpander Header="Tipografia e Cores" Description="Configurações de texto específicas para esta secção">
+                                                            <settings:SettingsExpander.HeaderIcon>
+                                                                <FontIcon Glyph="&#xE8D2;" />
+                                                            </settings:SettingsExpander.HeaderIcon>
+                                                            <settings:SettingsExpander.Items>
+                                                                <settings:SettingsCard>
+                                                                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Left">
+                                                                        <ComboBox Header="Tipo de Fonte" ItemsSource="{Binding ElementName=RootGrid, Path=DataContext.AvailableFonts}" SelectedItem="{x:Bind FontFamily, Mode=TwoWay}" Width="180" SelectionChanged="AutoTriggerPreview_Changed" />
+                                                                        <NumberBox Header="Tamanho (pt)" Value="{x:Bind FontSize, Mode=TwoWay}" SmallChange="0.5" LargeChange="2" SpinButtonPlacementMode="Compact" Width="100" PlaceholderText="Padrão (-1)" ValueChanged="AutoTriggerPreview_Changed" />
+                                                                    </StackPanel>
+                                                                </settings:SettingsCard>
+                                                                
+                                                                <settings:SettingsCard Header="Cor do Texto">
+                                                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                                        <Button Grid.Column="0" Width="36" Height="36" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="18">
+                                                                            <Rectangle Width="26" Height="26" RadiusX="13" RadiusY="13" Fill="{x:Bind TextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                                            <Button.Flyout>
+                                                                                <Flyout>
+                                                                                    <StackPanel Spacing="8">
+                                                                                        <ColorPicker Color="{x:Bind TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                                                        <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                                                    </StackPanel>
+                                                                                </Flyout>
+                                                                            </Button.Flyout>
+                                                                        </Button>
+                                                                        <TextBox Grid.Column="1" Text="{x:Bind TextColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                                                    </Grid>
+                                                                </settings:SettingsCard>
+                                                            </settings:SettingsExpander.Items>
+                                                        </settings:SettingsExpander>
+
+                                                        <settings:SettingsExpander Header="Dimensões e Quebras de Página" Description="Regras de espaçamento para a secção">
+                                                            <settings:SettingsExpander.HeaderIcon>
+                                                                <FontIcon Glyph="&#xE71C;" />
+                                                            </settings:SettingsExpander.HeaderIcon>
+                                                            <settings:SettingsExpander.Items>
+                                                                <settings:SettingsCard>
+                                                                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Left">
+                                                                        <NumberBox Header="Margem Inferior (px)" Value="{x:Bind MarginBottom, Mode=TwoWay}" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" Width="160" PlaceholderText="Padrão (-1)" ValueChanged="AutoTriggerPreview_Changed" />
+                                                                        <NumberBox Header="Altura Mínima (px)" Value="{x:Bind MinHeight, Mode=TwoWay}" SmallChange="10" LargeChange="50" SpinButtonPlacementMode="Compact" Width="160" PlaceholderText="Nenhuma (0)" ValueChanged="AutoTriggerPreview_Changed" />
+                                                                    </StackPanel>
+                                                                </settings:SettingsCard>
+                                                                <settings:SettingsCard Header="Forçar Quebra de Página Antes">
+                                                                    <ToggleSwitch IsOn="{x:Bind PageBreakBefore, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
+                                                                </settings:SettingsCard>
+                                                            </settings:SettingsExpander.Items>
+                                                        </settings:SettingsExpander>
+
+                                                        <Button Content="Editar Conteúdo" 
+                                                                Margin="0,8,0,0"
+                                                                HorizontalAlignment="Stretch"
+                                                                Command="{Binding ElementName=RootGrid, Path=DataContext.EditSectionContentCommand}"
+                                                                CommandParameter="{Binding}"
+                                                                Visibility="{Binding CanEditContent, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                IsEnabled="{Binding ElementName=RootGrid, Path=DataContext.IsNotQuestPdfSelected}"
+                                                                Style="{ThemeResource AccentButtonStyle}"/>
+                                                        <InfoBar IsOpen="True" Severity="Informational" 
+                                                                 Title="Automático" Message="Gerado dinamicamente via ECHA." 
+                                                                 IsClosable="False" Margin="0,8,0,0" 
+                                                                 Visibility="{Binding IsDataBound, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                                    </StackPanel>
+                                                </Grid>
                                             </Grid>
                                         </Grid>
                                     </DataTemplate>
