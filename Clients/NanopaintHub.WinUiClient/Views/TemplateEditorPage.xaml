@@ -549,6 +549,9 @@
                                     <settings:SettingsCard Header="Entre Secções">
                                         <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
                                     </settings:SettingsCard>
+                                    <settings:SettingsCard Header="Título da Secção -&gt; Conteúdo (px)">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.TitleBottomSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="50" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
                                     <settings:SettingsCard Header="Conteúdo -&gt; Rodapé">
                                         <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.FooterPaddingTop, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
                                     </settings:SettingsCard>
@@ -599,6 +602,64 @@
                             </StackPanel>
                             </Grid>
                             <InfoBar IsOpen="True" Severity="Informational" Title="Design de Elementos GHS" Message="A Ficha de Segurança segue um formato estrito de 16 secções exigido pela regulamentação ECHA/GHS. Pode alterar a cor, tipografia e espaçamentos, mas o seu conteúdo e ordenação estão legalmente bloqueados." Visibility="{x:Bind ViewModel.IsSdsSelected, Mode=OneWay}" Margin="0,0,0,16"/>
+                            
+                            <!-- Estilo e Formatação Global das Secções -->
+                            <settings:SettingsExpander Header="Estilo e Formatação Global das Secções" Description="Personalize a cor, fonte e espaçamentos aplicados a todas as secções" IsExpanded="True" Margin="0,0,0,16">
+                                <settings:SettingsExpander.HeaderIcon>
+                                    <FontIcon Glyph="&#xE790;" />
+                                </settings:SettingsExpander.HeaderIcon>
+                                <settings:SettingsExpander.Items>
+                                    <settings:SettingsCard Header="Cor dos Títulos de Secção" Description="Cor dos títulos das secções do documento">
+                                        <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                                            <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
+                                                <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                <Button.Flyout>
+                                                    <Flyout>
+                                                        <StackPanel Spacing="8">
+                                                            <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                            <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                            <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.SecondaryColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </settings:SettingsCard>
+
+                                    <settings:SettingsCard Header="Cor do Texto do Conteúdo" Description="Cor do texto interno das secções">
+                                        <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                                            <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
+                                                <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Theme.BodyTextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                                <Button.Flyout>
+                                                    <Flyout>
+                                                        <StackPanel Spacing="8">
+                                                            <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Theme.BodyTextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                            <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                            <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Theme.BodyTextColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </settings:SettingsCard>
+
+                                    <settings:SettingsCard Header="Fonte dos Títulos">
+                                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Theme.TitleFontFamily, Mode=TwoWay}" Width="200" SelectionChanged="AutoTriggerPreview_Changed" />
+                                    </settings:SettingsCard>
+
+                                    <settings:SettingsCard Header="Fonte do Texto do Conteúdo">
+                                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableFonts}" SelectedItem="{x:Bind ViewModel.BuilderModel.Theme.FontFamily, Mode=TwoWay}" Width="200" SelectionChanged="AutoTriggerPreview_Changed" />
+                                    </settings:SettingsCard>
+
+                                    <settings:SettingsCard Header="Espaçamento Título -&gt; Conteúdo (px)">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.TitleBottomSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="50" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+
+                                    <settings:SettingsCard Header="Espaçamento entre Secções">
+                                        <NumberBox Value="{x:Bind ViewModel.BuilderModel.Layout.SectionSpacing, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="0" Maximum="100" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                    </settings:SettingsCard>
+                                </settings:SettingsExpander.Items>
+                            </settings:SettingsExpander>
                         </StackPanel>
                         
                         <StackPanel Grid.Row="1" Visibility="{x:Bind ViewModel.IsSdsSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,16,16">

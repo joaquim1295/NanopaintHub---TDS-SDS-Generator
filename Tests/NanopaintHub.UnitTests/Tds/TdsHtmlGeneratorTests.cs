@@ -26,7 +26,7 @@ public class TdsHtmlGeneratorTests
 
         // Assert
         Assert.Contains("{{Category}}", html);
-        Assert.Contains("{{DocumentKind}}", html);
+        Assert.Contains("Technical Data Sheet", html);
         Assert.Contains("{{Name}}", html);
         Assert.Contains("This is a legal footer disclaimer.", html);
         Assert.Contains("Section A", html);

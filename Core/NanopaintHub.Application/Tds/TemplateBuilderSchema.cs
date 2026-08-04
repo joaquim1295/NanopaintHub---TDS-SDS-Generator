@@ -26,6 +26,7 @@ public class TemplateLayoutSchema
     public double ContentPaddingTop { get; set; } = 10;
     public double BatchNotePaddingBottom { get; set; } = 12;
     public double SectionSpacing { get; set; } = 16;
+    public double TitleBottomSpacing { get; set; } = 6;
     public double FooterPaddingTop { get; set; } = 8;      // in px
     public double FooterPaddingBottom { get; set; } = 10;  // in px
     public double SectionMarginBottom { get; set; } = 14;  // in px
@@ -72,6 +73,8 @@ public class TemplateThemeSchema
 {
     public string PrimaryColor { get; set; } = "#0f2a4a";
     public string SecondaryColor { get; set; } = "#19528d";
+    public string BodyTextColor { get; set; } = "#223145";
+    public string TitleFontFamily { get; set; } = "Segoe UI";
     public string FontFamily { get; set; } = "Segoe UI";
     public double BaseFontSize { get; set; } = 9;
 }

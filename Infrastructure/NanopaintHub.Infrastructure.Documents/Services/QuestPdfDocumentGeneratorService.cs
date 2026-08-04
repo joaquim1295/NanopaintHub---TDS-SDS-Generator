@@ -421,10 +421,14 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         }
     }
 
-    private void DrawSectionTitle(IContainer container, string title, string color, float baseFontSize)
+    private void DrawSectionTitle(IContainer container, string title, string color, float baseFontSize, string? fontFamily = null)
     {
-        container.PaddingBottom(5).BorderBottom(2).BorderColor("#d8e1ec").Text(title.ToUpperInvariant())
-            .FontSize(baseFontSize + 1f).Bold().LetterSpacing(0.07f).FontColor(color);
+        var textDescriptor = container.PaddingBottom(5).BorderBottom(2).BorderColor("#d8e1ec").Text(title.ToUpperInvariant());
+        if (!string.IsNullOrWhiteSpace(fontFamily))
+        {
+            textDescriptor.FontFamily(fontFamily);
+        }
+        textDescriptor.FontSize(baseFontSize + 1f).Bold().LetterSpacing(0.07f).FontColor(color);
     }
 
     private void DrawTable(ColumnDescriptor col, Dictionary<string, string> data, string primaryColor, float baseFontSize)
@@ -654,7 +658,10 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
     private void DrawSdsTitle(ColumnDescriptor col, string title, TemplateBuilderSchema schema)
     {
-        col.Item().PaddingTop(6).Element(c => DrawSectionTitle(c, title, schema.Theme.SecondaryColor, (float)schema.Theme.BaseFontSize));
+        var fontFamily = !string.IsNullOrWhiteSpace(schema.Theme.TitleFontFamily) ? schema.Theme.TitleFontFamily : schema.Theme.FontFamily;
+        var paddingTop = schema.Layout.TitleBottomSpacing > 0 ? (float)schema.Layout.TitleBottomSpacing : 6f;
+
+        col.Item().PaddingTop(paddingTop).Element(c => DrawSectionTitle(c, title, schema.Theme.SecondaryColor, (float)schema.Theme.BaseFontSize, fontFamily));
     }
 
     private void ComposeSdsSection1(ColumnDescriptor col, Product product, TemplateBuilderSchema schema, string title = "SECTION 1: Identification of the substance/mixture and of the company/undertaking")

@@ -16,28 +16,42 @@ public static class TemplateHtmlParser
     {
         var model = new TemplateBuilderModel();
 
-        model.Theme.PrimaryColor = schema.Theme.PrimaryColor;
-        model.Theme.SecondaryColor = schema.Theme.SecondaryColor;
-        model.Theme.FontFamily = schema.Theme.FontFamily;
-        model.Theme.BaseFontSize = schema.Theme.BaseFontSize;
+        if (schema.Theme != null)
+        {
+            model.Theme.PrimaryColor = schema.Theme.PrimaryColor;
+            model.Theme.SecondaryColor = schema.Theme.SecondaryColor;
+            model.Theme.BodyTextColor = string.IsNullOrWhiteSpace(schema.Theme.BodyTextColor) ? "#223145" : schema.Theme.BodyTextColor;
+            model.Theme.TitleFontFamily = string.IsNullOrWhiteSpace(schema.Theme.TitleFontFamily) ? "Segoe UI" : schema.Theme.TitleFontFamily;
+            model.Theme.FontFamily = schema.Theme.FontFamily;
+            model.Theme.BaseFontSize = schema.Theme.BaseFontSize;
+        }
 
+        if (schema.Header != null)
+        {
+            model.Header.LogoUrl = schema.Header.LogoUrl;
+            model.Header.LogoHeight = schema.Header.LogoHeight;
+            model.Header.ShowLogo = schema.Header.ShowLogo;
+            model.Header.FontFamily = schema.Header.FontFamily;
+            model.Header.TextColor = schema.Header.TextColor;
+            model.Header.HeaderRepeatStyle = schema.Header.HeaderRepeatStyle;
+            model.Header.DocumentSubtitle = schema.Header.DocumentSubtitle;
+        }
 
-        model.Header.LogoUrl = schema.Header.LogoUrl;
-        model.Header.LogoHeight = schema.Header.LogoHeight;
-        model.Header.ShowLogo = schema.Header.ShowLogo;
-        model.Header.FontFamily = schema.Header.FontFamily;
-        model.Header.TextColor = schema.Header.TextColor;
-        model.Header.HeaderRepeatStyle = schema.Header.HeaderRepeatStyle;
+        if (schema.Footer != null)
+        {
+            model.Footer.Column1 = schema.Footer.Column1;
+            model.Footer.Column2 = schema.Footer.Column2;
+            model.Footer.LegalText = schema.Footer.LegalText;
+            model.Footer.FontFamily = schema.Footer.FontFamily;
+            model.Footer.TextColor = schema.Footer.TextColor;
+            model.Footer.FooterRepeatStyle = schema.Footer.FooterRepeatStyle;
+        }
 
-        model.Footer.Column1 = schema.Footer.Column1;
-        model.Footer.Column2 = schema.Footer.Column2;
-        model.Footer.LegalText = schema.Footer.LegalText;
-        model.Footer.FontFamily = schema.Footer.FontFamily;
-        model.Footer.TextColor = schema.Footer.TextColor;
-        model.Footer.FooterRepeatStyle = schema.Footer.FooterRepeatStyle;
-
-        model.Batch.ShowBatchNote = schema.Batch.ShowBatchNote;
-        model.Batch.BatchNoteFormat = schema.Batch.BatchNoteFormat;
+        if (schema.Batch != null)
+        {
+            model.Batch.ShowBatchNote = schema.Batch.ShowBatchNote;
+            model.Batch.BatchNoteFormat = schema.Batch.BatchNoteFormat;
+        }
 
         if (schema.Layout != null)
         {
@@ -52,6 +66,7 @@ public static class TemplateHtmlParser
             model.Layout.ContentPaddingTop = (int)schema.Layout.ContentPaddingTop;
             model.Layout.BatchNotePaddingBottom = (int)schema.Layout.BatchNotePaddingBottom;
             model.Layout.SectionSpacing = (int)schema.Layout.SectionSpacing;
+            model.Layout.TitleBottomSpacing = schema.Layout.TitleBottomSpacing > 0 ? (int)schema.Layout.TitleBottomSpacing : 6;
             model.Layout.FooterPaddingTop = (int)schema.Layout.FooterPaddingTop;
             model.Layout.FooterPaddingBottom = (int)schema.Layout.FooterPaddingBottom;
             model.Layout.SectionMarginBottom = (int)schema.Layout.SectionMarginBottom;
@@ -87,6 +102,8 @@ public static class TemplateHtmlParser
 
         schema.Theme.PrimaryColor = model.Theme.PrimaryColor;
         schema.Theme.SecondaryColor = model.Theme.SecondaryColor;
+        schema.Theme.BodyTextColor = model.Theme.BodyTextColor;
+        schema.Theme.TitleFontFamily = model.Theme.TitleFontFamily;
         schema.Theme.FontFamily = model.Theme.FontFamily;
         schema.Theme.BaseFontSize = model.Theme.BaseFontSize;
 
@@ -97,6 +114,7 @@ public static class TemplateHtmlParser
         schema.Header.FontFamily = model.Header.FontFamily;
         schema.Header.TextColor = model.Header.TextColor;
         schema.Header.HeaderRepeatStyle = model.Header.HeaderRepeatStyle;
+        schema.Header.DocumentSubtitle = model.Header.DocumentSubtitle;
 
         schema.Footer.Column1 = model.Footer.Column1;
         schema.Footer.Column2 = model.Footer.Column2;
@@ -121,6 +139,7 @@ public static class TemplateHtmlParser
             schema.Layout.ContentPaddingTop = model.Layout.ContentPaddingTop;
             schema.Layout.BatchNotePaddingBottom = model.Layout.BatchNotePaddingBottom;
             schema.Layout.SectionSpacing = model.Layout.SectionSpacing;
+            schema.Layout.TitleBottomSpacing = model.Layout.TitleBottomSpacing;
             schema.Layout.FooterPaddingTop = model.Layout.FooterPaddingTop;
             schema.Layout.FooterPaddingBottom = model.Layout.FooterPaddingBottom;
             schema.Layout.SectionMarginBottom = model.Layout.SectionMarginBottom;

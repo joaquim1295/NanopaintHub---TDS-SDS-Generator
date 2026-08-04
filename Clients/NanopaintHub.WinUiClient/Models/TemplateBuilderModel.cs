@@ -61,6 +61,9 @@ public partial class TemplateLayout : ObservableObject
     private int _sectionSpacing = 16;
 
     [ObservableProperty]
+    private int _titleBottomSpacing = 6;
+
+    [ObservableProperty]
     private int _footerPaddingTop = 8;
 
     [ObservableProperty]
@@ -154,6 +157,12 @@ public partial class TemplateTheme : ObservableObject
 
     [ObservableProperty]
     private string _secondaryColor = "#19528d";
+
+    [ObservableProperty]
+    private string _bodyTextColor = "#223145";
+
+    [ObservableProperty]
+    private string _titleFontFamily = "Segoe UI";
 
     [ObservableProperty]
     private string _fontFamily = "Segoe UI";
