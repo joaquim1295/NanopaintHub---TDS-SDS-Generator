@@ -119,6 +119,27 @@ public sealed partial class TemplateEditorPage : Page
             {
                 ViewModel.SyncBuilderToHtml();
             }
+            else if (tb.Name == "TagSections" && ViewModel.IsSdsSelected)
+            {
+                TriggerSdsSectionsInfoBarTimeout();
+            }
+        }
+    }
+
+    private int _sdsSectionsInfoBarTimeoutId = 0;
+
+    private async void TriggerSdsSectionsInfoBarTimeout()
+    {
+        if (SdsSectionsInfoBar == null) return;
+        
+        SdsSectionsInfoBar.IsOpen = true;
+        var currentId = ++_sdsSectionsInfoBarTimeoutId;
+        
+        await System.Threading.Tasks.Task.Delay(5000);
+        
+        if (currentId == _sdsSectionsInfoBarTimeoutId && SdsSectionsInfoBar != null)
+        {
+            SdsSectionsInfoBar.IsOpen = false;
         }
     }
 
@@ -238,6 +259,61 @@ public sealed partial class TemplateEditorPage : Page
         {
             SdsOfficialSectionsDialog.XamlRoot = this.XamlRoot;
             await SdsOfficialSectionsDialog.ShowAsync();
+        }
+    }
+
+    private async void EditSdsOfficialSection_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.FrameworkElement fe && fe.DataContext is SdsOfficialSection section)
+        {
+            if (SdsOfficialSectionsDialog != null)
+            {
+                SdsOfficialSectionsDialog.Hide();
+            }
+
+            if (SdsEditRiskWarningDialog != null && RiskWarningTargetSectionText != null)
+            {
+                RiskWarningTargetSectionText.Text = $"Secção Alvo: {section.Title}";
+                SdsEditRiskWarningDialog.XamlRoot = this.XamlRoot;
+                
+                var riskResult = await SdsEditRiskWarningDialog.ShowAsync();
+                
+                if (riskResult == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+                {
+                    if (SdsSectionTextEditorDialog != null && SdsSectionTitleTextBox != null && SdsSectionContentTextBox != null)
+                    {
+                        SdsSectionTextEditorDialog.XamlRoot = this.XamlRoot;
+                        SdsSectionTitleTextBox.Text = section.Title ?? string.Empty;
+                        SdsSectionContentTextBox.Text = section.Content ?? string.Empty;
+                        
+                        var editResult = await SdsSectionTextEditorDialog.ShowAsync();
+                        if (editResult == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+                        {
+                            section.Title = SdsSectionTitleTextBox.Text;
+                            section.Content = SdsSectionContentTextBox.Text;
+
+                            // Sync with BuilderModel.Sections if present
+                            if (ViewModel?.BuilderModel?.Sections != null)
+                            {
+                                int idx = ViewModel.SdsOfficialSections.IndexOf(section);
+                                if (idx >= 0 && idx < ViewModel.BuilderModel.Sections.Count)
+                                {
+                                    ViewModel.BuilderModel.Sections[idx].Title = section.Title;
+                                    ViewModel.BuilderModel.Sections[idx].Content = section.Content;
+                                }
+                            }
+
+                            _ = ViewModel?.GeneratePreviewPdfAsync();
+                        }
+                    }
+                }
+
+                if (SdsOfficialSectionsDialog != null)
+                {
+                    SdsOfficialSectionsDialog.XamlRoot = this.XamlRoot;
+                    await SdsOfficialSectionsDialog.ShowAsync();
+                }
+            }
         }
     }
 

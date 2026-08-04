@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:NanopaintHub_WinUIClient.Models"
+    xmlns:viewModels="using:NanopaintHub_WinUIClient.ViewModels"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     xmlns:settings="using:CommunityToolkit.WinUI.Controls"
     xmlns:sizers="using:CommunityToolkit.WinUI.Controls"
@@ -601,7 +602,7 @@
                                     </Button>
                             </StackPanel>
                             </Grid>
-                            <InfoBar IsOpen="True" Severity="Informational" Title="Design de Elementos GHS" Message="A Ficha de Segurança segue um formato estrito de 16 secções exigido pela regulamentação ECHA/GHS. Pode alterar a cor, tipografia e espaçamentos, mas o seu conteúdo e ordenação estão legalmente bloqueados." Visibility="{x:Bind ViewModel.IsSdsSelected, Mode=OneWay}" Margin="0,0,0,16"/>
+                            <InfoBar x:Name="SdsSectionsInfoBar" IsOpen="True" Severity="Informational" Title="Design de Elementos GHS" Message="A Ficha de Segurança segue um formato estrito de 16 secções exigido pela regulamentação ECHA/GHS. Pode alterar a cor, tipografia e espaçamentos, mas o seu conteúdo e ordenação estão legalmente bloqueados." Visibility="{x:Bind ViewModel.IsSdsSelected, Mode=OneWay}" Margin="0,0,0,16"/>
                             
                             <!-- Estilo e Formatação Global das Secções -->
                             <settings:SettingsExpander Header="Estilo e Formatação Global das Secções" Description="Personalize a cor, fonte e espaçamentos aplicados a todas as secções" IsExpanded="True" Margin="0,0,0,16">
@@ -962,22 +963,86 @@
             </Grid>
         </ContentDialog>
 
-        <!-- Diálogo para Leitura das Secções Oficiais SDS -->
+        <!-- Diálogo para Leitura e Edição das Secções Oficiais SDS -->
         <ContentDialog x:Name="SdsOfficialSectionsDialog"
                        Title="Textos Oficiais (REACH/CLP)"
                        CloseButtonText="Fechar"
                        CornerRadius="8">
-            <ScrollViewer MaxHeight="500" Width="600" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
-                <ItemsControl ItemsSource="{x:Bind ViewModel.SdsOfficialSections, Mode=OneWay}">
+            <ContentDialog.Resources>
+                <x:Double x:Key="ContentDialogMaxWidth">850</x:Double>
+            </ContentDialog.Resources>
+            <ScrollViewer MaxHeight="540" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+                <ItemsControl ItemsSource="{x:Bind ViewModel.SdsOfficialSections, Mode=OneWay}" HorizontalAlignment="Stretch">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Expander Header="{Binding Title}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,0,0,8">
-                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Margin="0,8,0,8" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <DataTemplate x:DataType="viewModels:SdsOfficialSection">
+                            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,8" Padding="12">
+                                <Expander.Header>
+                                    <TextBlock Text="{x:Bind Title, Mode=OneWay}" TextWrapping="Wrap" Style="{ThemeResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" Margin="0,4,0,4"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="12" Margin="0,8,0,8" HorizontalAlignment="Stretch">
+                                    <TextBlock Text="{x:Bind Content, Mode=OneWay}" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <Button Click="EditSdsOfficialSection_Click" 
+                                            HorizontalAlignment="Right" 
+                                            Style="{ThemeResource DefaultButtonStyle}"
+                                            ToolTipService.ToolTip="Editar o título e conteúdo desta secção oficial GHS">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon Glyph="&#xE70F;" FontSize="12" />
+                                            <TextBlock Text="Editar" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
                             </Expander>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
+        </ContentDialog>
+
+        <!-- Diálogo de Aviso de Riscos de Edição SDS -->
+        <ContentDialog x:Name="SdsEditRiskWarningDialog"
+                       Title="Aviso Legal de Conformidade (ECHA/GHS)"
+                       PrimaryButtonText="Compreendo os Riscos e Desejo Editar"
+                       CloseButtonText="Cancelar (Recomendado)"
+                       DefaultButton="Close"
+                       CornerRadius="8">
+            <ContentDialog.Resources>
+                <x:Double x:Key="ContentDialogMaxWidth">850</x:Double>
+            </ContentDialog.Resources>
+            <StackPanel HorizontalAlignment="Stretch" Spacing="12" Margin="0,8,0,0">
+                <InfoBar IsOpen="True" Severity="Warning" IsClosable="False" Title="Atenção Regulamentar" 
+                         Message="Os textos das 16 secções oficiais de uma Ficha de Segurança (SDS) são estritamente regulados pelas normas internacionais REACH (Regulamento CE n.º 1907/2006) e CLP (Regulamento CE n.º 1272/2008)." />
+                <TextBlock TextWrapping="Wrap" Style="{ThemeResource BodyTextBlockStyle}">
+                    A alteração ou omissão não fundamentada do título ou texto de conformidade normativa pode comprometer a validade jurídica do documento e constituir não conformidade legal perante as autoridades competentes.
+                </TextBlock>
+                <TextBlock x:Name="RiskWarningTargetSectionText" TextWrapping="Wrap" Style="{ThemeResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+            </StackPanel>
+        </ContentDialog>
+
+        <!-- Diálogo para Edição de Título e Texto de Secção SDS -->
+        <ContentDialog x:Name="SdsSectionTextEditorDialog"
+                       Title="Editar Secção Oficial SDS"
+                       PrimaryButtonText="Gravar Alterações"
+                       CloseButtonText="Cancelar"
+                       DefaultButton="Primary"
+                       CornerRadius="8">
+            <ContentDialog.Resources>
+                <x:Double x:Key="ContentDialogMaxWidth">850</x:Double>
+            </ContentDialog.Resources>
+            <StackPanel HorizontalAlignment="Stretch" Spacing="16" Margin="0,8,0,0">
+                <TextBox x:Name="SdsSectionTitleTextBox" 
+                         Header="Título da Secção" 
+                         HorizontalAlignment="Stretch" 
+                         PlaceholderText="Digite o título oficial da secção..." />
+                
+                <TextBox x:Name="SdsSectionContentTextBox" 
+                         Header="Conteúdo da Secção"
+                         AcceptsReturn="True" 
+                         TextWrapping="Wrap" 
+                         MinHeight="200" 
+                         MaxHeight="400" 
+                         HorizontalAlignment="Stretch" 
+                         PlaceholderText="Altere o conteúdo textual desta secção oficial..." />
+            </StackPanel>
         </ContentDialog>
     </Grid>
 </Page>

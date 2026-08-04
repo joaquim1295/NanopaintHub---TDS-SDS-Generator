@@ -16,10 +16,13 @@ using System.IO;
 
 namespace NanopaintHub_WinUIClient.ViewModels;
 
-public class SdsOfficialSection
+public partial class SdsOfficialSection : ObservableObject
 {
-    public string? Title { get; set; }
-    public string? Content { get; set; }
+    [ObservableProperty]
+    private string? _title;
+
+    [ObservableProperty]
+    private string? _content;
 }
 
 public partial class TemplateEditorViewModel : ObservableObject
