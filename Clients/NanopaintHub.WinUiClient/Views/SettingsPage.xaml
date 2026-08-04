@@ -91,14 +91,26 @@
                         </Grid>
                         
                         <StackPanel VerticalAlignment="Center" Spacing="8">
-                            <Button Command="{x:Bind ViewModel.ExportDatabaseCommand}" Style="{ThemeResource AccentButtonStyle}">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE74E;" FontSize="14" />
-                                        <TextBlock Text="Exportar Dados (.db / .json)" />
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Command="{x:Bind ViewModel.ExportDatabaseCommand}" Style="{ThemeResource AccentButtonStyle}">
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE74E;" FontSize="14" />
+                                            <TextBlock Text="Exportar (.db / .json)" />
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+
+                                <Button Command="{x:Bind ViewModel.ImportDatabaseCommand}" Style="{ThemeResource DefaultButtonStyle}">
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8B6;" FontSize="14" />
+                                            <TextBlock Text="Importar (.db / .json)" />
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.DbStatusMessage, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontWeight="SemiBold" FontSize="12" Margin="0,4,0,0" />
 
                             <HyperlinkButton Content="{x:Bind ViewModel.ExportedFilePath, Mode=OneWay}"
                                              Command="{x:Bind ViewModel.OpenExportedDatabaseCommand}"

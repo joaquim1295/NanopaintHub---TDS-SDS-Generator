@@ -1,0 +1,288 @@
+{
+  "ExportDate": "2026-08-04T15:00:03.439016Z",
+  "Metrics": {
+    "TotalProducts": 1,
+    "TotalSuppliers": 3,
+    "TotalCompositions": 5,
+    "TotalEchaSubstances": 4180
+  },
+  "Products": [
+    {
+      "Code": "InkPR02NP",
+      "Name": "InkPR02NP\u00AE",
+      "Description": "InkPR02NP\u00AE is a piezoresistive ink that changes its electrical resistance when subjected to mechanical deformation. It is designed for face-to-face printing on flexible substrates and sensor applications.",
+      "CategoryId": "4064110b-f367-4b86-b861-6b8d6b13b2b6",
+      "ProductCategory": null,
+      "ProductType": null,
+      "FeaturesJson": "[\u0022Carbon-based\u0022,\u0022Piezoresistive\u0022,\u0022Face-to-face printing\u0022,\u0022Flexible\u0022,\u0022Strong variation of electrical resistance\u0022,\u0022Stretchable\u0022]",
+      "LiquidPropertiesJson": "{\u0022Appearance\u0022:\u0022Black\u0022,\u0022Physical form\u0022:\u0022Paste\u0022,\u0022Cure\u0022:\u0022Air dry / heat cure\u0022,\u0022Solid content\u0022:\u002265 %\u0022,\u0022Viscosity\u0022:\u002280\\u2013100 KU\u0022,\u0022Max particle diameter\u0022:\u0022\\u003C 10 \\u00B5m\u0022}",
+      "MechanicalPropertiesJson": "{\u0022Processing\u0022:\u0022Screen printing\u0022,\u0022Printing equipment\u0022:\u0022Manual / semi-automatic\u0022,\u0022Mesh\u0022:\u002243T\\u201390T\u0022,\u0022Stencil\u0022:\u0022Polyester / stainless steel\u0022,\u0022Squeegee\u0022:\u002270\\u201390 Shore A\u0022,\u0022Cure\u0022:\u002280 \\u00B0C, 30 min\u0022,\u0022Clean-up\u0022:\u0022Solvent recommended in SDS\u0022,\u0022Substrates\u0022:\u0022PET, PI, TPU, textiles\u0022,\u0022Storage\u0022:\u00225\\u201325 \\u00B0C, sealed\u0022,\u0022Shelf-life\u0022:\u002212 months\u0022}",
+      "FunctionalPropertiesJson": "{}",
+      "TdsSensorSpecsJson": "{\u0022SchemaVersion\u0022:2,\u0022ForceUnit\u0022:\u0022N\u0022,\u0022SensitivityVolts\u0022:null,\u0022sensitivityPerUnit\u0022:100,\u0022sensitivityForce\u0022:100,\u0022ResponseTimeSec\u0022:null,\u0022RecoveryTimeSec\u0022:null,\u0022RepeatabilityPercent\u0022:null,\u0022RestResistanceOhms\u0022:null,\u0022OperatingTempMinC\u0022:null,\u0022OperatingTempMaxC\u0022:null,\u0022RangeMin\u0022:null,\u0022RangeMax\u0022:null,\u0022HysteresisPercent\u0022:null,\u0022DriftIntervals\u0022:[],\u0022Charts\u0022:{\u0022Linearity\u0022:[],\u0022ResistanceVsForce\u0022:[],\u0022resistanceVsOhms\u0022:[],\u0022Hysteresis\u0022:null,\u0022ExtraSeries\u0022:{}},\u0022ExtraSpecs\u0022:{},\u0022TemplateAssets\u0022:{},\u0022PlaceholderValues\u0022:{}}",
+      "RevisionDate": "2026-07-16T00:00:00",
+      "DocumentVersion": 1,
+      "ExposureScenarioPdfPath": "",
+      "PrecautionaryCodesJson": "[]",
+      "SdsSection4CustomText": "",
+      "SdsSection7CustomText": "",
+      "SdsOverrideJson": "",
+      "HazardProfileHash": "",
+      "Compositions": [
+        {
+          "ProductId": "4d7c2f1d-182d-4349-bf48-9dd2f0a16c8a",
+          "Product": null,
+          "EchaSubstanceId": "5a4b08d3-6c2c-49fd-b43e-c421838e6172",
+          "EchaSubstance": null,
+          "SupplierProductId": null,
+          "SupplierProduct": null,
+          "Percentage": 75,
+          "ExtraMetadataJson": "{}",
+          "DisplayName": "Desconhecido",
+          "DisplayDescription": "CAS: ",
+          "Id": "b7610c87-bc0e-4b54-9ba7-fe097581c893",
+          "CreatedAt": "2026-07-16T14:50:14.854691",
+          "LastModified": "2026-07-16T14:50:14.8546911"
+        },
+        {
+          "ProductId": "4d7c2f1d-182d-4349-bf48-9dd2f0a16c8a",
+          "Product": null,
+          "EchaSubstanceId": null,
+          "EchaSubstance": null,
+          "SupplierProductId": "2e102c55-f3a9-4fd8-84ec-5e7b9f9ed561",
+          "SupplierProduct": {
+            "Name": "Diluente",
+            "ProductCode": "",
+            "SupplierId": "57345118-0422-4017-bb5b-a77c506b5a7c",
+            "Supplier": {
+              "Name": "SIRPI",
+              "Country": "",
+              "TechnicalContact": "",
+              "Products": [
+                null
+              ],
+              "Id": "57345118-0422-4017-bb5b-a77c506b5a7c",
+              "CreatedAt": "2026-07-28T09:56:42.3357716",
+              "LastModified": "2026-07-28T09:56:42.3357716"
+            },
+            "SdsFilePath": "C:\\Users\\Arriscado\\AppData\\Local\\NanopaintHub\\SdsArchives\\fe963bcd-879c-4807-8a82-d2abd0f790e1.pdf",
+            "IsArchived": false,
+            "Compositions": [
+              {
+                "SupplierProductId": "2e102c55-f3a9-4fd8-84ec-5e7b9f9ed561",
+                "SupplierProduct": null,
+                "EchaSubstanceId": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+                "EchaSubstance": {
+                  "ChemicalName": "2-(2-butoxyethoxy)ethanol; diethylene glycol monobutyl ether",
+                  "CasNumber": "112-34-5",
+                  "EcNumber": "203-961-6",
+                  "Hazards": [
+                    {
+                      "SubstanceId": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+                      "Substance": null,
+                      "PhraseCode": "H319",
+                      "Phrase": {
+                        "Code": "H319",
+                        "Description": "Causes serious eye irritation.",
+                        "PhraseType": "H"
+                      }
+                    }
+                  ],
+                  "Id": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+                  "CreatedAt": "2026-07-28T09:39:40.1538253",
+                  "LastModified": "2026-07-28T09:39:40.1538254"
+                },
+                "Percentage": 90,
+                "PercentageText": "\u003E= 90%",
+                "OriginalPercentageText": null,
+                "IsManuallyEdited": false,
+                "Id": "b13fa384-6fff-4471-8df6-33f5ba83dfa8",
+                "CreatedAt": "2026-07-28T09:56:42.3429879",
+                "LastModified": "2026-07-28T09:56:42.342988"
+              }
+            ],
+            "Id": "2e102c55-f3a9-4fd8-84ec-5e7b9f9ed561",
+            "CreatedAt": "2026-07-28T09:56:42.342928",
+            "LastModified": "2026-07-28T09:56:42.3429296"
+          },
+          "Percentage": 20,
+          "ExtraMetadataJson": "{}",
+          "DisplayName": "Diluente",
+          "DisplayDescription": "Mat\u00E9ria-Prima de: SIRPI",
+          "Id": "642444b6-8fec-4c8c-bd48-7d31be27eae1",
+          "CreatedAt": "2026-07-28T09:56:42.3435701",
+          "LastModified": "2026-07-28T09:56:42.3435702"
+        }
+      ],
+      "Id": "4d7c2f1d-182d-4349-bf48-9dd2f0a16c8a",
+      "CreatedAt": "2026-07-16T14:50:14.806809",
+      "LastModified": "2026-07-28T09:57:49.280619"
+    }
+  ],
+  "Suppliers": [
+    {
+      "Name": "SIRPI",
+      "Country": "",
+      "TechnicalContact": "",
+      "Products": [
+        {
+          "Name": "Diluente",
+          "ProductCode": "",
+          "SupplierId": "39eb517a-d4a4-420e-9f93-b2616fe2487a",
+          "Supplier": null,
+          "SdsFilePath": "C:\\Users\\Arriscado\\AppData\\Local\\NanopaintHub\\SdsArchives\\817579d7-5aeb-4247-a7ef-c3995f27b843.pdf",
+          "IsArchived": false,
+          "Compositions": [
+            {
+              "SupplierProductId": "8d89b69d-f8de-4eb7-b62f-f6ec15dd080c",
+              "SupplierProduct": null,
+              "EchaSubstanceId": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+              "EchaSubstance": {
+                "ChemicalName": "2-(2-butoxyethoxy)ethanol; diethylene glycol monobutyl ether",
+                "CasNumber": "112-34-5",
+                "EcNumber": "203-961-6",
+                "Hazards": [
+                  {
+                    "SubstanceId": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+                    "Substance": null,
+                    "PhraseCode": "H319",
+                    "Phrase": {
+                      "Code": "H319",
+                      "Description": "Causes serious eye irritation.",
+                      "PhraseType": "H"
+                    }
+                  }
+                ],
+                "Id": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+                "CreatedAt": "2026-07-28T09:39:40.1538253",
+                "LastModified": "2026-07-28T09:39:40.1538254"
+              },
+              "Percentage": 90,
+              "PercentageText": "\u003E= 90%",
+              "OriginalPercentageText": null,
+              "IsManuallyEdited": false,
+              "Id": "0196ceca-7b29-4949-b76e-e40fb1df2482",
+              "CreatedAt": "2026-07-28T09:40:58.2647957",
+              "LastModified": "2026-07-28T09:40:58.2647957"
+            }
+          ],
+          "Id": "8d89b69d-f8de-4eb7-b62f-f6ec15dd080c",
+          "CreatedAt": "2026-07-28T09:40:58.2647765",
+          "LastModified": "2026-07-28T09:40:58.2647768"
+        }
+      ],
+      "Id": "39eb517a-d4a4-420e-9f93-b2616fe2487a",
+      "CreatedAt": "2026-07-28T09:40:58.2557871",
+      "LastModified": "2026-07-28T09:40:58.2557872"
+    },
+    {
+      "Name": "SIRPI",
+      "Country": "",
+      "TechnicalContact": "",
+      "Products": [
+        {
+          "Name": "Diluente",
+          "ProductCode": "",
+          "SupplierId": "57345118-0422-4017-bb5b-a77c506b5a7c",
+          "Supplier": null,
+          "SdsFilePath": "C:\\Users\\Arriscado\\AppData\\Local\\NanopaintHub\\SdsArchives\\fe963bcd-879c-4807-8a82-d2abd0f790e1.pdf",
+          "IsArchived": false,
+          "Compositions": [
+            {
+              "SupplierProductId": "2e102c55-f3a9-4fd8-84ec-5e7b9f9ed561",
+              "SupplierProduct": null,
+              "EchaSubstanceId": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+              "EchaSubstance": {
+                "ChemicalName": "2-(2-butoxyethoxy)ethanol; diethylene glycol monobutyl ether",
+                "CasNumber": "112-34-5",
+                "EcNumber": "203-961-6",
+                "Hazards": [
+                  {
+                    "SubstanceId": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+                    "Substance": null,
+                    "PhraseCode": "H319",
+                    "Phrase": {
+                      "Code": "H319",
+                      "Description": "Causes serious eye irritation.",
+                      "PhraseType": "H"
+                    }
+                  }
+                ],
+                "Id": "2a78d6c6-2fd6-4c25-b8e8-2266147cc670",
+                "CreatedAt": "2026-07-28T09:39:40.1538253",
+                "LastModified": "2026-07-28T09:39:40.1538254"
+              },
+              "Percentage": 90,
+              "PercentageText": "\u003E= 90%",
+              "OriginalPercentageText": null,
+              "IsManuallyEdited": false,
+              "Id": "b13fa384-6fff-4471-8df6-33f5ba83dfa8",
+              "CreatedAt": "2026-07-28T09:56:42.3429879",
+              "LastModified": "2026-07-28T09:56:42.342988"
+            }
+          ],
+          "Id": "2e102c55-f3a9-4fd8-84ec-5e7b9f9ed561",
+          "CreatedAt": "2026-07-28T09:56:42.342928",
+          "LastModified": "2026-07-28T09:56:42.3429296"
+        }
+      ],
+      "Id": "57345118-0422-4017-bb5b-a77c506b5a7c",
+      "CreatedAt": "2026-07-28T09:56:42.3357716",
+      "LastModified": "2026-07-28T09:56:42.3357716"
+    },
+    {
+      "Name": "SIRPI",
+      "Country": "",
+      "TechnicalContact": "",
+      "Products": [
+        {
+          "Name": "Diluente",
+          "ProductCode": "",
+          "SupplierId": "cc969832-6344-4fc0-a4c5-81c1d5f277e3",
+          "Supplier": null,
+          "SdsFilePath": "C:\\Users\\Arriscado\\AppData\\Local\\NanopaintHub\\SdsArchives\\8d7b8336-0a5f-43bd-8fda-eef25ce61e4c.pdf",
+          "IsArchived": false,
+          "Compositions": [
+            {
+              "SupplierProductId": "8e775624-f816-43e3-a483-cc97ae8a4661",
+              "SupplierProduct": null,
+              "EchaSubstanceId": "2f430abc-4c22-4e60-bed2-54fc0d1a56a3",
+              "EchaSubstance": {
+                "ChemicalName": "Subst\u00E2ncia Importada (CAS: 112-34-5)",
+                "CasNumber": "112-34-5",
+                "EcNumber": "",
+                "Hazards": [
+                  {
+                    "SubstanceId": "2f430abc-4c22-4e60-bed2-54fc0d1a56a3",
+                    "Substance": null,
+                    "PhraseCode": "H319",
+                    "Phrase": {
+                      "Code": "H319",
+                      "Description": "Causes serious eye irritation.",
+                      "PhraseType": "H"
+                    }
+                  }
+                ],
+                "Id": "2f430abc-4c22-4e60-bed2-54fc0d1a56a3",
+                "CreatedAt": "2026-07-28T09:38:17.2953994",
+                "LastModified": "2026-07-28T09:38:17.2953997"
+              },
+              "Percentage": 90,
+              "PercentageText": "\u003E= 90%",
+              "OriginalPercentageText": null,
+              "IsManuallyEdited": false,
+              "Id": "6b1716c5-639f-440d-8215-1a775a81083a",
+              "CreatedAt": "2026-07-28T09:38:24.4156686",
+              "LastModified": "2026-07-28T09:38:24.4156687"
+            }
+          ],
+          "Id": "8e775624-f816-43e3-a483-cc97ae8a4661",
+          "CreatedAt": "2026-07-28T09:38:24.4152907",
+          "LastModified": "2026-07-28T09:38:24.4152912"
+        }
+      ],
+      "Id": "cc969832-6344-4fc0-a4c5-81c1d5f277e3",
+      "CreatedAt": "2026-07-28T09:38:24.394339",
+      "LastModified": "2026-07-28T09:38:24.394339"
+    }
+  ]
+}

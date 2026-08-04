@@ -33,6 +33,9 @@ public partial class SettingsViewModel : ObservableObject
     private string _importStatusMessage = "";
 
     [ObservableProperty]
+    private string _dbStatusMessage = "";
+
+    [ObservableProperty]
     private int _alertThresholdMonths;
 
     [ObservableProperty]
@@ -304,6 +307,98 @@ public partial class SettingsViewModel : ObservableObject
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error exporting database: {ex.Message}");
+            }
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportDatabaseAsync()
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        
+        var app = (Microsoft.UI.Xaml.Application.Current as App);
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(app?.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
+        picker.FileTypeFilter.Add(".db");
+        picker.FileTypeFilter.Add(".json");
+
+        var file = await picker.PickSingleFileAsync();
+        if (file != null)
+        {
+            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+            {
+                Title = "Substituir Base de Dados",
+                Content = "Atenção: A importação irá substituir os dados atuais da base de dados por estes novos registos.\n\nSerá efetuada uma cópia de segurança automática (.bak) da base de dados atual.\n\nDeseja continuar com a substituição?",
+                PrimaryButtonText = "Importar e Substituir",
+                CloseButtonText = "Cancelar",
+                DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
+                XamlRoot = app?.MainWindow?.Content?.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                DbStatusMessage = "A substituir base de dados... Por favor, aguarde.";
+                try
+                {
+                    var appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
+                    var dbPath = Path.Combine(appDataFolder, "nanopainthub.db");
+                    var backupPath = Path.Combine(appDataFolder, "nanopainthub.db.bak");
+
+                    if (file.Path.EndsWith(".db", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+
+                        if (File.Exists(dbPath))
+                        {
+                            File.Copy(dbPath, backupPath, overwrite: true);
+                        }
+
+                        var walPath = dbPath + "-wal";
+                        var shmPath = dbPath + "-shm";
+                        if (File.Exists(walPath)) try { File.Delete(walPath); } catch { }
+                        if (File.Exists(shmPath)) try { File.Delete(shmPath); } catch { }
+
+                        File.Copy(file.Path, dbPath, overwrite: true);
+                    }
+                    else if (file.Path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var json = await File.ReadAllTextAsync(file.Path);
+                        using var jsonDoc = JsonDocument.Parse(json);
+                        var root = jsonDoc.RootElement;
+
+                        if (root.TryGetProperty("Products", out var productsElem))
+                        {
+                            var options = new JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            };
+                            var products = JsonSerializer.Deserialize<List<NanopaintHub.Domain.Entities.Product>>(productsElem.GetRawText(), options);
+                            if (products != null && products.Count > 0)
+                            {
+                                foreach (var prod in products)
+                                {
+                                    var existing = await _dbContext.Products.FindAsync(prod.Id);
+                                    if (existing == null)
+                                    {
+                                        _dbContext.Products.Add(prod);
+                                    }
+                                }
+                                await _dbContext.SaveChangesAsync();
+                            }
+                        }
+                    }
+
+                    await LoadDatabaseMetricsAsync();
+                    DbStatusMessage = "Base de dados importada com sucesso!";
+                }
+                catch (Exception ex)
+                {
+                    DbStatusMessage = $"Erro ao importar base de dados: {ex.Message}";
+                    System.Diagnostics.Debug.WriteLine($"Error importing database: {ex}");
+                }
             }
         }
     }
