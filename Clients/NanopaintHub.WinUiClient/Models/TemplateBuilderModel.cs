@@ -148,6 +148,36 @@ public partial class TemplateHeader : ObservableObject
     
     [ObservableProperty]
     private string _descriptionColor = "#b7d7f6";
+
+    [ObservableProperty]
+    private TemplateRepeatingHeader _repeatingHeader = new();
+}
+
+public partial class TemplateRepeatingHeader : ObservableObject
+{
+    [ObservableProperty]
+    private bool _isEnabled = true;
+
+    [ObservableProperty]
+    private bool _showLogo = true;
+
+    [ObservableProperty]
+    private double _logoHeight = 25;
+
+    [ObservableProperty]
+    private string _backgroundColor = "";
+
+    [ObservableProperty]
+    private string _textColor = "#19528d";
+
+    [ObservableProperty]
+    private bool _showBorderBottom = true;
+
+    [ObservableProperty]
+    private string _borderColor = "#19528d";
+
+    [ObservableProperty]
+    private bool _showRevisionInfo = true;
 }
 
 public partial class TemplateTheme : ObservableObject

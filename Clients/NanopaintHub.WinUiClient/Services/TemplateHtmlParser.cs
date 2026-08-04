@@ -35,6 +35,18 @@ public static class TemplateHtmlParser
             model.Header.TextColor = schema.Header.TextColor;
             model.Header.HeaderRepeatStyle = schema.Header.HeaderRepeatStyle;
             model.Header.DocumentSubtitle = schema.Header.DocumentSubtitle;
+
+            if (schema.Header.RepeatingHeader != null)
+            {
+                model.Header.RepeatingHeader.IsEnabled = schema.Header.RepeatingHeader.IsEnabled;
+                model.Header.RepeatingHeader.ShowLogo = schema.Header.RepeatingHeader.ShowLogo;
+                model.Header.RepeatingHeader.LogoHeight = schema.Header.RepeatingHeader.LogoHeight;
+                model.Header.RepeatingHeader.BackgroundColor = schema.Header.RepeatingHeader.BackgroundColor ?? "";
+                model.Header.RepeatingHeader.TextColor = schema.Header.RepeatingHeader.TextColor ?? "#19528d";
+                model.Header.RepeatingHeader.ShowBorderBottom = schema.Header.RepeatingHeader.ShowBorderBottom;
+                model.Header.RepeatingHeader.BorderColor = schema.Header.RepeatingHeader.BorderColor ?? "#19528d";
+                model.Header.RepeatingHeader.ShowRevisionInfo = schema.Header.RepeatingHeader.ShowRevisionInfo;
+            }
         }
 
         if (schema.Footer != null)
@@ -115,6 +127,18 @@ public static class TemplateHtmlParser
         schema.Header.TextColor = model.Header.TextColor;
         schema.Header.HeaderRepeatStyle = model.Header.HeaderRepeatStyle;
         schema.Header.DocumentSubtitle = model.Header.DocumentSubtitle;
+
+        if (model.Header.RepeatingHeader != null)
+        {
+            schema.Header.RepeatingHeader.IsEnabled = model.Header.RepeatingHeader.IsEnabled;
+            schema.Header.RepeatingHeader.ShowLogo = model.Header.RepeatingHeader.ShowLogo;
+            schema.Header.RepeatingHeader.LogoHeight = model.Header.RepeatingHeader.LogoHeight;
+            schema.Header.RepeatingHeader.BackgroundColor = model.Header.RepeatingHeader.BackgroundColor;
+            schema.Header.RepeatingHeader.TextColor = model.Header.RepeatingHeader.TextColor;
+            schema.Header.RepeatingHeader.ShowBorderBottom = model.Header.RepeatingHeader.ShowBorderBottom;
+            schema.Header.RepeatingHeader.BorderColor = model.Header.RepeatingHeader.BorderColor;
+            schema.Header.RepeatingHeader.ShowRevisionInfo = model.Header.RepeatingHeader.ShowRevisionInfo;
+        }
 
         schema.Footer.Column1 = model.Footer.Column1;
         schema.Footer.Column2 = model.Footer.Column2;

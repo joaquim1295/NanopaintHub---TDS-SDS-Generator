@@ -67,6 +67,19 @@ public class TemplateHeaderSchema
     public string SubtitleFontFamily { get; set; } = "Segoe UI";
     public string SubtitleColor { get; set; } = "#9ac7f4";
     public string DescriptionColor { get; set; } = "#b7d7f6";
+    public TemplateRepeatingHeaderSchema RepeatingHeader { get; set; } = new();
+}
+
+public class TemplateRepeatingHeaderSchema
+{
+    public bool IsEnabled { get; set; } = true;
+    public bool ShowLogo { get; set; } = true;
+    public double LogoHeight { get; set; } = 25;
+    public string BackgroundColor { get; set; } = "";
+    public string TextColor { get; set; } = "#19528d";
+    public bool ShowBorderBottom { get; set; } = true;
+    public string BorderColor { get; set; } = "#19528d";
+    public bool ShowRevisionInfo { get; set; } = true;
 }
 
 public class TemplateThemeSchema

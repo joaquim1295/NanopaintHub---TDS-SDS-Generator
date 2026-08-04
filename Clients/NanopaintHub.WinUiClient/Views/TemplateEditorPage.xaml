@@ -194,7 +194,14 @@
                                     </Button>
                             </StackPanel>
                             </Grid>
-                            <settings:Segmented SelectionChanged="HeaderFilter_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,16" SelectedIndex="0">
+                            <!-- Nível 1: Etiquetas Horizontais Superiores -->
+                            <settings:Segmented SelectionChanged="HeaderPageTab_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,8" SelectedIndex="0">
+                                <settings:SegmentedItem Content="Cabeçalho Principal" />
+                                <settings:SegmentedItem Content="Cabeçalho Secundário" />
+                            </settings:Segmented>
+
+                            <!-- Nível 2: Filtros por Tema MANTIDOS -->
+                            <settings:Segmented x:Name="HeaderSubFilter" SelectionChanged="HeaderFilter_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,16" SelectedIndex="0">
                                 <settings:SegmentedItem Content="Todas" />
                                 <settings:SegmentedItem Content="Textos" />
                                 <settings:SegmentedItem Content="Logótipo" />
@@ -318,16 +325,13 @@
                                                 <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.DescriptionColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
                                             </Grid>
                                         </settings:SettingsCard>
-
+                                        <settings:SettingsCard Header="Subtítulo do Documento" Description="O texto principal do documento (ex: Technical Data Sheet).">
+                                            <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.DocumentSubtitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="250" TextChanged="AutoTriggerPreview_Changed" PlaceholderText="Deixe em branco para ocultar" />
+                                        </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
                                 
-
                             </StackPanel>
-
-                            <settings:SettingsCard Header="Subtítulo do Documento" Description="O texto principal do documento (ex: Technical Data Sheet).">
-                                <TextBox Text="{x:Bind ViewModel.BuilderModel.Header.DocumentSubtitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="250" TextChanged="AutoTriggerPreview_Changed" PlaceholderText="Deixe em branco para ocultar" />
-                            </settings:SettingsCard>
 
                             <StackPanel x:Name="ContainerLogo" Spacing="16">
                                 <StackPanel.ChildrenTransitions>
@@ -366,14 +370,11 @@
                                     </TransitionCollection>
                                 </StackPanel.ChildrenTransitions>
 
-                                <settings:SettingsExpander Header="Geometria e Layout" Description="Ajuste de margens, escalas e repetição" IsExpanded="True">
+                                <settings:SettingsExpander Header="Geometria e Layout" Description="Ajuste de margens e escalas" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xE71C;" />
                                     </settings:SettingsExpander.HeaderIcon>
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard Header="Comportamento de Repetição">
-                                            <ComboBox ItemsSource="{x:Bind ViewModel.HeaderRepeatStyles}" SelectedItem="{x:Bind ViewModel.BuilderModel.Header.HeaderRepeatStyle, Mode=TwoWay}" Width="200" SelectionChanged="AutoTriggerPreview_Changed" />
-                                        </settings:SettingsCard>
                                         <settings:SettingsCard ContentAlignment="Left" Header="Escala &amp; Margens">
                                             <Grid RowSpacing="8" ColumnSpacing="8">
                                                 <Grid.RowDefinitions>
@@ -396,6 +397,88 @@
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
+                            </StackPanel>
+
+                            <!-- Containers do Cabeçalho Secundário -->
+                            <StackPanel x:Name="ContainerSecundarioTextos" Spacing="16" Visibility="Collapsed">
+                                <StackPanel.ChildrenTransitions>
+                                    <TransitionCollection>
+                                        <RepositionThemeTransition />
+                                        <EntranceThemeTransition />
+                                    </TransitionCollection>
+                                </StackPanel.ChildrenTransitions>
+
+                                <settings:SettingsCard Header="Ativar Cabeçalho Secundário" Description="Mostra um cabeçalho secundário a partir da página 2">
+                                    <ToggleSwitch x:Name="ToggleSecundarioIsEnabled" IsOn="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.IsEnabled, Mode=TwoWay}" Toggled="RepeatingHeaderToggle_Toggled" />
+                                </settings:SettingsCard>
+
+                                <settings:SettingsCard x:Name="CardSecundarioTextColor" Header="Cor do Texto &amp; Título" Description="Cor do texto no 2º cabeçalho">
+                                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                                        <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
+                                            <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.TextColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                            <Button.Flyout>
+                                                <Flyout>
+                                                    <StackPanel Spacing="8">
+                                                        <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.TextColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                        <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                    </StackPanel>
+                                                </Flyout>
+                                            </Button.Flyout>
+                                        </Button>
+                                        <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.TextColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                    </Grid>
+                                </settings:SettingsCard>
+
+                                <settings:SettingsCard x:Name="CardSecundarioRevision" Header="Mostrar Detalhes de Revisão">
+                                    <ToggleSwitch IsOn="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.ShowRevisionInfo, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
+                                </settings:SettingsCard>
+                            </StackPanel>
+
+                            <StackPanel x:Name="ContainerSecundarioLogo" Spacing="16" Visibility="Collapsed">
+                                <StackPanel.ChildrenTransitions>
+                                    <TransitionCollection>
+                                        <RepositionThemeTransition />
+                                        <EntranceThemeTransition />
+                                    </TransitionCollection>
+                                </StackPanel.ChildrenTransitions>
+
+                                <settings:SettingsCard Header="Mostrar Logótipo no 2º Cabeçalho">
+                                    <ToggleSwitch IsOn="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.ShowLogo, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
+                                </settings:SettingsCard>
+
+                                <settings:SettingsCard Header="Altura do Logótipo (px)">
+                                    <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Minimum="10" Maximum="60" ValueChanged="AutoTriggerPreview_Changed" Width="120" />
+                                </settings:SettingsCard>
+                            </StackPanel>
+
+                            <StackPanel x:Name="ContainerSecundarioLayout" Spacing="16" Visibility="Collapsed">
+                                <StackPanel.ChildrenTransitions>
+                                    <TransitionCollection>
+                                        <RepositionThemeTransition />
+                                        <EntranceThemeTransition />
+                                    </TransitionCollection>
+                                </StackPanel.ChildrenTransitions>
+
+                                <settings:SettingsCard Header="Mostrar Linha Divisória">
+                                    <ToggleSwitch IsOn="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.ShowBorderBottom, Mode=TwoWay}" Toggled="AutoTriggerPreview_Changed" />
+                                </settings:SettingsCard>
+
+                                <settings:SettingsCard Header="Cor da Linha Divisória">
+                                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                                        <Button Grid.Column="0" Width="40" Height="40" Padding="0" Background="Transparent" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="20">
+                                            <Rectangle Width="30" Height="30" RadiusX="15" RadiusY="15" Fill="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.BorderColor, Mode=OneWay, Converter={StaticResource StringToSolidColorBrushConverter}}" />
+                                            <Button.Flyout>
+                                                <Flyout>
+                                                    <StackPanel Spacing="8">
+                                                        <ColorPicker Color="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.BorderColor, Mode=TwoWay, Converter={StaticResource StringToColorConverter}}" IsColorChannelTextInputVisible="True" IsHexInputVisible="True" IsAlphaEnabled="False" ColorChanged="AutoTriggerPreview_Changed" />
+                                                        <Button Content="Fechar" HorizontalAlignment="Right" Click="CloseColorFlyout_Click" />
+                                                    </StackPanel>
+                                                </Flyout>
+                                            </Button.Flyout>
+                                        </Button>
+                                        <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.RepeatingHeader.BorderColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                    </Grid>
+                                </settings:SettingsCard>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

@@ -378,17 +378,65 @@ public sealed partial class TemplateEditorPage : Page
         _ = ViewModel.GeneratePreviewPdfAsync();
     }
 
-    private void HeaderFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private int _selectedHeaderPageTab = 0;
+
+    private void HeaderPageTab_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is CommunityToolkit.WinUI.Controls.Segmented segmented)
         {
-            if (ContainerTextos == null || ContainerLogo == null || ContainerLayout == null) return;
-            
-            int index = segmented.SelectedIndex;
-            
-            ContainerTextos.Visibility = (index == 0 || index == 1) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
-            ContainerLogo.Visibility = (index == 0 || index == 2) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
-            ContainerLayout.Visibility = (index == 0 || index == 3) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            _selectedHeaderPageTab = segmented.SelectedIndex;
+            UpdateHeaderContainersVisibility();
         }
+    }
+
+    private void HeaderFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        UpdateHeaderContainersVisibility();
+    }
+
+    private void RepeatingHeaderToggle_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is ToggleSwitch toggle && ViewModel?.BuilderModel?.Header?.RepeatingHeader != null)
+        {
+            ViewModel.BuilderModel.Header.RepeatingHeader.IsEnabled = toggle.IsOn;
+        }
+        UpdateHeaderContainersVisibility();
+        AutoTriggerPreview_Changed(sender, e);
+    }
+
+    private void UpdateHeaderContainersVisibility()
+    {
+        if (HeaderSubFilter == null) return;
+        
+        int filterIndex = HeaderSubFilter.SelectedIndex;
+
+        bool isPrincipal = (_selectedHeaderPageTab == 0);
+        bool isSecundario = (_selectedHeaderPageTab == 1);
+        bool isSecundarioEnabled = ToggleSecundarioIsEnabled != null ? ToggleSecundarioIsEnabled.IsOn : (ViewModel?.BuilderModel?.Header?.RepeatingHeader?.IsEnabled ?? true);
+
+        if (ContainerTextos != null)
+            ContainerTextos.Visibility = (isPrincipal && (filterIndex == 0 || filterIndex == 1)) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            
+        if (ContainerLogo != null)
+            ContainerLogo.Visibility = (isPrincipal && (filterIndex == 0 || filterIndex == 2)) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            
+        if (ContainerLayout != null)
+            ContainerLayout.Visibility = (isPrincipal && (filterIndex == 0 || filterIndex == 3)) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+        // Cabeçalho Secundário
+        if (ContainerSecundarioTextos != null)
+            ContainerSecundarioTextos.Visibility = (isSecundario && (filterIndex == 0 || filterIndex == 1)) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+        if (CardSecundarioTextColor != null)
+            CardSecundarioTextColor.Visibility = (isSecundarioEnabled) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+        if (CardSecundarioRevision != null)
+            CardSecundarioRevision.Visibility = (isSecundarioEnabled) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+        if (ContainerSecundarioLogo != null)
+            ContainerSecundarioLogo.Visibility = (isSecundario && isSecundarioEnabled && (filterIndex == 0 || filterIndex == 2)) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+        if (ContainerSecundarioLayout != null)
+            ContainerSecundarioLayout.Visibility = (isSecundario && isSecundarioEnabled && (filterIndex == 0 || filterIndex == 3)) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
     }
 }

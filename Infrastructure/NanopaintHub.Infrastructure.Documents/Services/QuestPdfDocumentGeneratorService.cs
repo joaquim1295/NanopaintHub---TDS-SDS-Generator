@@ -206,39 +206,46 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
     private void ComposeMinimalHeader(IContainer container, TemplateBuilderSchema schema, Product product, DocumentTemplate template)
     {
-        if (schema.Header.HeaderRepeatStyle == "None") return;
+        var repeating = schema.Header?.RepeatingHeader ?? new TemplateRepeatingHeaderSchema();
+        if (!repeating.IsEnabled || schema.Header?.HeaderRepeatStyle == "None") return;
         
         float scale = schema.Layout.HeaderBaseScale > 0 ? (float)schema.Layout.HeaderBaseScale : 1.0f;
+        var textColor = !string.IsNullOrWhiteSpace(repeating.TextColor) ? repeating.TextColor : schema.Theme.SecondaryColor;
+        var borderColor = !string.IsNullOrWhiteSpace(repeating.BorderColor) ? repeating.BorderColor : textColor;
+        var logoHeight = repeating.LogoHeight > 0 ? repeating.LogoHeight : 25;
 
-        container.PaddingTop(SafeMargin(schema.Layout.TopMargin) * scale, Unit.Millimetre)
-                 .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
-                 .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
-                 .PaddingBottom(4 * scale, Unit.Millimetre)
-                 .BorderBottom(2).BorderColor(schema.Theme.PrimaryColor)
-                 .PaddingBottom((float)schema.Layout.HeaderPaddingBottom * scale, Unit.Millimetre)
-                 .Row(row =>
+        var inner = container.PaddingTop(SafeMargin(schema.Layout.TopMargin) * scale, Unit.Millimetre)
+                             .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
+                             .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
+                             .PaddingBottom(4 * scale, Unit.Millimetre);
+
+        if (repeating.ShowBorderBottom)
+        {
+            inner = inner.BorderBottom(1.5f).BorderColor(borderColor);
+        }
+
+        inner.PaddingBottom((float)schema.Layout.HeaderPaddingBottom * scale, Unit.Millimetre)
+             .Row(row =>
+             {
+                 if (repeating.ShowLogo)
                  {
-                     if (schema.Header.ShowLogo)
+                     var logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Nanopaint_logo.png");
+                     if (File.Exists(logoPath))
                      {
-                         var logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Nanopaint_logo.png");
-                         if (File.Exists(logoPath))
-                         {
-                             row.ConstantItem(100 * scale).Height((float)schema.Header.LogoHeight * 0.75f * scale).AlignBottom().Image(logoPath).FitArea();
-                             row.ConstantItem(15 * scale);
-                         }
+                         row.ConstantItem(100 * scale).Height((float)logoHeight * scale).AlignBottom().Image(logoPath).FitArea();
+                         row.ConstantItem(15 * scale);
                      }
+                 }
 
-                     row.RelativeItem().AlignBottom().Text($"{product.Name} · {product.Code}")
-                        .FontSize(10 * scale).Bold().FontColor(schema.Theme.PrimaryColor);
-                     
-                     row.RelativeItem().AlignRight().AlignBottom().Column(c =>
-                     {
-                         c.Item().AlignRight().Text("Technical Data Sheet")
-                          .FontSize(9 * scale).FontColor(schema.Theme.SecondaryColor);
-                         c.Item().AlignRight().Text($"Rev: {product.DocumentVersion} | {product.RevisionDate:yyyy-MM-dd}")
-                          .FontSize(7 * scale).FontColor(Colors.Grey.Medium);
-                     });
-                 });
+                 row.RelativeItem().AlignBottom().Text($"{product.Name} · {product.Code}")
+                    .FontSize(10 * scale).Bold().FontColor(textColor);
+                 
+                 if (repeating.ShowRevisionInfo)
+                 {
+                     row.RelativeItem().AlignRight().AlignBottom().Text($"Rev: {product.DocumentVersion} | {product.RevisionDate:yyyy-MM-dd}")
+                        .FontSize(8 * scale).FontColor(Colors.Grey.Medium);
+                 }
+             });
     }
 
     private void ComposeContent(IContainer container, TemplateBuilderSchema schema, List<string> features, Dictionary<string, string> liquidProps, Dictionary<string, string> mechanicalProps, TdsSensorSpecs mergedSpecs, IReadOnlyDictionary<string, string> chartSvgs, string? batchNumber)
