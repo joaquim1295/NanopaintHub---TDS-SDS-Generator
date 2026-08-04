@@ -58,7 +58,7 @@ public partial class TemplateLayout : ObservableObject
     private int _batchNotePaddingBottom = 12;
 
     [ObservableProperty]
-    private int _sectionSpacing = 16;
+    private int _sectionSpacing = 6;
 
     [ObservableProperty]
     private int _titleBottomSpacing = 6;

@@ -554,29 +554,30 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     col.Item().SkipOnce().Element(c => ComposeMinimalHeader(c, schema, product, template));
                 });
 
-                page.Content().PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre).PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre).PaddingTop((float)schema.Layout.ContentPaddingTop, Unit.Millimetre).Column(col =>
+                page.Content().PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre).PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre).PaddingTop(8, Unit.Point).Column(col =>
                 {
-                col.Spacing(8);
+                    col.Item().ShowOnce().Height((float)schema.Layout.ContentPaddingTop, Unit.Millimetre);
+                    col.Spacing(8);
 
                     // As Fichas de Segurança (SDS) têm de cumprir as normais globais GHS. 
                     // O conteúdo principal são sempre estas 16 secções, ignorando quaisquer secções customizadas do Template.
                     // O Template serve apenas para fornecer as Margens, o Header, Footer, Fontes e Cores.
-                    ComposeSdsSection1(col, product, schema);
-                    ComposeSdsSection2(col, uniqueHazards, hazardCodes, pPhrases, schema);
-                    ComposeSdsSection3(col, compositions, schema);
-                    ComposeSdsSection4(col, hazardCodes, product.SdsSection4CustomText, schema);
-                    ComposeSdsSection5(col, hazardCodes, schema);
-                    ComposeSdsSection6(col, schema);
-                    ComposeSdsSection7(col, hazardCodes, product.SdsSection7CustomText, schema);
-                    ComposeSdsSection8(col, schema);
-                    ComposeSdsSection9(col, liquidProps, schema);
-                    ComposeSdsSection10(col, schema);
-                    ComposeSdsSection11(col, hazardCodes, schema);
-                    ComposeSdsSection12(col, hazardCodes, schema);
-                    ComposeSdsSection13(col, schema);
-                    ComposeSdsSection14(col, hazardCodes, schema);
-                    ComposeSdsSection15(col, schema);
-                    ComposeSdsSection16(col, hazardPhrases, schema);
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection1(secCol, product, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection2(secCol, uniqueHazards, hazardCodes, pPhrases, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection3(secCol, compositions, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection4(secCol, hazardCodes, product.SdsSection4CustomText, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection5(secCol, hazardCodes, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection6(secCol, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection7(secCol, hazardCodes, product.SdsSection7CustomText, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection8(secCol, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection9(secCol, liquidProps, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection10(secCol, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection11(secCol, hazardCodes, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection12(secCol, hazardCodes, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection13(secCol, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection14(secCol, hazardCodes, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection15(secCol, schema));
+                    col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).PreventPageBreak().Column(secCol => ComposeSdsSection16(secCol, hazardPhrases, schema));
                 });
 
                 page.Footer()
@@ -666,9 +667,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
     private void DrawSdsTitle(ColumnDescriptor col, string title, TemplateBuilderSchema schema)
     {
         var fontFamily = !string.IsNullOrWhiteSpace(schema.Theme.TitleFontFamily) ? schema.Theme.TitleFontFamily : schema.Theme.FontFamily;
-        var paddingTop = schema.Layout.TitleBottomSpacing > 0 ? (float)schema.Layout.TitleBottomSpacing : 6f;
-
-        col.Item().PaddingTop(paddingTop).Element(c => DrawSectionTitle(c, title, schema.Theme.SecondaryColor, (float)schema.Theme.BaseFontSize, fontFamily));
+        col.Item().Element(c => DrawSectionTitle(c, title, schema.Theme.SecondaryColor, (float)schema.Theme.BaseFontSize, fontFamily));
     }
 
     private void ComposeSdsSection1(ColumnDescriptor col, Product product, TemplateBuilderSchema schema, string title = "SECTION 1: Identification of the substance/mixture and of the company/undertaking")

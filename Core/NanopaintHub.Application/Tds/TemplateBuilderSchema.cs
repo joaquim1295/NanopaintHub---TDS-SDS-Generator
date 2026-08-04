@@ -25,7 +25,7 @@ public class TemplateLayoutSchema
     public double HeaderPaddingRight { get; set; } = 20;   // in mm
     public double ContentPaddingTop { get; set; } = 10;
     public double BatchNotePaddingBottom { get; set; } = 12;
-    public double SectionSpacing { get; set; } = 16;
+    public double SectionSpacing { get; set; } = 6;
     public double TitleBottomSpacing { get; set; } = 6;
     public double FooterPaddingTop { get; set; } = 8;      // in px
     public double FooterPaddingBottom { get; set; } = 10;  // in px

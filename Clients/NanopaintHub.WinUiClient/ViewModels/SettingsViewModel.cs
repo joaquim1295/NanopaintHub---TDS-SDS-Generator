@@ -235,10 +235,10 @@ public partial class SettingsViewModel : ObservableObject
     {
         try
         {
-            TotalProducts = await _dbContext.Products.CountAsync();
-            TotalSuppliers = await _dbContext.Suppliers.CountAsync();
-            TotalCompositions = await _dbContext.ProductCompositions.CountAsync() + await _dbContext.SupplierProductCompositions.CountAsync();
-            TotalEchaSubstances = await _dbContext.EchaSubstances.CountAsync();
+            TotalProducts = await _dbContext.Products.AsNoTracking().CountAsync();
+            TotalSuppliers = await _dbContext.Suppliers.AsNoTracking().CountAsync();
+            TotalCompositions = await _dbContext.ProductCompositions.AsNoTracking().CountAsync() + await _dbContext.SupplierProductCompositions.AsNoTracking().CountAsync();
+            TotalEchaSubstances = await _dbContext.EchaSubstances.AsNoTracking().CountAsync();
         }
         catch (Exception ex)
         {
@@ -267,8 +267,8 @@ public partial class SettingsViewModel : ObservableObject
             {
                 if (file.Path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 {
-                    var products = await _dbContext.Products.Include(p => p.Compositions).ToListAsync();
-                    var suppliers = await _dbContext.Suppliers.Include(s => s.Products).ToListAsync();
+                    var products = await _dbContext.Products.AsNoTracking().Include(p => p.Compositions).ToListAsync();
+                    var suppliers = await _dbContext.Suppliers.AsNoTracking().Include(s => s.Products).ToListAsync();
                     
                     var exportData = new 
                     {
@@ -314,6 +314,9 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportDatabaseAsync()
     {
+        // Clear any previous CSV import status to avoid showing it in the DB import UI
+        ImportStatusMessage = string.Empty;
+
         var picker = new Windows.Storage.Pickers.FileOpenPicker();
         
         var app = (Microsoft.UI.Xaml.Application.Current as App);
@@ -330,8 +333,8 @@ public partial class SettingsViewModel : ObservableObject
             var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
             {
                 Title = "Substituir Base de Dados",
-                Content = "Atenção: A importação irá substituir os dados atuais da base de dados por estes novos registos.\n\nSerá efetuada uma cópia de segurança automática (.bak) da base de dados atual.\n\nDeseja continuar com a substituição?",
-                PrimaryButtonText = "Importar e Substituir",
+                Content = "Atenção: A importação irá substituir/adicionar os registos à base de dados atual.\n\nSerá efetuada uma cópia de segurança automática (.bak) caso seja um ficheiro de base de dados SQLite.\n\nDeseja continuar com a importação?",
+                PrimaryButtonText = "Importar Dados",
                 CloseButtonText = "Cancelar",
                 DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
                 XamlRoot = app?.MainWindow?.Content?.XamlRoot
@@ -340,9 +343,11 @@ public partial class SettingsViewModel : ObservableObject
             var result = await dialog.ShowAsync();
             if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
             {
-                DbStatusMessage = "A substituir base de dados... Por favor, aguarde.";
+                DbStatusMessage = "A importar dados... Por favor, aguarde.";
                 try
                 {
+                    _dbContext.ChangeTracker.Clear();
+
                     var appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub");
                     var dbPath = Path.Combine(appDataFolder, "nanopainthub.db");
                     var backupPath = Path.Combine(appDataFolder, "nanopainthub.db.bak");
@@ -369,35 +374,70 @@ public partial class SettingsViewModel : ObservableObject
                         using var jsonDoc = JsonDocument.Parse(json);
                         var root = jsonDoc.RootElement;
 
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+                        };
+
+                        if (root.TryGetProperty("Suppliers", out var suppliersElem))
+                        {
+                            var suppliers = JsonSerializer.Deserialize<List<NanopaintHub.Domain.Entities.Supplier>>(suppliersElem.GetRawText(), options);
+                            if (suppliers != null)
+                            {
+                                foreach (var sup in suppliers)
+                                {
+                                    var existing = await _dbContext.Suppliers.AsNoTracking().FirstOrDefaultAsync(s => s.Id == sup.Id);
+                                    if (existing == null)
+                                    {
+                                        sup.Products = new List<NanopaintHub.Domain.Entities.SupplierProduct>();
+                                        _dbContext.Suppliers.Add(sup);
+                                    }
+                                }
+                                await _dbContext.SaveChangesAsync();
+                                _dbContext.ChangeTracker.Clear();
+                            }
+                        }
+
                         if (root.TryGetProperty("Products", out var productsElem))
                         {
-                            var options = new JsonSerializerOptions
-                            {
-                                PropertyNameCaseInsensitive = true
-                            };
                             var products = JsonSerializer.Deserialize<List<NanopaintHub.Domain.Entities.Product>>(productsElem.GetRawText(), options);
-                            if (products != null && products.Count > 0)
+                            if (products != null)
                             {
                                 foreach (var prod in products)
                                 {
-                                    var existing = await _dbContext.Products.FindAsync(prod.Id);
+                                    var existing = await _dbContext.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == prod.Id || p.Code == prod.Code);
                                     if (existing == null)
                                     {
+                                        if (prod.Compositions != null)
+                                        {
+                                            foreach (var comp in prod.Compositions)
+                                            {
+                                                comp.Product = null!;
+                                            }
+                                        }
                                         _dbContext.Products.Add(prod);
                                     }
                                 }
                                 await _dbContext.SaveChangesAsync();
+                                _dbContext.ChangeTracker.Clear();
                             }
                         }
                     }
 
-                    await LoadDatabaseMetricsAsync();
                     DbStatusMessage = "Base de dados importada com sucesso!";
+                    ImportStatusMessage = string.Empty;
                 }
                 catch (Exception ex)
                 {
                     DbStatusMessage = $"Erro ao importar base de dados: {ex.Message}";
+                    ImportStatusMessage = string.Empty;
                     System.Diagnostics.Debug.WriteLine($"Error importing database: {ex}");
+                }
+                finally
+                {
+                    _dbContext.ChangeTracker.Clear();
+                    await LoadDatabaseMetricsAsync();
                 }
             }
         }

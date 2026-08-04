@@ -157,7 +157,7 @@ public static class TemplateHtmlParser
                 else if (heightAttrMatch.Success && double.TryParse(heightAttrMatch.Groups[1].Value, CultureInfo.InvariantCulture, out double ha))
                     schema.Header.LogoHeight = (int)Math.Round(ha);
             }
-            else schema.Header.ShowLogo = false;
+            else schema.Header.ShowLogo = true;
 
 
             // Fallback font families if empty (inherit from body/theme font)

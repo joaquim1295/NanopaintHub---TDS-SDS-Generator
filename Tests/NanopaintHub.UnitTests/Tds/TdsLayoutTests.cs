@@ -1,6 +1,8 @@
 using Xunit;
 using System.Text.Json;
 using NanopaintHub.Application.Tds;
+using NanopaintHub.Application.Contracts;
+using NanopaintHub.Domain.Entities;
 using NanopaintHub.Infrastructure.Documents.Services;
 
 namespace NanopaintHub.UnitTests.Tds;
@@ -214,5 +216,71 @@ public class TdsLayoutTests
         Assert.Contains("class=\"chart-grid\"", html);
         Assert.Contains("<svg>Resistance</svg>", html);
         Assert.DoesNotContain("Linearity", html);
+    }
+
+    [Fact]
+    public async Task TestSdsPdfLayoutGeneration()
+    {
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+        // Arrange
+        var progress = new Moq.Mock<IPdfGenerationProgressNotifier>();
+        var chartRenderer = new Moq.Mock<ITdsChartRenderer>();
+        var companyInfo = new Moq.Mock<Microsoft.Extensions.Options.IOptionsMonitor<NanopaintHub.Domain.Common.CompanyInfoOptions>>();
+        companyInfo.Setup(c => c.CurrentValue).Returns(new NanopaintHub.Domain.Common.CompanyInfoOptions
+        {
+            Name = "Nanopaint",
+            Address = "Braga, Portugal",
+            Telephone = "+351 123 456 789",
+            Email = "info@nanopaint.com"
+        });
+        var phraseRepo = new Moq.Mock<IClpPhraseRepository>();
+        phraseRepo.Setup(p => p.GetAllAsync()).Returns(Task.FromResult<IEnumerable<ClpPhrase>>(new List<ClpPhrase>()));
+
+        var generator = new QuestPdfDocumentGeneratorService(
+            progress.Object,
+            new TdsDataMergeService(),
+            chartRenderer.Object,
+            companyInfo.Object,
+            phraseRepo.Object);
+
+        var product = new Product
+        {
+            Name = "Test Product",
+            Code = "PRV-001",
+            Description = "Test Product Description",
+            DocumentVersion = 1,
+            RevisionDate = DateTime.Now,
+            LiquidPropertiesJson = "{}",
+            FeaturesJson = "[]",
+            Compositions = new List<ProductComposition>
+            {
+                new ProductComposition
+                {
+                    Percentage = 60,
+                    EchaSubstance = new EchaSubstance
+                    {
+                        ChemicalName = "Ethanol",
+                        CasNumber = "64-17-5",
+                        EcNumber = "200-578-6"
+                    }
+                }
+            }
+        };
+
+        var template = new DocumentTemplate
+        {
+            BuilderJson = "{}"
+        };
+
+        // Act
+        var bytes = await generator.GenerateSdsAsync(product, template);
+
+        // Assert
+        Assert.NotNull(bytes);
+        Assert.NotEmpty(bytes);
+
+        // Guardar o PDF gerado em disco para podermos abri-lo e verificar visualmente!
+        Directory.CreateDirectory("Output");
+        File.WriteAllBytes(Path.Combine("Output", "sds-spacing-test.pdf"), bytes);
     }
 }
