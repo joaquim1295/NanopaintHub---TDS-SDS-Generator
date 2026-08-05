@@ -148,12 +148,12 @@
                     </ToggleButton>
                 </StackPanel>
 
-                <Grid Grid.Column="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Canvas.ZIndex="0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
-                        <StackPanel Spacing="16" MaxWidth="800" HorizontalAlignment="Stretch">
+                <Grid Grid.Column="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Canvas.ZIndex="0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
+                        <StackPanel Spacing="12" MaxWidth="1200" HorizontalAlignment="Stretch">
                             
                             <!-- SEÇÃO GERAL E CARACTERÍSTICAS -->
-                            <StackPanel x:Name="GeneralSection" Spacing="16" Visibility="Visible">
+                            <StackPanel x:Name="GeneralSection" Spacing="12" Visibility="Visible">
                                 <settings:SettingsExpander Header="Informação Geral" Description="Identificação básica do produto" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xE946;" />
@@ -180,7 +180,7 @@
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
+                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Padding="12,8">
                                             <StackPanel Spacing="16" Margin="0,4">
                                                 <!-- Linha de Ações: Título e Botão de Adicionar -->
                                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -209,14 +209,14 @@
                             </StackPanel>
 
                             <!-- SEÇÃO PROPRIEDADES FÍSICAS -->
-                            <StackPanel x:Name="PropertiesSection" Spacing="16" Visibility="Collapsed">
+                            <StackPanel x:Name="PropertiesSection" Spacing="12" Visibility="Collapsed">
                                 <settings:SettingsExpander Header="Liquid Properties" Description="Propriedades físicas da tinta líquida" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xED5E;" />
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
+                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Padding="12,8">
                                             <StackPanel Spacing="16" Margin="0,4">
                                                 <!-- Linha de Ações: Título e Botão de Adicionar -->
                                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -250,7 +250,7 @@
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
+                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Padding="12,8">
                                             <StackPanel Spacing="16" Margin="0,4">
                                                 <!-- Linha de Ações: Título e Botão de Adicionar -->
                                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -279,14 +279,14 @@
                                 </settings:SettingsExpander>
                             </StackPanel>
 
-                            <StackPanel x:Name="SafetySection" Spacing="16" Visibility="Collapsed">
+                            <StackPanel x:Name="SafetySection" Spacing="12" Visibility="Collapsed">
                                 <settings:SettingsExpander Header="Fórmula (Componentes SDS)" Description="Ingredientes e substâncias ECHA" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xE81C;" />
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
+                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Padding="12,8">
                                             <StackPanel Spacing="16" Margin="0,4">
                                                 <!-- Linha de Ações: Pesquisa -->
                                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -352,14 +352,14 @@
                             </StackPanel>
 
                             <!-- SEÇÃO SENSOR -->
-                            <StackPanel x:Name="SensorSection" Spacing="16" Visibility="Collapsed">
+                            <StackPanel x:Name="SensorSection" Spacing="12" Visibility="Collapsed">
                                 <settings:SettingsExpander Header="Especificações do Sensor" Description="Parâmetros de performance e especificações dinâmicas" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xE9A6;" />
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
+                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Padding="12,8">
                                             <StackPanel Spacing="16" Margin="0,4">
                                                 <!-- Linha de Ações: Título e Botão de Adicionar -->
                                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
