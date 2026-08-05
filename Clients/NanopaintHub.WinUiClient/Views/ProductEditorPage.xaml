@@ -338,12 +338,13 @@
                                             <StackPanel Spacing="16" Margin="0,4">
                                                 <!-- Linha de Ações: Título e Botão de Adicionar -->
                                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                                                    <TextBlock Text="Parâmetros Físicos e Dinâmicos" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Parâmetros" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                                     <Button Grid.Column="1" Content="Adicionar Especificação" Command="{x:Bind ViewModel.AddCustomSensorSpecCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
                                                 </Grid>
                                                 
                                                 <!-- Lista Dinâmica de Especificações customizadas -->
-                                                <ItemsControl ItemsSource="{x:Bind ViewModel.CustomSensorSpecs}">
+                                                <ItemsControl ItemsSource="{x:Bind ViewModel.CustomSensorSpecs}"
+                                                              Visibility="{x:Bind ViewModel.HasCustomSensorSpecs, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
                                                             <Grid ColumnDefinitions="*,*,Auto" Margin="0,4">
@@ -358,7 +359,8 @@
                                                 </ItemsControl>
                                                 
                                                 <!-- Separador Visual Fino -->
-                                                <MenuFlyoutSeparator Margin="0,4"/>
+                                                <MenuFlyoutSeparator Margin="0,4"
+                                                                     Visibility="{x:Bind ViewModel.HasCustomSensorSpecs, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                 
                                                 <!-- Grelha Densa de Parâmetros Padrão -->
                                                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12">

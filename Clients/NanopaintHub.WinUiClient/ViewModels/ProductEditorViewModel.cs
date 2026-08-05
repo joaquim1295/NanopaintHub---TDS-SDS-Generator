@@ -76,6 +76,8 @@ public partial class ProductEditorViewModel : ObservableObject
     [ObservableProperty]
     private DocumentTemplate? _selectedTemplate;
 
+    public bool HasCustomSensorSpecs => CustomSensorSpecs.Count > 0;
+
     public void ValidateCompositions()
     {
         var total = Compositions.Sum(c => c.Percentage);
@@ -218,6 +220,7 @@ public partial class ProductEditorViewModel : ObservableObject
             // Log or handle deserialization error gracefully
             System.Diagnostics.Debug.WriteLine($"Error parsing JSON: {ex.Message}");
         }
+        OnPropertyChanged(nameof(HasCustomSensorSpecs));
     }
 
     private void SaveCollectionsToProduct()
@@ -316,6 +319,7 @@ public partial class ProductEditorViewModel : ObservableObject
     private void AddCustomSensorSpec()
     {
         CustomSensorSpecs.Add(new KeyValuePairItem("", ""));
+        OnPropertyChanged(nameof(HasCustomSensorSpecs));
         TriggerPreviewUpdate();
     }
 
@@ -325,6 +329,7 @@ public partial class ProductEditorViewModel : ObservableObject
         if (item != null)
         {
             CustomSensorSpecs.Remove(item);
+            OnPropertyChanged(nameof(HasCustomSensorSpecs));
             TriggerPreviewUpdate();
         }
     }
