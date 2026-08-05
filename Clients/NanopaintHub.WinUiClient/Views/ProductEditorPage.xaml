@@ -180,22 +180,33 @@
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard Header="Ações">
-                                            <Button Content="Adicionar Característica" Command="{x:Bind ViewModel.AddFeatureCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
-                                        </settings:SettingsCard>
                                         <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
-                                            <ItemsControl ItemsSource="{x:Bind ViewModel.Features}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate x:DataType="viewmodels:StringItem">
-                                                        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
-                                                            <TextBox Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Ex: RoHS compliant" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                            <Button Grid.Column="1" Margin="8,0,0,0" Content="Remover" 
-                                                                    Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveFeatureCommand}" 
-                                                                    CommandParameter="{x:Bind}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
+                                            <StackPanel Spacing="16" Margin="0,4">
+                                                <!-- Linha de Ações: Título e Botão de Adicionar -->
+                                                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                    <TextBlock Text="Características" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="1" Content="Adicionar Característica" Command="{x:Bind ViewModel.AddFeatureCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
+                                                </Grid>
+                                                
+                                                <!-- Separador Visual Fino -->
+                                                <MenuFlyoutSeparator Margin="0,4"
+                                                                     Visibility="{x:Bind ViewModel.HasFeatures, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                
+                                                <!-- Lista Dinâmica de Características -->
+                                                <ItemsControl ItemsSource="{x:Bind ViewModel.Features}"
+                                                              Visibility="{x:Bind ViewModel.HasFeatures, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="viewmodels:StringItem">
+                                                            <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                                                                <TextBox Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Ex: RoHS compliant" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                                <Button Grid.Column="1" Margin="8,0,0,0" Content="Remover" 
+                                                                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveFeatureCommand}" 
+                                                                        CommandParameter="{x:Bind}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
@@ -209,23 +220,34 @@
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard Header="Ações">
-                                            <Button Content="Adicionar Propriedade" Command="{x:Bind ViewModel.AddLiquidPropertyCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
-                                        </settings:SettingsCard>
                                         <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
-                                            <ItemsControl ItemsSource="{x:Bind ViewModel.LiquidProperties}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
-                                                        <Grid ColumnDefinitions="*,*,Auto" Margin="0,4">
-                                                            <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Propriedade (ex: Viscosity)" Margin="0,0,8,0" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                            <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Valor (ex: 25–35 Pa·s)" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                            <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
-                                                                    Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveLiquidPropertyCommand}" 
-                                                                    CommandParameter="{x:Bind}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
+                                            <StackPanel Spacing="16" Margin="0,4">
+                                                <!-- Linha de Ações: Título e Botão de Adicionar -->
+                                                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                    <TextBlock Text="Propriedades Líquidas" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="1" Content="Adicionar Propriedade" Command="{x:Bind ViewModel.AddLiquidPropertyCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
+                                                </Grid>
+                                                
+                                                <!-- Separador Visual Fino -->
+                                                <MenuFlyoutSeparator Margin="0,4"
+                                                                     Visibility="{x:Bind ViewModel.HasLiquidProperties, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                
+                                                <!-- Lista Dinâmica de Propriedades -->
+                                                <ItemsControl ItemsSource="{x:Bind ViewModel.LiquidProperties}"
+                                                              Visibility="{x:Bind ViewModel.HasLiquidProperties, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                            <Grid ColumnDefinitions="*,*,Auto" Margin="0,4">
+                                                                <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Propriedade (ex: Viscosity)" Margin="0,0,8,0" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                                <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Valor (ex: 25–35 Pa·s)" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                                <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
+                                                                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveLiquidPropertyCommand}" 
+                                                                        CommandParameter="{x:Bind}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
@@ -236,29 +258,39 @@
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard Header="Ações">
-                                            <Button Content="Adicionar Guideline" Command="{x:Bind ViewModel.AddMechanicalPropertyCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
-                                        </settings:SettingsCard>
                                         <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
-                                            <ItemsControl ItemsSource="{x:Bind ViewModel.MechanicalProperties}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
-                                                        <Grid ColumnDefinitions="*,*,Auto" Margin="0,4">
-                                                            <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Propriedade (ex: Curing)" Margin="0,0,8,0" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                            <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Valor (ex: 120 °C / 15 min)" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                            <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
-                                                                    Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveMechanicalPropertyCommand}" 
-                                                                    CommandParameter="{x:Bind}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
+                                            <StackPanel Spacing="16" Margin="0,4">
+                                                <!-- Linha de Ações: Título e Botão de Adicionar -->
+                                                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                    <TextBlock Text="Diretrizes de Manuseamento" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="1" Content="Adicionar Guideline" Command="{x:Bind ViewModel.AddMechanicalPropertyCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
+                                                </Grid>
+                                                
+                                                <!-- Separador Visual Fino -->
+                                                <MenuFlyoutSeparator Margin="0,4"
+                                                                     Visibility="{x:Bind ViewModel.HasMechanicalProperties, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                
+                                                <!-- Lista Dinâmica de Guidelines -->
+                                                <ItemsControl ItemsSource="{x:Bind ViewModel.MechanicalProperties}"
+                                                              Visibility="{x:Bind ViewModel.HasMechanicalProperties, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                            <Grid ColumnDefinitions="*,*,Auto" Margin="0,4">
+                                                                <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Propriedade (ex: Curing)" Margin="0,0,8,0" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                                <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Valor (ex: 120 °C / 15 min)" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                                <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
+                                                                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveMechanicalPropertyCommand}" 
+                                                                        CommandParameter="{x:Bind}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
                             </StackPanel>
 
-                            <!-- SEÇÃO FÓRMULA & SEGURANÇA -->
                             <StackPanel x:Name="SafetySection" Spacing="16" Visibility="Collapsed">
                                 <settings:SettingsExpander Header="Fórmula (Componentes SDS)" Description="Ingredientes e substâncias ECHA" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
@@ -266,20 +298,23 @@
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard Header="Pesquisar Substância">
-                                            <TextBox x:Name="SubstanceSearchBox" 
-                                                     PlaceholderText="Pesquisar por nome ECHA (min. 3 letras)" 
-                                                     Width="300"
-                                                     TextChanged="SubstanceSearchBox_TextChanged" />
-                                        </settings:SettingsCard>
-                                        
                                         <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
-                                            <StackPanel Spacing="8">
+                                            <StackPanel Spacing="16" Margin="0,4">
+                                                <!-- Linha de Ações: Pesquisa -->
+                                                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                    <TextBlock Text="Ingredientes da Fórmula" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="SubstanceSearchBox" Grid.Column="1" 
+                                                             PlaceholderText="Pesquisar por nome ECHA (mín. 3 letras)" 
+                                                             Width="250"
+                                                             TextChanged="SubstanceSearchBox_TextChanged" VerticalAlignment="Center"/>
+                                                </Grid>
+                                                
+                                                <!-- Popup de Resultados -->
                                                 <Border x:Name="SubstanceSearchResultsPopup" 
                                                         Visibility="Collapsed"
                                                         Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                                        CornerRadius="4" Margin="0,4,0,16" MaxHeight="200">
+                                                        CornerRadius="4" Margin="0,4,0,0" MaxHeight="200">
                                                     <ListView ItemsSource="{x:Bind ViewModel.SubstanceSearchResults, Mode=OneWay}"
                                                               ItemClick="SubstanceSearchResults_ItemClick" IsItemClickEnabled="True" SelectionMode="None">
                                                         <ListView.ItemTemplate>
@@ -292,16 +327,18 @@
                                                         </ListView.ItemTemplate>
                                                     </ListView>
                                                 </Border>
-
+                                                
                                                 <!-- For compatibility with page-behind event handlers -->
                                                 <TextBox x:Name="SubstanceSearchBoxWide" Visibility="Collapsed" />
                                                 <Border x:Name="SubstanceSearchResultsPopupWide" Visibility="Collapsed" />
-
+                                                
+                                                <!-- InfoBar -->
                                                 <InfoBar IsOpen="{x:Bind ViewModel.HasCompositionsError, Mode=OneWay}"
                                                          Severity="Error"
                                                          Message="{x:Bind ViewModel.CompositionsValidationMessage, Mode=OneWay}" 
-                                                         IsClosable="False" Margin="0,0,0,16" />
-
+                                                         IsClosable="False" Margin="0,0,0,0" />
+                                                
+                                                <!-- Lista de Ingredientes da Fórmula -->
                                                 <ItemsControl ItemsSource="{x:Bind ViewModel.Compositions}"
                                                               ItemTemplateSelector="{StaticResource CompositionTemplateSelector}">
                                                 </ItemsControl>

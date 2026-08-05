@@ -77,6 +77,9 @@ public partial class ProductEditorViewModel : ObservableObject
     private DocumentTemplate? _selectedTemplate;
 
     public bool HasCustomSensorSpecs => CustomSensorSpecs.Count > 0;
+    public bool HasFeatures => Features.Count > 0;
+    public bool HasLiquidProperties => LiquidProperties.Count > 0;
+    public bool HasMechanicalProperties => MechanicalProperties.Count > 0;
 
     public void ValidateCompositions()
     {
@@ -221,6 +224,9 @@ public partial class ProductEditorViewModel : ObservableObject
             System.Diagnostics.Debug.WriteLine($"Error parsing JSON: {ex.Message}");
         }
         OnPropertyChanged(nameof(HasCustomSensorSpecs));
+        OnPropertyChanged(nameof(HasFeatures));
+        OnPropertyChanged(nameof(HasLiquidProperties));
+        OnPropertyChanged(nameof(HasMechanicalProperties));
     }
 
     private void SaveCollectionsToProduct()
@@ -268,6 +274,7 @@ public partial class ProductEditorViewModel : ObservableObject
     private void AddFeature()
     {
         Features.Add(new StringItem(""));
+        OnPropertyChanged(nameof(HasFeatures));
         TriggerPreviewUpdate();
     }
 
@@ -277,6 +284,7 @@ public partial class ProductEditorViewModel : ObservableObject
         if (item != null)
         {
             Features.Remove(item);
+            OnPropertyChanged(nameof(HasFeatures));
             TriggerPreviewUpdate();
         }
     }
@@ -285,6 +293,7 @@ public partial class ProductEditorViewModel : ObservableObject
     private void AddLiquidProperty()
     {
         LiquidProperties.Add(new KeyValuePairItem("", ""));
+        OnPropertyChanged(nameof(HasLiquidProperties));
         TriggerPreviewUpdate();
     }
 
@@ -294,6 +303,7 @@ public partial class ProductEditorViewModel : ObservableObject
         if (item != null)
         {
             LiquidProperties.Remove(item);
+            OnPropertyChanged(nameof(HasLiquidProperties));
             TriggerPreviewUpdate();
         }
     }
@@ -302,6 +312,7 @@ public partial class ProductEditorViewModel : ObservableObject
     private void AddMechanicalProperty()
     {
         MechanicalProperties.Add(new KeyValuePairItem("", ""));
+        OnPropertyChanged(nameof(HasMechanicalProperties));
         TriggerPreviewUpdate();
     }
 
@@ -311,6 +322,7 @@ public partial class ProductEditorViewModel : ObservableObject
         if (item != null)
         {
             MechanicalProperties.Remove(item);
+            OnPropertyChanged(nameof(HasMechanicalProperties));
             TriggerPreviewUpdate();
         }
     }
