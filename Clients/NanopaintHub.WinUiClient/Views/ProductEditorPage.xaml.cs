@@ -17,6 +17,74 @@ public sealed partial class ProductEditorPage : Page
         DataContext = ViewModel;
     }
 
+    private void NavigationToggle_Checked(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.Controls.Primitives.ToggleButton selectedBtn)
+        {
+            if (selectedBtn.IsChecked == false)
+            {
+                selectedBtn.IsChecked = true;
+                return;
+            }
+
+            var parent = selectedBtn.Parent as StackPanel;
+            if (parent != null)
+            {
+                foreach (var child in parent.Children)
+                {
+                    if (child is Microsoft.UI.Xaml.Controls.Primitives.ToggleButton btn && btn != selectedBtn)
+                    {
+                        btn.IsChecked = false;
+                    }
+                }
+            }
+
+            if (GeneralSection != null) GeneralSection.Visibility = selectedBtn.Name == "TagGeneral" ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (PropertiesSection != null) PropertiesSection.Visibility = selectedBtn.Name == "TagProperties" ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (SafetySection != null) SafetySection.Visibility = selectedBtn.Name == "TagSafety" ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (SensorSection != null) SensorSection.Visibility = selectedBtn.Name == "TagSensor" ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+        }
+    }
+
+    private void TogglePreview_Changed(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (TogglePreviewBtn == null || PreviewContainer == null || PreviewSplitter == null) return;
+        
+        var isChecked = TogglePreviewBtn.IsChecked == true;
+        PreviewContainer.Visibility = isChecked ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+        PreviewSplitter.Visibility = isChecked ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+        var grid = PreviewContainer.Parent as Grid;
+        if (grid != null)
+        {
+            if (isChecked)
+            {
+                grid.ColumnDefinitions[3].Width = new Microsoft.UI.Xaml.GridLength(3, Microsoft.UI.Xaml.GridUnitType.Star);
+                grid.ColumnDefinitions[2].Width = Microsoft.UI.Xaml.GridLength.Auto;
+            }
+            else
+            {
+                grid.ColumnDefinitions[3].Width = new Microsoft.UI.Xaml.GridLength(0);
+                grid.ColumnDefinitions[2].Width = new Microsoft.UI.Xaml.GridLength(0);
+            }
+        }
+    }
+
+    private void AutoTriggerPreview_TextChanged(object sender, Microsoft.UI.Xaml.Controls.TextChangedEventArgs e)
+    {
+        ViewModel?.TriggerPreviewUpdate();
+    }
+
+    private void AutoTriggerPreview_SelectionChanged(object sender, Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs e)
+    {
+        ViewModel?.TriggerPreviewUpdate();
+    }
+
+    private void AutoTriggerPreview_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.NumberBoxValueChangedEventArgs e)
+    {
+        ViewModel?.TriggerPreviewUpdate();
+    }
+
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);

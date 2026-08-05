@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,6 +22,12 @@ public partial class ProductEditorViewModel : ObservableObject
     private readonly ISubstanceSearchService _searchService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcherQueue;
+    private readonly IDocumentGeneratorService _documentGeneratorService;
+    private readonly PdfPreviewService _pdfPreviewService;
+    private readonly ITemplateRepository _templateRepository;
+
+    private readonly List<DocumentTemplate> _allTemplates = new();
+    private CancellationTokenSource? _previewCancellationTokenSource;
 
     [ObservableProperty]
     private Product? _product;
@@ -49,6 +57,25 @@ public partial class ProductEditorViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasCompositionsError = false;
 
+    // Live preview properties
+    [ObservableProperty]
+    private ObservableCollection<Microsoft.UI.Xaml.Media.Imaging.BitmapImage> _pdfPreviewImages = new();
+
+    [ObservableProperty]
+    private bool _isLoadingPreview;
+
+    [ObservableProperty]
+    private bool _isPdfPreviewVisible;
+
+    [ObservableProperty]
+    private string _selectedDocType = "TDS";
+
+    [ObservableProperty]
+    private ObservableCollection<DocumentTemplate> _availableTemplates = new();
+
+    [ObservableProperty]
+    private DocumentTemplate? _selectedTemplate;
+
     public void ValidateCompositions()
     {
         var total = Compositions.Sum(c => c.Percentage);
@@ -73,13 +100,19 @@ public partial class ProductEditorViewModel : ObservableObject
         IProductRepository productRepository, 
         INavigationService navigationService,
         ISubstanceSearchService searchService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IDocumentGeneratorService documentGeneratorService,
+        PdfPreviewService pdfPreviewService,
+        ITemplateRepository templateRepository)
     {
         _dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
         _productRepository = productRepository;
         _navigationService = navigationService;
         _searchService = searchService;
         _unitOfWork = unitOfWork;
+        _documentGeneratorService = documentGeneratorService;
+        _pdfPreviewService = pdfPreviewService;
+        _templateRepository = templateRepository;
     }
 
     public async Task InitializeAsync(Guid? productId)
@@ -107,6 +140,15 @@ public partial class ProductEditorViewModel : ObservableObject
             }
 
             LoadCollectionsFromProduct();
+
+            // Load templates
+            var templates = await _templateRepository.GetAllAsync();
+            _allTemplates.Clear();
+            _allTemplates.AddRange(templates);
+            UpdateAvailableTemplates();
+
+            // Initial preview trigger
+            TriggerPreviewUpdate();
         }
         finally
         {
@@ -220,39 +262,71 @@ public partial class ProductEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddFeature() => Features.Add(new StringItem(""));
+    private void AddFeature()
+    {
+        Features.Add(new StringItem(""));
+        TriggerPreviewUpdate();
+    }
 
     [RelayCommand]
     private void RemoveFeature(StringItem item)
     {
-        if (item != null) Features.Remove(item);
+        if (item != null)
+        {
+            Features.Remove(item);
+            TriggerPreviewUpdate();
+        }
     }
 
     [RelayCommand]
-    private void AddLiquidProperty() => LiquidProperties.Add(new KeyValuePairItem("", ""));
+    private void AddLiquidProperty()
+    {
+        LiquidProperties.Add(new KeyValuePairItem("", ""));
+        TriggerPreviewUpdate();
+    }
 
     [RelayCommand]
     private void RemoveLiquidProperty(KeyValuePairItem item)
     {
-        if (item != null) LiquidProperties.Remove(item);
+        if (item != null)
+        {
+            LiquidProperties.Remove(item);
+            TriggerPreviewUpdate();
+        }
     }
 
     [RelayCommand]
-    private void AddMechanicalProperty() => MechanicalProperties.Add(new KeyValuePairItem("", ""));
+    private void AddMechanicalProperty()
+    {
+        MechanicalProperties.Add(new KeyValuePairItem("", ""));
+        TriggerPreviewUpdate();
+    }
 
     [RelayCommand]
     private void RemoveMechanicalProperty(KeyValuePairItem item)
     {
-        if (item != null) MechanicalProperties.Remove(item);
+        if (item != null)
+        {
+            MechanicalProperties.Remove(item);
+            TriggerPreviewUpdate();
+        }
     }
 
     [RelayCommand]
-    private void AddCustomSensorSpec() => CustomSensorSpecs.Add(new KeyValuePairItem("", ""));
+    private void AddCustomSensorSpec()
+    {
+        CustomSensorSpecs.Add(new KeyValuePairItem("", ""));
+        TriggerPreviewUpdate();
+    }
 
     [RelayCommand]
     private void RemoveCustomSensorSpec(KeyValuePairItem item)
     {
-        if (item != null) CustomSensorSpecs.Remove(item);
+        if (item != null)
+        {
+            CustomSensorSpecs.Remove(item);
+            TriggerPreviewUpdate();
+        }
     }
 
     [RelayCommand]
@@ -316,6 +390,7 @@ public partial class ProductEditorViewModel : ObservableObject
         }
         
         ValidateCompositions();
+        TriggerPreviewUpdate();
     }
 
     [RelayCommand]
@@ -325,6 +400,7 @@ public partial class ProductEditorViewModel : ObservableObject
         {
             Compositions.Remove(comp);
             ValidateCompositions();
+            TriggerPreviewUpdate();
         }
     }
 
@@ -420,7 +496,160 @@ public partial class ProductEditorViewModel : ObservableObject
         {
             Product.ExposureScenarioPdfPath = file.Path;
             OnPropertyChanged(nameof(Product));
+            TriggerPreviewUpdate();
         }
+    }
+
+    private void UpdateAvailableTemplates()
+    {
+        var filtered = _allTemplates.Where(t => t.DocumentType == SelectedDocType).ToList();
+        
+        var prevSelected = SelectedTemplate;
+
+        AvailableTemplates.Clear();
+        foreach (var t in filtered)
+        {
+            AvailableTemplates.Add(t);
+        }
+
+        if (prevSelected != null && prevSelected.DocumentType == SelectedDocType)
+        {
+            SelectedTemplate = AvailableTemplates.FirstOrDefault(t => t.Id == prevSelected.Id);
+        }
+        else
+        {
+            SelectedTemplate = AvailableTemplates.FirstOrDefault();
+        }
+    }
+
+    partial void OnSelectedDocTypeChanged(string value)
+    {
+        UpdateAvailableTemplates();
+        TriggerPreviewUpdate();
+    }
+
+    partial void OnSelectedTemplateChanged(DocumentTemplate? value)
+    {
+        TriggerPreviewUpdate();
+    }
+
+    public void TriggerPreviewUpdate()
+    {
+        _previewCancellationTokenSource?.Cancel();
+        _previewCancellationTokenSource = new CancellationTokenSource();
+        var token = _previewCancellationTokenSource.Token;
+
+        var product = Product;
+        if (product == null)
+        {
+            PdfPreviewImages.Clear();
+            IsPdfPreviewVisible = false;
+            return;
+        }
+
+        IsLoadingPreview = true;
+
+        Task.Run(async () =>
+        {
+            string? tempPdfPath = null;
+            try
+            {
+                // 1500ms debounce as in TemplateEditorViewModel
+                await Task.Delay(1500, token);
+                if (token.IsCancellationRequested) return;
+
+                // Sync UI collections to product fields
+                var dispatcher = _dispatcherQueue;
+                if (dispatcher != null)
+                {
+                    var tcs = new TaskCompletionSource();
+                    dispatcher.TryEnqueue(() =>
+                    {
+                        try
+                        {
+                            SaveCollectionsToProduct();
+                            tcs.SetResult();
+                        }
+                        catch (Exception ex)
+                        {
+                            tcs.SetException(ex);
+                        }
+                    });
+                    await tcs.Task;
+                }
+
+                if (token.IsCancellationRequested) return;
+
+                var matchingTemplate = SelectedTemplate;
+                if (matchingTemplate == null)
+                {
+                    matchingTemplate = new DocumentTemplate
+                    {
+                        TemplateName = "Padrão do Sistema",
+                        DocumentType = SelectedDocType,
+                        BuilderJson = "{}"
+                    };
+                }
+
+                byte[] pdfBytes;
+                if (SelectedDocType == "SDS")
+                {
+                    pdfBytes = await _documentGeneratorService.GenerateSdsAsync(product, matchingTemplate);
+                }
+                else
+                {
+                    pdfBytes = await _documentGeneratorService.GenerateTdsAsync(product, matchingTemplate);
+                }
+
+                if (token.IsCancellationRequested) return;
+
+                tempPdfPath = Path.Combine(Path.GetTempPath(), $"nanopaint_editor_preview_{Guid.NewGuid()}.pdf");
+                await File.WriteAllBytesAsync(tempPdfPath, pdfBytes, token);
+
+                var imagePaths = await _pdfPreviewService.RenderPdfToImagesAsync(tempPdfPath);
+
+                if (token.IsCancellationRequested) return;
+
+                DispatchToUi(() =>
+                {
+                    PdfPreviewImages.Clear();
+                    foreach (var imgPath in imagePaths)
+                    {
+                        PdfPreviewImages.Add(new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(imgPath)));
+                    }
+                    IsPdfPreviewVisible = true;
+                    IsLoadingPreview = false;
+                });
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignorar cancelamento
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductEditorViewModel] Erro no preview: {ex.Message}");
+                DispatchToUi(() =>
+                {
+                    IsLoadingPreview = false;
+                });
+            }
+            finally
+            {
+                try
+                {
+                    if (tempPdfPath != null && File.Exists(tempPdfPath))
+                    {
+                        File.Delete(tempPdfPath);
+                    }
+                }
+                catch {}
+            }
+        });
+    }
+
+    private void DispatchToUi(Action action)
+    {
+        _dispatcherQueue?.TryEnqueue(() => action());
     }
 }
 
