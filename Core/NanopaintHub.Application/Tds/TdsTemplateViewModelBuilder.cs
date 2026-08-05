@@ -28,13 +28,13 @@ public static class TdsTemplateViewModelBuilder
             ? CelsiusToFahrenheit(specs.OperatingTempMaxC.Value)
             : (double?)null;
 
-        var hasSpecs = specs.SensitivityVolts.HasValue
+        var hasSpecs = specs.IsEnabled && (specs.SensitivityVolts.HasValue
             || specs.SensitivityPerUnit.HasValue
             || specs.ResponseTimeSec.HasValue
             || specs.RestResistanceOhms.HasValue
-            || specs.RangeMax.HasValue;
+            || specs.RangeMax.HasValue);
 
-        var sensor = new
+        object? sensor = specs.IsEnabled ? new
         {
             ForceUnit = unit,
             SensitivityVolts = FormatNullable(specs.SensitivityVolts),
@@ -59,7 +59,8 @@ public static class TdsTemplateViewModelBuilder
             DriftIntervals = specs.DriftIntervals,
             HasDrift = specs.DriftIntervals.Count > 0,
             HasSpecs = hasSpecs,
-        };
+            IsEnabled = specs.IsEnabled,
+        } : null;
 
         return new
         {

@@ -298,7 +298,15 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         string secStyle = styles.Count > 0 ? $" style=\"{string.Join(" ", styles)}\"" : "";
         string dataAttrs = $" data-type=\"{sec.Type}\" data-source=\"{sec.DataSource}\"";
 
-        if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
+        bool isSensorSec = sec.DataSource == "Tds" || sec.DataSource == "Sensor" ||
+                           string.Equals(sec.Title, "Sensor specifications", System.StringComparison.OrdinalIgnoreCase) ||
+                           (sec.Content != null && sec.Content.Contains("{{Tds."));
+
+        if (isSensorSec)
+        {
+            sb.AppendLine("        {{#if Tds}}");
+        }
+        else if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
         {
             sb.AppendLine($"        {{{{#if {sec.DataSource}}}}}");
         }
@@ -351,7 +359,11 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
 
         sb.AppendLine("        </section>");
 
-        if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
+        if (isSensorSec)
+        {
+            sb.AppendLine("        {{/if}}");
+        }
+        else if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
         {
             sb.AppendLine("        {{/if}}");
         }

@@ -108,6 +108,7 @@ public static class TdsSensorDataMerger
     {
         var merged = Clone(product);
         merged.SchemaVersion = 2;
+        merged.IsEnabled = batchPartial.IsEnabled;
 
         if (!string.IsNullOrWhiteSpace(batchPartial.ForceUnit))
         {
@@ -206,6 +207,10 @@ public static class TdsSensorDataMerger
 
             switch (key.ToLowerInvariant())
             {
+                case "isenabled":
+                    if (value is bool b) target.IsEnabled = b;
+                    else if (bool.TryParse(value.ToString(), out var parsedBool)) target.IsEnabled = parsedBool;
+                    break;
                 case "forceunit":
                     target.ForceUnit = value.ToString() ?? target.ForceUnit;
                     break;

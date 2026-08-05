@@ -273,7 +273,15 @@ public static class AdvancedDocumentRenderer
 
         string secStyle = styles.Count > 0 ? $" style=\"{string.Join(" ", styles)}\"" : "";
 
-        if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
+        bool isSensorSec = sec.DataSource == "Tds" || sec.DataSource == "Sensor" ||
+                           string.Equals(sec.Title, "Sensor specifications", System.StringComparison.OrdinalIgnoreCase) ||
+                           (sec.Content != null && sec.Content.Contains("{{Tds."));
+
+        if (isSensorSec)
+        {
+            sb.AppendLine("        {{#if Tds}}");
+        }
+        else if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
         {
             sb.AppendLine($"        {{{{#if {sec.DataSource}}}}}");
         }
@@ -331,7 +339,11 @@ public static class AdvancedDocumentRenderer
         sb.AppendLine($"          </div>");
         sb.AppendLine("        </section>");
 
-        if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
+        if (isSensorSec)
+        {
+            sb.AppendLine("        {{/if}}");
+        }
+        else if (!string.IsNullOrWhiteSpace(sec.DataSource) && sec.Type != "RichText" && sec.Type != "Charts")
         {
             sb.AppendLine("        {{/if}}");
         }

@@ -85,6 +85,11 @@ public sealed partial class ProductEditorPage : Page
         ViewModel?.TriggerPreviewUpdate();
     }
 
+    private void AutoTriggerPreview_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        ViewModel?.TriggerPreviewUpdate();
+    }
+
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
@@ -385,6 +390,22 @@ public sealed partial class ProductEditorPage : Page
                 XamlRoot = this.XamlRoot
             };
             await dialog.ShowAsync();
+        }
+    }
+
+    private async void OpenDescriptionDialog_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (DescriptionDialog != null)
+        {
+            DescriptionDialog.XamlRoot = this.XamlRoot;
+            DescriptionTextBox.Text = ViewModel.Product?.Description ?? string.Empty;
+
+            var result = await DescriptionDialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                ViewModel.Product.Description = DescriptionTextBox.Text;
+                ViewModel.TriggerPreviewUpdate();
+            }
         }
     }
 }

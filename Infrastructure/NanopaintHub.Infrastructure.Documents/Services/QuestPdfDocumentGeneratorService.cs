@@ -323,6 +323,11 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
             foreach (var sec in schema.Sections)
             {
+                if (!mergedSpecs.IsEnabled && IsSensorSection(sec))
+                {
+                    continue;
+                }
+
                 if (sec.IsHalfWidth)
                 {
                     halfWidthQueue.Add(sec);
@@ -338,8 +343,21 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         });
     }
 
+    private static bool IsSensorSection(TemplateSectionSchema sec)
+    {
+        return sec.DataSource == "Tds"
+            || sec.DataSource == "Sensor"
+            || string.Equals(sec.Title, "Sensor specifications", StringComparison.OrdinalIgnoreCase)
+            || (sec.Content != null && sec.Content.Contains("{{Tds."));
+    }
+
     private void RenderSection(ColumnDescriptor inner, TemplateSectionSchema sec, TemplateBuilderSchema schema, List<string> features, Dictionary<string, string> liquidProps, Dictionary<string, string> mechanicalProps, TdsSensorSpecs mergedSpecs, IReadOnlyDictionary<string, string> chartSvgs)
     {
+        if (!mergedSpecs.IsEnabled && IsSensorSection(sec))
+        {
+            return;
+        }
+
         // Legacy fallback: Convert old RichText HTML tables into native QuestPDF tables
         if (sec.Type == "RichText")
         {

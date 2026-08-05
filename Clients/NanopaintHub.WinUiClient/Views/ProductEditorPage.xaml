@@ -40,53 +40,45 @@
 
         <DataTemplate x:Key="SupplierProductTemplate" x:DataType="viewmodels:CompositionViewModel">
             <Border Margin="0,0,0,8" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="4" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                <Grid>
-                    <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" Background="Transparent" BorderThickness="0">
-                        <Expander.Header>
-                            <!-- Reserved space for absolute positioned controls -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="160" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Padding="0,12">
-                                    <TextBlock Text="{Binding DisplayName}" Style="{ThemeResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding DisplayDescription}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                </StackPanel>
-                            </Grid>
-                        </Expander.Header>
-                        <Expander.Content>
-                            <StackPanel Spacing="8" Padding="12,8,12,16">
-                                <TextBlock Text="Composição Interna (Lida do PDF):" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <ItemsControl ItemsSource="{Binding InnerComponents}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="viewmodels:InnerComponentViewModel">
-                                            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
-                                                <TextBlock Grid.Column="0" Text="•" Margin="0,0,8,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                                <TextBlock Grid.Column="1" Text="{Binding ChemicalName}" TextWrapping="Wrap" />
-                                                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding EffectivePercentage}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                                    <TextBlock Text="%" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                                </StackPanel>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" Background="Transparent" BorderThickness="0">
+                    <Expander.Header>
+                        <Grid ColumnDefinitions="*,Auto" Padding="0,4">
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding DisplayName}" Style="{ThemeResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding DisplayDescription}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                        </Expander.Content>
-                    </Expander>
-                    
-                    <!-- Placed outside the Expander to avoid breaking the ToggleButton -->
-                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,40,0" HorizontalAlignment="Right" VerticalAlignment="Top">
-                        <TextBox Text="{Binding PercentageInput, Mode=TwoWay, UpdateSourceTrigger=Default}" 
-                                 Foreground="{Binding Percentage, Converter={StaticResource PercentageToBrushConverter}}"
-                                 PlaceholderText="0" Width="50" TextAlignment="Right" />
-                        <TextBlock Text="%" VerticalAlignment="Center" />
-                        <Button Content="Remover" VerticalAlignment="Center" Margin="8,0,0,0"
-                                Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCompositionCommand}" 
-                                CommandParameter="{Binding}" />
-                    </StackPanel>
-                </Grid>
+                            
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0,8,0" VerticalAlignment="Center">
+                                <TextBox Text="{Binding PercentageInput, Mode=TwoWay, UpdateSourceTrigger=Default}" 
+                                         Foreground="{Binding Percentage, Converter={StaticResource PercentageToBrushConverter}}"
+                                         PlaceholderText="0" Width="50" TextAlignment="Right" />
+                                <TextBlock Text="%" VerticalAlignment="Center" />
+                                <Button Content="Remover" VerticalAlignment="Center" Margin="8,0,0,0"
+                                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCompositionCommand}" 
+                                        CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </Grid>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <StackPanel Spacing="8" Padding="12,8,12,16">
+                            <TextBlock Text="Composição Interna (Lida do PDF):" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <ItemsControl ItemsSource="{Binding InnerComponents}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:InnerComponentViewModel">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
+                                            <TextBlock Grid.Column="0" Text="•" Margin="0,0,8,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding ChemicalName}" TextWrapping="Wrap" />
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                <TextBlock Text="{Binding EffectivePercentage}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                <TextBlock Text="%" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
             </Border>
         </DataTemplate>
 
@@ -168,8 +160,15 @@
                                             <TextBox Text="{x:Bind ViewModel.Product.Code, Mode=TwoWay}" Width="350" TextChanged="AutoTriggerPreview_TextChanged" />
                                         </settings:SettingsCard>
                                         
-                                        <settings:SettingsCard Header="Descrição" ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
-                                            <TextBox Text="{x:Bind ViewModel.Product.Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" TextChanged="AutoTriggerPreview_TextChanged" HorizontalAlignment="Stretch" />
+                                        <settings:SettingsCard Header="Descrição" Description="Descrição geral do produto">
+                                            <settings:SettingsCard.HeaderIcon>
+                                                <FontIcon Glyph="&#xE8C1;" />
+                                            </settings:SettingsCard.HeaderIcon>
+                                            <Button Content="Editar Descrição" Click="OpenDescriptionDialog_Click">
+                                                <Button.ContentTransitions>
+                                                    <TransitionCollection />
+                                                </Button.ContentTransitions>
+                                            </Button>
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
@@ -359,7 +358,11 @@
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Padding="12,8">
+                                        <settings:SettingsCard Header="Incluir Especificações do Sensor no TDS">
+                                            <ToggleSwitch IsOn="{x:Bind ViewModel.SensorSpecs.IsEnabled, Mode=TwoWay}" Toggled="AutoTriggerPreview_Toggled" />
+                                        </settings:SettingsCard>
+
+                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Padding="12,8" IsEnabled="{x:Bind ViewModel.SensorSpecs.IsEnabled, Mode=OneWay}">
                                             <StackPanel Spacing="16" Margin="0,4">
                                                 <!-- Linha de Ações: Título e Botão de Adicionar -->
                                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -482,5 +485,20 @@
                 </StackPanel>
             </Grid>
         </Grid>
+        <!-- Diálogo para Edição de Descrição do Produto -->
+        <ContentDialog x:Name="DescriptionDialog"
+                       Title="Editar Descrição do Produto"
+                       PrimaryButtonText="Gravar e Fechar"
+                       CloseButtonText="Cancelar"
+                       DefaultButton="Primary"
+                       CornerRadius="8">
+            <Grid Width="500" Margin="0,8,0,0">
+                <TextBox x:Name="DescriptionTextBox" 
+                         AcceptsReturn="True" TextWrapping="Wrap" 
+                         MinHeight="150" MaxHeight="400" 
+                         HorizontalAlignment="Stretch" 
+                         PlaceholderText="Digite a descrição geral do produto..." />
+            </Grid>
+        </ContentDialog>
     </Grid>
 </Page>

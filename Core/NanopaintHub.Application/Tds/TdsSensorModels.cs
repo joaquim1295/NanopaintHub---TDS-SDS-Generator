@@ -7,6 +7,8 @@ public sealed class TdsSensorSpecs
 {
     public int SchemaVersion { get; set; } = 2;
 
+    public bool IsEnabled { get; set; } = true;
+
     public string ForceUnit { get; set; } = "N";
 
     public double? SensitivityVolts { get; set; }
