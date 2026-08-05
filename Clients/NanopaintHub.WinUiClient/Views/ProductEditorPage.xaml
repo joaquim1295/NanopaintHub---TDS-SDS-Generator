@@ -138,7 +138,7 @@
                         <FontIcon Glyph="&#xE946;" />
                     </ToggleButton>
                     <ToggleButton x:Name="TagProperties" ToolTipService.ToolTip="Propriedades Físicas" Checked="NavigationToggle_Checked" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1,1,0,1" CornerRadius="8,0,0,8" Padding="12" Width="48" Height="48">
-                        <FontIcon Glyph="&#xF140;" />
+                        <FontIcon Glyph="&#xE93A;" />
                     </ToggleButton>
                     <ToggleButton x:Name="TagSafety" ToolTipService.ToolTip="Fórmula e Segurança" Checked="NavigationToggle_Checked" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1,1,0,1" CornerRadius="8,0,0,8" Padding="12" Width="48" Height="48">
                         <FontIcon Glyph="&#xE81C;" />
@@ -205,7 +205,7 @@
                             <StackPanel x:Name="PropertiesSection" Spacing="16" Visibility="Collapsed">
                                 <settings:SettingsExpander Header="Liquid Properties" Description="Propriedades físicas da tinta líquida" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
-                                        <FontIcon Glyph="&#xF140;" />
+                                        <FontIcon Glyph="&#xE93A;" />
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
