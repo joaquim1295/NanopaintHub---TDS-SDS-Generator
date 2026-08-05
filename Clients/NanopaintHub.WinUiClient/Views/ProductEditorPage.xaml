@@ -334,40 +334,48 @@
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard Header="Ações">
-                                            <Button Content="Adicionar Especificação" Command="{x:Bind ViewModel.AddCustomSensorSpecCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
-                                        </settings:SettingsCard>
                                         <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
-                                            <ItemsControl ItemsSource="{x:Bind ViewModel.CustomSensorSpecs}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
-                                                        <Grid ColumnDefinitions="*,*,Auto" Margin="0,4">
-                                                            <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Espec. Adicional" Margin="0,0,8,0" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                            <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Valor" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                            <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
-                                                                    Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCustomSensorSpecCommand}" 
-                                                                    CommandParameter="{x:Bind}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </settings:SettingsCard>
-                                        
-                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Header="Especificações Padrão">
-                                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12" Padding="8">
-                                                <TextBox Grid.Row="0" Grid.Column="0" Header="Unidade de Força" Text="{x:Bind ViewModel.SensorSpecs.ForceUnit, Mode=TwoWay}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="0" Grid.Column="1" Header="Sensibilidade (Volts)" Text="{Binding SensorSpecs.SensitivityVolts, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="1" Grid.Column="0" Header="Sensibilidade / Unid." Text="{Binding SensorSpecs.SensitivityPerUnit, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="1" Grid.Column="1" Header="Tempo Resposta (s)" Text="{Binding SensorSpecs.ResponseTimeSec, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="2" Grid.Column="0" Header="Recuperação (s)" Text="{Binding SensorSpecs.RecoveryTimeSec, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="2" Grid.Column="1" Header="Repetibilidade (%)" Text="{Binding SensorSpecs.RepeatabilityPercent, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="3" Grid.Column="0" Header="Resist. Repouso (Ohms)" Text="{Binding SensorSpecs.RestResistanceOhms, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="3" Grid.Column="1" Header="Histerese (%)" Text="{Binding SensorSpecs.HysteresisPercent, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="4" Grid.Column="0" Header="Temp Op Min (°C)" Text="{Binding SensorSpecs.OperatingTempMinC, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="4" Grid.Column="1" Header="Temp Op Max (°C)" Text="{Binding SensorSpecs.OperatingTempMaxC, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="5" Grid.Column="0" Header="Range Min" Text="{Binding SensorSpecs.RangeMin, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                                <TextBox Grid.Row="5" Grid.Column="1" Header="Range Max" Text="{Binding SensorSpecs.RangeMax, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
-                                            </Grid>
+                                            <StackPanel Spacing="16" Margin="0,4">
+                                                <!-- Linha de Ações: Título e Botão de Adicionar -->
+                                                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                    <TextBlock Text="Parâmetros Físicos e Dinâmicos" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="1" Content="Adicionar Especificação" Command="{x:Bind ViewModel.AddCustomSensorSpecCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
+                                                </Grid>
+                                                
+                                                <!-- Lista Dinâmica de Especificações customizadas -->
+                                                <ItemsControl ItemsSource="{x:Bind ViewModel.CustomSensorSpecs}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="viewmodels:KeyValuePairItem">
+                                                            <Grid ColumnDefinitions="*,*,Auto" Margin="0,4">
+                                                                <TextBox Grid.Column="0" Text="{x:Bind Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Espec. Adicional" Margin="0,0,8,0" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                                <TextBox Grid.Column="1" Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Valor" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                                <Button Grid.Column="2" Margin="8,0,0,0" Content="Remover" 
+                                                                        Command="{Binding ElementName=RootGrid, Path=DataContext.RemoveCustomSensorSpecCommand}" 
+                                                                        CommandParameter="{x:Bind}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                
+                                                <!-- Separador Visual Fino -->
+                                                <MenuFlyoutSeparator Margin="0,4"/>
+                                                
+                                                <!-- Grelha Densa de Parâmetros Padrão -->
+                                                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12">
+                                                    <TextBox Grid.Row="0" Grid.Column="0" Header="Unidade de Força" Text="{x:Bind ViewModel.SensorSpecs.ForceUnit, Mode=TwoWay}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="0" Grid.Column="1" Header="Sensibilidade (Volts)" Text="{Binding SensorSpecs.SensitivityVolts, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="1" Grid.Column="0" Header="Sensibilidade / Unid." Text="{Binding SensorSpecs.SensitivityPerUnit, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="1" Grid.Column="1" Header="Tempo Resposta (s)" Text="{Binding SensorSpecs.ResponseTimeSec, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="2" Grid.Column="0" Header="Recuperação (s)" Text="{Binding SensorSpecs.RecoveryTimeSec, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="2" Grid.Column="1" Header="Repetibilidade (%)" Text="{Binding SensorSpecs.RepeatabilityPercent, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="3" Grid.Column="0" Header="Resist. Repouso (Ohms)" Text="{Binding SensorSpecs.RestResistanceOhms, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="3" Grid.Column="1" Header="Histerese (%)" Text="{Binding SensorSpecs.HysteresisPercent, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="4" Grid.Column="0" Header="Temp Op Min (°C)" Text="{Binding SensorSpecs.OperatingTempMinC, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="4" Grid.Column="1" Header="Temp Op Max (°C)" Text="{Binding SensorSpecs.OperatingTempMaxC, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="5" Grid.Column="0" Header="Range Min" Text="{Binding SensorSpecs.RangeMin, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                    <TextBox Grid.Row="5" Grid.Column="1" Header="Range Max" Text="{Binding SensorSpecs.RangeMax, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
+                                                </Grid>
+                                            </StackPanel>
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
