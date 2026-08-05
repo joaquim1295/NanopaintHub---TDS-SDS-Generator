@@ -328,7 +328,7 @@
 
                             <!-- SEÇÃO SENSOR -->
                             <StackPanel x:Name="SensorSection" Spacing="16" Visibility="Collapsed">
-                                <settings:SettingsExpander Header="Especificações Adicionais do Sensor" Description="Método dinâmico de características do sensor" IsExpanded="True">
+                                <settings:SettingsExpander Header="Especificações do Sensor" Description="Parâmetros de performance e especificações dinâmicas" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
                                         <FontIcon Glyph="&#xE9A6;" />
                                     </settings:SettingsExpander.HeaderIcon>
@@ -352,16 +352,8 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                         </settings:SettingsCard>
-                                    </settings:SettingsExpander.Items>
-                                </settings:SettingsExpander>
-
-                                <settings:SettingsExpander Header="Especificações Padrão de Sensor" Description="Campos densos de performance industrial" IsExpanded="True">
-                                    <settings:SettingsExpander.HeaderIcon>
-                                        <FontIcon Glyph="&#xE9A6;" />
-                                    </settings:SettingsExpander.HeaderIcon>
-                                    
-                                    <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
+                                        
+                                        <settings:SettingsCard ContentAlignment="Vertical" HorizontalContentAlignment="Stretch" Header="Especificações Padrão">
                                             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12" Padding="8">
                                                 <TextBox Grid.Row="0" Grid.Column="0" Header="Unidade de Força" Text="{x:Bind ViewModel.SensorSpecs.ForceUnit, Mode=TwoWay}" TextChanged="AutoTriggerPreview_TextChanged" />
                                                 <TextBox Grid.Row="0" Grid.Column="1" Header="Sensibilidade (Volts)" Text="{Binding SensorSpecs.SensitivityVolts, Mode=TwoWay, TargetNullValue=''}" TextChanged="AutoTriggerPreview_TextChanged" />
