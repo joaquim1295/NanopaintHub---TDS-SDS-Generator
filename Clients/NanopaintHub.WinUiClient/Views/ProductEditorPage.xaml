@@ -188,10 +188,6 @@
                                                     <Button Grid.Column="1" Content="Adicionar Característica" Command="{x:Bind ViewModel.AddFeatureCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
                                                 </Grid>
                                                 
-                                                <!-- Separador Visual Fino -->
-                                                <MenuFlyoutSeparator Margin="0,4"
-                                                                     Visibility="{x:Bind ViewModel.HasFeatures, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                
                                                 <!-- Lista Dinâmica de Características -->
                                                 <ItemsControl ItemsSource="{x:Bind ViewModel.Features}"
                                                               Visibility="{x:Bind ViewModel.HasFeatures, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -228,10 +224,6 @@
                                                     <Button Grid.Column="1" Content="Adicionar Propriedade" Command="{x:Bind ViewModel.AddLiquidPropertyCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
                                                 </Grid>
                                                 
-                                                <!-- Separador Visual Fino -->
-                                                <MenuFlyoutSeparator Margin="0,4"
-                                                                     Visibility="{x:Bind ViewModel.HasLiquidProperties, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                
                                                 <!-- Lista Dinâmica de Propriedades -->
                                                 <ItemsControl ItemsSource="{x:Bind ViewModel.LiquidProperties}"
                                                               Visibility="{x:Bind ViewModel.HasLiquidProperties, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -265,10 +257,6 @@
                                                     <TextBlock Text="Diretrizes de Manuseamento" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                                     <Button Grid.Column="1" Content="Adicionar Guideline" Command="{x:Bind ViewModel.AddMechanicalPropertyCommand}" Style="{ThemeResource DefaultButtonStyle}"/>
                                                 </Grid>
-                                                
-                                                <!-- Separador Visual Fino -->
-                                                <MenuFlyoutSeparator Margin="0,4"
-                                                                     Visibility="{x:Bind ViewModel.HasMechanicalProperties, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                 
                                                 <!-- Lista Dinâmica de Guidelines -->
                                                 <ItemsControl ItemsSource="{x:Bind ViewModel.MechanicalProperties}"
@@ -394,10 +382,6 @@
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
-                                                
-                                                <!-- Separador Visual Fino -->
-                                                <MenuFlyoutSeparator Margin="0,4"
-                                                                     Visibility="{x:Bind ViewModel.HasCustomSensorSpecs, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                 
                                                 <!-- Grelha Densa de Parâmetros Padrão -->
                                                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12">
