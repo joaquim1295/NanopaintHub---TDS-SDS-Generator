@@ -138,7 +138,7 @@
                         <FontIcon Glyph="&#xE946;" />
                     </ToggleButton>
                     <ToggleButton x:Name="TagProperties" ToolTipService.ToolTip="Propriedades Físicas" Checked="NavigationToggle_Checked" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1,1,0,1" CornerRadius="8,0,0,8" Padding="12" Width="48" Height="48">
-                        <FontIcon Glyph="&#xE318;" FontFamily="{ThemeResource SymbolThemeFontFamily}" />
+                        <FontIcon Glyph="&#xF140;" />
                     </ToggleButton>
                     <ToggleButton x:Name="TagSafety" ToolTipService.ToolTip="Fórmula e Segurança" Checked="NavigationToggle_Checked" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1,1,0,1" CornerRadius="8,0,0,8" Padding="12" Width="48" Height="48">
                         <FontIcon Glyph="&#xE81C;" />
@@ -149,7 +149,7 @@
                 </StackPanel>
 
                 <Grid Grid.Column="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Canvas.ZIndex="0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
                         <StackPanel Spacing="16" MaxWidth="800" HorizontalAlignment="Stretch">
                             
                             <!-- SEÇÃO GERAL E CARACTERÍSTICAS -->
@@ -168,8 +168,8 @@
                                             <TextBox Text="{x:Bind ViewModel.Product.Code, Mode=TwoWay}" Width="350" TextChanged="AutoTriggerPreview_TextChanged" />
                                         </settings:SettingsCard>
                                         
-                                        <settings:SettingsCard Header="Descrição">
-                                            <TextBox Text="{x:Bind ViewModel.Product.Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" Width="350" TextChanged="AutoTriggerPreview_TextChanged" />
+                                        <settings:SettingsCard Header="Descrição" ContentAlignment="Vertical" HorizontalContentAlignment="Stretch">
+                                            <TextBox Text="{x:Bind ViewModel.Product.Description, Mode=TwoWay}" AcceptsReturn="True" Height="80" TextChanged="AutoTriggerPreview_TextChanged" HorizontalAlignment="Stretch" />
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
@@ -205,7 +205,7 @@
                             <StackPanel x:Name="PropertiesSection" Spacing="16" Visibility="Collapsed">
                                 <settings:SettingsExpander Header="Liquid Properties" Description="Propriedades físicas da tinta líquida" IsExpanded="True">
                                     <settings:SettingsExpander.HeaderIcon>
-                                        <FontIcon Glyph="&#xE318;" FontFamily="{ThemeResource SymbolThemeFontFamily}" />
+                                        <FontIcon Glyph="&#xF140;" />
                                     </settings:SettingsExpander.HeaderIcon>
                                     
                                     <settings:SettingsExpander.Items>
