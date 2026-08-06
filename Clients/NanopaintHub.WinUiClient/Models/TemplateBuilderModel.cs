@@ -270,7 +270,18 @@ public partial class TemplateSection : ObservableObject
 
     /// <summary>Se True, o bloco tenta ocupar apenas metade do espaço, emparelhando com o próximo</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanEditColumnCount))]
     private bool _isHalfWidth = false;
+
+    public bool CanEditColumnCount => !IsHalfWidth;
+
+    partial void OnIsHalfWidthChanged(bool value)
+    {
+        if (value)
+        {
+            ColumnCount = 1;
+        }
+    }
 
     [ObservableProperty]
     private string _fontFamily = "";

@@ -820,7 +820,7 @@
                                                 
                                                 <!-- Title TextBox (Row 0, Col 1) -->
                                                 <Grid Grid.Row="0" Grid.Column="1" Padding="16">
-                                                    <TextBox Text="{x:Bind Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" PlaceholderText="Título da Secção" IsReadOnly="{Binding ElementName=RootGrid, Path=DataContext.IsSdsSelected}"/>
+                                                    <TextBox Text="{x:Bind Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AutoTriggerPreview_Changed" HorizontalAlignment="Stretch" PlaceholderText="Título da Secção" IsReadOnly="{Binding ElementName=RootGrid, Path=DataContext.IsSdsSelected}"/>
                                                 </Grid>
                                                 
                                                 <!-- Right Icons (Row 0, Col 2) -->
@@ -862,7 +862,7 @@
                                                                         </ComboBoxItem.Tag>
                                                                     </ComboBoxItem>
                                                                 </ComboBox>
-                                                                <ComboBox Header="Disposição Conteúdo" SelectedValue="{x:Bind ColumnCount, Mode=TwoWay}" SelectedValuePath="Tag" Width="160" SelectionChanged="AutoTriggerPreview_Changed">
+                                                                <ComboBox Header="Disposição Conteúdo" SelectedValue="{x:Bind ColumnCount, Mode=TwoWay}" SelectedValuePath="Tag" Width="160" SelectionChanged="AutoTriggerPreview_Changed" IsEnabled="{x:Bind CanEditColumnCount, Mode=OneWay}">
                                                                     <ComboBoxItem Content="1 Coluna Interna">
                                                                         <ComboBoxItem.Tag>
                                                                             <x:Int32>1</x:Int32>
@@ -902,7 +902,7 @@
                                                                                 </Flyout>
                                                                             </Button.Flyout>
                                                                         </Button>
-                                                                        <TextBox Grid.Column="1" Text="{x:Bind TextColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
+                                                                        <TextBox Grid.Column="1" Text="{x:Bind TextColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AutoTriggerPreview_Changed" Width="100" VerticalAlignment="Center" />
                                                                     </Grid>
                                                                 </settings:SettingsCard>
                                                             </settings:SettingsExpander.Items>

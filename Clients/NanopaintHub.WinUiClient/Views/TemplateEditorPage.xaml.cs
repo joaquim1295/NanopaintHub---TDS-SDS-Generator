@@ -373,9 +373,13 @@ public sealed partial class TemplateEditorPage : Page
         _ = ViewModel.GeneratePreviewPdfAsync();
     }
 
-    private void AutoTriggerPreview_Changed(object sender, object e)
+    private async void AutoTriggerPreview_Changed(object sender, object e)
     {
-        _ = ViewModel.GeneratePreviewPdfAsync();
+        await System.Threading.Tasks.Task.Delay(100);
+        if (ViewModel != null)
+        {
+            await ViewModel.GeneratePreviewPdfAsync();
+        }
     }
 
     private int _selectedHeaderPageTab = 0;
