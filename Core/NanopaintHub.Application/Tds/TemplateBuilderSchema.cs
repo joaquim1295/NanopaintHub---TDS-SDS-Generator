@@ -23,12 +23,12 @@ public class TemplateLayoutSchema
     public double HeaderPaddingBottom { get; set; } = 10;  // in mm
     public double HeaderPaddingLeft { get; set; } = 20;    // in mm
     public double HeaderPaddingRight { get; set; } = 20;   // in mm
-    public double ContentPaddingTop { get; set; } = 10;
+    public double ContentPaddingTop { get; set; } = 6;
     public double BatchNotePaddingBottom { get; set; } = 12;
     public double SectionSpacing { get; set; } = 6;
     public double TitleBottomSpacing { get; set; } = 6;
-    public double FooterPaddingTop { get; set; } = 8;      // in px
-    public double FooterPaddingBottom { get; set; } = 10;  // in px
+    public double FooterPaddingTop { get; set; } = 9;      // in px
+    public double FooterPaddingBottom { get; set; } = 8;   // in px
     public double SectionMarginBottom { get; set; } = 14;  // in px
     public double SectionBaseScale { get; set; } = 1.0;
 

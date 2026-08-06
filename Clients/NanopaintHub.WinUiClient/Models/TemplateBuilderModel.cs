@@ -52,7 +52,7 @@ public partial class TemplateLayout : ObservableObject
     private int _headerPaddingRight = 20;
 
     [ObservableProperty]
-    private int _contentPaddingTop = 10;
+    private int _contentPaddingTop = 6;
 
     [ObservableProperty]
     private int _batchNotePaddingBottom = 12;
@@ -64,10 +64,10 @@ public partial class TemplateLayout : ObservableObject
     private int _titleBottomSpacing = 6;
 
     [ObservableProperty]
-    private int _footerPaddingTop = 8;
+    private int _footerPaddingTop = 9;
 
     [ObservableProperty]
-    private int _footerPaddingBottom = 10;
+    private int _footerPaddingBottom = 8;
 
     [ObservableProperty]
     private int _sectionMarginBottom = 14;
