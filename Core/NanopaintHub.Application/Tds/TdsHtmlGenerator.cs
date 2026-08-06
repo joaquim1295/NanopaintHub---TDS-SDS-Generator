@@ -41,14 +41,16 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine("        </div>");
         sb.AppendLine("      </div>");
         
-        sb.AppendLine($"      <h1 class=\"product-title\">{{{{ProductType}}}}</h1>");
-        sb.AppendLine($"      <p class=\"product-subtitle\">{{{{Name}}}} · {{{{Code}}}}</p>");
         var flexAlign = string.Equals(schema.Header.ProductImageAlignment, "Center", StringComparison.OrdinalIgnoreCase) ? "center"
             : string.Equals(schema.Header.ProductImageAlignment, "Bottom", StringComparison.OrdinalIgnoreCase) ? "flex-end"
             : "flex-start";
 
-        sb.AppendLine($"      <div class=\"product-description-row\" style=\"display:flex; justify-content:space-between; align-items:{flexAlign}; gap:16px;\">");
-        sb.AppendLine("        <p class=\"product-description\" style=\"flex:1;\">{{Description}}</p>");
+        sb.AppendLine($"      <div class=\"product-main-header-row\" style=\"display:flex; justify-content:space-between; align-items:{flexAlign}; gap:16px; margin-top:12px;\">");
+        sb.AppendLine("        <div class=\"product-main-info\" style=\"flex:1;\">");
+        sb.AppendLine($"          <h1 class=\"product-title\" style=\"margin:0 0 4px 0;\">{{{{ProductType}}}}</h1>");
+        sb.AppendLine($"          <p class=\"product-subtitle\" style=\"margin:0 0 8px 0;\">{{{{Name}}}} · {{{{Code}}}}</p>");
+        sb.AppendLine("          <p class=\"product-description\" style=\"margin:0;\">{{Description}}</p>");
+        sb.AppendLine("        </div>");
         sb.AppendLine("        {{#if Assets.ProductImage}}");
         sb.AppendLine($"        <img class=\"product-header-image\" src=\"{{Assets.ProductImage}}\" alt=\"Product Image\" style=\"max-height:{schema.Header.ProductImageMaxHeight}px; width:auto; object-fit:contain; margin-top:{schema.Header.ProductImageMarginTop}px; flex-shrink:0;\" />");
         sb.AppendLine("        {{/if}}");

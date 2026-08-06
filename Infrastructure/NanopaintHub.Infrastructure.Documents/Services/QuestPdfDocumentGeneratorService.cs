@@ -159,19 +159,6 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     });
                 });
 
-                if (!string.IsNullOrWhiteSpace(product.ProductType))
-                {
-                    col.Item().PaddingTop(10 * scale).Text(product.ProductType)
-                        .FontFamily(schema.Header.TitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * 2f * scale).Bold().FontColor(schema.Header.TitleColor).LetterSpacing(0.06f);
-                }
-                    
-                var productNameText = product.Name;
-
-                col.Item().PaddingTop(4 * scale).Text(productNameText)
-                    .FontFamily(schema.Header.TitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 2f) * scale).Medium().FontColor(schema.Header.SubtitleColor);
-
-                var productDescText = product.Description;
-
                 var imgPath = product.ProductImagePath;
                 if (string.IsNullOrWhiteSpace(imgPath) || !File.Exists(imgPath))
                 {
@@ -179,16 +166,37 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     if (File.Exists(fallbackPath)) imgPath = fallbackPath;
                 }
 
-                if (schema.Header.ShowProductImage && !string.IsNullOrWhiteSpace(imgPath) && File.Exists(imgPath))
+                col.Item().PaddingTop(10 * scale).Row(mainHeaderRow =>
                 {
-                    var imgMaxHeight = schema.Header.ProductImageMaxHeight > 0 ? schema.Header.ProductImageMaxHeight : 50;
-                    col.Item().PaddingTop(8 * scale).Row(descRow =>
+                    mainHeaderRow.RelativeItem().Column(infoCol =>
                     {
-                        descRow.RelativeItem().Text(productDescText)
-                            .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
-                        descRow.ConstantItem(12);
+                        if (!string.IsNullOrWhiteSpace(product.ProductType))
+                        {
+                            infoCol.Item().Text(product.ProductType)
+                                .FontFamily(schema.Header.TitleFontFamily).FontSize((float)schema.Theme.BaseFontSize * 2f * scale).Bold().FontColor(schema.Header.TitleColor).LetterSpacing(0.06f);
+                        }
 
-                        var imgContainer = descRow.ConstantItem(120 * scale).MaxHeight((float)imgMaxHeight * scale);
+                        var productNameText = product.Name;
+                        if (!string.IsNullOrWhiteSpace(productNameText))
+                        {
+                            infoCol.Item().PaddingTop(4 * scale).Text(productNameText)
+                                .FontFamily(schema.Header.TitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 2f) * scale).Medium().FontColor(schema.Header.SubtitleColor);
+                        }
+
+                        var productDescText = product.Description;
+                        if (!string.IsNullOrWhiteSpace(productDescText))
+                        {
+                            infoCol.Item().PaddingTop(8 * scale).Text(productDescText)
+                                .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
+                        }
+                    });
+
+                    if (schema.Header.ShowProductImage && !string.IsNullOrWhiteSpace(imgPath) && File.Exists(imgPath))
+                    {
+                        mainHeaderRow.ConstantItem(12);
+
+                        var imgMaxHeight = schema.Header.ProductImageMaxHeight > 0 ? schema.Header.ProductImageMaxHeight : 50;
+                        var imgContainer = mainHeaderRow.ConstantItem(120 * scale).MaxHeight((float)imgMaxHeight * scale);
                         if (schema.Header.ProductImageMarginTop != 0)
                         {
                             imgContainer = imgContainer.PaddingTop((float)schema.Header.ProductImageMarginTop * scale);
@@ -206,13 +214,8 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                         {
                             imgContainer.AlignRight().AlignTop().Image(imgPath).FitArea();
                         }
-                    });
-                }
-                else
-                {
-                    col.Item().PaddingTop(8 * scale).Text(productDescText)
-                        .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
-                }
+                    }
+                });
             });
     }
 
