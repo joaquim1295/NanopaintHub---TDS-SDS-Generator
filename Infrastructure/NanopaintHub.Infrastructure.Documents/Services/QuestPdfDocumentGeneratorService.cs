@@ -195,7 +195,7 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     {
                         mainHeaderRow.ConstantItem(12);
 
-                        var imgMaxHeight = schema.Header.ProductImageMaxHeight > 0 ? schema.Header.ProductImageMaxHeight : 50;
+                        var imgMaxHeight = schema.Header.ProductImageMaxHeight > 0 ? schema.Header.ProductImageMaxHeight : 100;
                         var imgContainer = mainHeaderRow.ConstantItem(120 * scale).MaxHeight((float)imgMaxHeight * scale);
                         if (schema.Header.ProductImageMarginTop != 0)
                         {

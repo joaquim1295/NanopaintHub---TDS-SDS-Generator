@@ -153,7 +153,7 @@ public partial class TemplateHeader : ObservableObject
     private bool _showProductImage = true;
 
     [ObservableProperty]
-    private int _productImageMaxHeight = 50;
+    private int _productImageMaxHeight = 100;
 
     [ObservableProperty]
     private string _productImageAlignment = "Top";
