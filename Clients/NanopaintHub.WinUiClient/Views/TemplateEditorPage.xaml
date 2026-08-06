@@ -204,7 +204,7 @@
                             <settings:Segmented x:Name="HeaderSubFilter" SelectionChanged="HeaderFilter_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,16" SelectedIndex="0">
                                 <settings:SegmentedItem Content="Todas" />
                                 <settings:SegmentedItem Content="Textos" />
-                                <settings:SegmentedItem Content="Logótipo" />
+                                <settings:SegmentedItem Content="Imagens &amp; Logótipo" />
                                 <settings:SegmentedItem Content="Layout" />
                             </settings:Segmented>
 
@@ -241,30 +241,6 @@
                                                 </Button>
                                                 <TextBox Grid.Column="1" Text="{x:Bind ViewModel.BuilderModel.Header.HeaderBackgroundColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" />
                                             </Grid>
-                                        </settings:SettingsCard>
-                                    </settings:SettingsExpander.Items>
-                                </settings:SettingsExpander>
-
-                                <settings:SettingsExpander Header="Imagem do Produto no Cabeçalho" Description="Tamanho, alinhamento e ajuste fino de posição" IsExpanded="True">
-                                    <settings:SettingsExpander.HeaderIcon>
-                                        <FontIcon Glyph="&#xEB9F;" />
-                                    </settings:SettingsExpander.HeaderIcon>
-                                    <settings:SettingsExpander.Items>
-                                        <settings:SettingsCard Header="Mostrar Imagem do Produto">
-                                            <ToggleSwitch IsOn="{x:Bind ViewModel.BuilderModel.Header.ShowProductImage, Mode=TwoWay}" />
-                                        </settings:SettingsCard>
-                                        <settings:SettingsCard Header="Tamanho da Imagem (px)">
-                                            <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.ProductImageMaxHeight, Mode=TwoWay}" Minimum="20" Maximum="150" SpinButtonPlacementMode="Inline" SmallChange="5" Width="140" />
-                                        </settings:SettingsCard>
-                                        <settings:SettingsCard Header="Alinhamento Vertical">
-                                            <ComboBox SelectedValue="{x:Bind ViewModel.BuilderModel.Header.ProductImageAlignment, Mode=TwoWay}" SelectedValuePath="Tag" Width="140">
-                                                <ComboBoxItem Content="Topo" Tag="Top" />
-                                                <ComboBoxItem Content="Centro" Tag="Center" />
-                                                <ComboBoxItem Content="Base" Tag="Bottom" />
-                                            </ComboBox>
-                                        </settings:SettingsCard>
-                                        <settings:SettingsCard Header="Ajuste Vertical Fino (Offset px)">
-                                            <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.ProductImageMarginTop, Mode=TwoWay}" Minimum="-20" Maximum="40" SpinButtonPlacementMode="Inline" SmallChange="1" Width="140" />
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
@@ -381,6 +357,30 @@
                                         </settings:SettingsCard>
                                         <settings:SettingsCard Header="Tamanho (px)">
                                             <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.LogoHeight, Mode=TwoWay}" SpinButtonPlacementMode="Compact" Width="100" ValueChanged="AutoTriggerPreview_Changed" />
+                                        </settings:SettingsCard>
+                                    </settings:SettingsExpander.Items>
+                                </settings:SettingsExpander>
+
+                                <settings:SettingsExpander Header="Imagem do Produto no Cabeçalho" Description="Tamanho, alinhamento e ajuste fino de posição" IsExpanded="True">
+                                    <settings:SettingsExpander.HeaderIcon>
+                                        <FontIcon Glyph="&#xEB9F;" />
+                                    </settings:SettingsExpander.HeaderIcon>
+                                    <settings:SettingsExpander.Items>
+                                        <settings:SettingsCard Header="Mostrar Imagem do Produto">
+                                            <ToggleSwitch IsOn="{x:Bind ViewModel.BuilderModel.Header.ShowProductImage, Mode=TwoWay}" />
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Tamanho da Imagem (px)">
+                                            <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.ProductImageMaxHeight, Mode=TwoWay}" Minimum="20" Maximum="150" SpinButtonPlacementMode="Inline" SmallChange="5" Width="140" />
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Alinhamento Vertical">
+                                            <ComboBox SelectedValue="{x:Bind ViewModel.BuilderModel.Header.ProductImageAlignment, Mode=TwoWay}" SelectedValuePath="Tag" Width="140">
+                                                <ComboBoxItem Content="Topo" Tag="Top" />
+                                                <ComboBoxItem Content="Centro" Tag="Center" />
+                                                <ComboBoxItem Content="Base" Tag="Bottom" />
+                                            </ComboBox>
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Ajuste Vertical Fino (Offset px)">
+                                            <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.ProductImageMarginTop, Mode=TwoWay}" Minimum="-20" Maximum="40" SpinButtonPlacementMode="Inline" SmallChange="1" Width="140" />
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
