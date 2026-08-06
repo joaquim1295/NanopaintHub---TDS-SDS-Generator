@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Data;
 
 namespace NanopaintHub_WinUIClient.Converters;
 
-public sealed partial class StringEqualityToVisibilityConverter : IValueConverter
+public sealed class StringEqualityToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

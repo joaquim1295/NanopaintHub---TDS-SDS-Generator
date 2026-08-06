@@ -4,7 +4,7 @@ using NanopaintHub.Domain.Entities;
 
 namespace NanopaintHub_WinUIClient.Converters;
 
-public sealed partial class ManualEditToolTipConverter : IValueConverter
+public sealed class ManualEditToolTipConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
