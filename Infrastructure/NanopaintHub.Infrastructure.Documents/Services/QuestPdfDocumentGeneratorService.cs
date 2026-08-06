@@ -172,7 +172,14 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
                 var productDescText = product.Description;
 
-                if (schema.Header.ShowProductImage && !string.IsNullOrWhiteSpace(product.ProductImagePath) && File.Exists(product.ProductImagePath))
+                var imgPath = product.ProductImagePath;
+                if (string.IsNullOrWhiteSpace(imgPath) || !File.Exists(imgPath))
+                {
+                    var fallbackPath = Path.Combine(AppContext.BaseDirectory, "Assets", "GenericProductPhoto.png");
+                    if (File.Exists(fallbackPath)) imgPath = fallbackPath;
+                }
+
+                if (schema.Header.ShowProductImage && !string.IsNullOrWhiteSpace(imgPath) && File.Exists(imgPath))
                 {
                     var imgMaxHeight = schema.Header.ProductImageMaxHeight > 0 ? schema.Header.ProductImageMaxHeight : 50;
                     col.Item().PaddingTop(8 * scale).Row(descRow =>
@@ -189,15 +196,15 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
                         if (string.Equals(schema.Header.ProductImageAlignment, "Center", StringComparison.OrdinalIgnoreCase))
                         {
-                            imgContainer.AlignRight().AlignMiddle().Image(product.ProductImagePath).FitArea();
+                            imgContainer.AlignRight().AlignMiddle().Image(imgPath).FitArea();
                         }
                         else if (string.Equals(schema.Header.ProductImageAlignment, "Bottom", StringComparison.OrdinalIgnoreCase))
                         {
-                            imgContainer.AlignRight().AlignBottom().Image(product.ProductImagePath).FitArea();
+                            imgContainer.AlignRight().AlignBottom().Image(imgPath).FitArea();
                         }
                         else
                         {
-                            imgContainer.AlignRight().AlignTop().Image(product.ProductImagePath).FitArea();
+                            imgContainer.AlignRight().AlignTop().Image(imgPath).FitArea();
                         }
                     });
                 }

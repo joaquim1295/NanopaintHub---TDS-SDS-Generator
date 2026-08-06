@@ -104,7 +104,15 @@ public class TdsDataGatherer
 
     private static string? ReadImageBase64(string? path)
     {
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        {
+            var fallbackPath = Path.Combine(AppContext.BaseDirectory, "Assets", "GenericProductPhoto.png");
+            if (File.Exists(fallbackPath))
+            {
+                path = fallbackPath;
+            }
+            else return null;
+        }
         try
         {
             var bytes = File.ReadAllBytes(path);
