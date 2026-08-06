@@ -95,25 +95,20 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         {
             if (halfWidthQueue.Count > 0)
             {
-                sb.AppendLine("      <div class=\"masonry-row\" style=\"display: flex; gap: 16px; align-items: flex-start; width: 100%;\">");
-                
-                // Left Column
-                sb.AppendLine("        <div class=\"masonry-col\" style=\"flex: 1; min-width: 0;\">");
                 for (int i = 0; i < halfWidthQueue.Count; i += 2)
                 {
+                    sb.AppendLine("      <div class=\"section-row-two-col\" style=\"display: flex; gap: 16px; align-items: flex-start; width: 100%; margin-bottom: 16px;\">");
+                    sb.AppendLine("        <div class=\"masonry-col\" style=\"flex: 1; min-width: 0;\">");
                     GenerateSectionHtml(sb, halfWidthQueue[i], schema);
+                    sb.AppendLine("        </div>");
+                    sb.AppendLine("        <div class=\"masonry-col\" style=\"flex: 1; min-width: 0;\">");
+                    if (i + 1 < halfWidthQueue.Count)
+                    {
+                        GenerateSectionHtml(sb, halfWidthQueue[i + 1], schema);
+                    }
+                    sb.AppendLine("        </div>");
+                    sb.AppendLine("      </div>");
                 }
-                sb.AppendLine("        </div>");
-
-                // Right Column
-                sb.AppendLine("        <div class=\"masonry-col\" style=\"flex: 1; min-width: 0;\">");
-                for (int i = 1; i < halfWidthQueue.Count; i += 2)
-                {
-                    GenerateSectionHtml(sb, halfWidthQueue[i], schema);
-                }
-                sb.AppendLine("        </div>");
-                
-                sb.AppendLine("      </div>");
                 halfWidthQueue.Clear();
             }
         }

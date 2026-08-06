@@ -335,30 +335,24 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
             {
                 if (halfWidthQueue.Count > 0)
                 {
-                    col.Item().Row(row =>
+                    for (int i = 0; i < halfWidthQueue.Count; i += 2)
                     {
-                        // Left Column
-                        row.RelativeItem().Column(leftCol =>
-                        {
-                            for (int i = 0; i < halfWidthQueue.Count; i += 2)
-                            {
-                                var sec = halfWidthQueue[i];
-                                leftCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSection(inner, sec, schema, features, liquidProps, mechanicalProps, mergedSpecs, chartSvgs));
-                            }
-                        });
+                        var leftSec = halfWidthQueue[i];
+                        var rightSec = (i + 1 < halfWidthQueue.Count) ? halfWidthQueue[i + 1] : null;
 
-                        row.ConstantItem(10); // Column Gap
-
-                        // Right Column
-                        row.RelativeItem().Column(rightCol =>
+                        col.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).Row(row =>
                         {
-                            for (int i = 1; i < halfWidthQueue.Count; i += 2)
+                            row.RelativeItem().ShowEntire().Column(inner => RenderSection(inner, leftSec, schema, features, liquidProps, mechanicalProps, mergedSpecs, chartSvgs));
+                            row.ConstantItem(10); // Column Gap
+                            row.RelativeItem().Column(inner =>
                             {
-                                var sec = halfWidthQueue[i];
-                                rightCol.Item().PaddingBottom((float)schema.Layout.SectionSpacing, Unit.Millimetre).ShowEntire().Column(inner => RenderSection(inner, sec, schema, features, liquidProps, mechanicalProps, mergedSpecs, chartSvgs));
-                            }
+                                if (rightSec != null)
+                                {
+                                    inner.Item().ShowEntire().Column(rightInner => RenderSection(rightInner, rightSec, schema, features, liquidProps, mechanicalProps, mergedSpecs, chartSvgs));
+                                }
+                            });
                         });
-                    });
+                    }
                     halfWidthQueue.Clear();
                 }
             }
@@ -490,7 +484,8 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
     private void DrawSectionTitle(IContainer container, string title, string color, float baseFontSize, string? fontFamily = null)
     {
-        var textDescriptor = container.PaddingBottom(5).BorderBottom(2).BorderColor("#d8e1ec").Text(title.ToUpperInvariant());
+        var minH = (baseFontSize + 1f) * 1.6f + 7f;
+        var textDescriptor = container.MinHeight(minH).PaddingBottom(5).BorderBottom(2).BorderColor("#d8e1ec").Text(title.ToUpperInvariant());
         if (!string.IsNullOrWhiteSpace(fontFamily))
         {
             textDescriptor.FontFamily(fontFamily);
