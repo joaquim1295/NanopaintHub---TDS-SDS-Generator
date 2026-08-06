@@ -108,6 +108,7 @@ public sealed partial class TemplateEditorPage : Page
             if (tb != TagCode && TagCode != null) TagCode.IsChecked = false;
 
             if (PanelTheme != null) PanelTheme.Visibility = (tb == TagTheme) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+            if (PanelBatch != null) PanelBatch.Visibility = (tb == TagBatch) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
             if (PanelHeader != null) PanelHeader.Visibility = (tb == TagHeader) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
             if (PanelFooter != null) PanelFooter.Visibility = (tb == TagFooter) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
             if (PanelSections != null) PanelSections.Visibility = (tb == TagSections) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
