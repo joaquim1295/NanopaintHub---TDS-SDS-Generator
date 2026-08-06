@@ -259,14 +259,14 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         var inner = container.PaddingTop(SafeMargin(schema.Layout.TopMargin) * scale, Unit.Millimetre)
                              .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
                              .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
-                             .PaddingBottom(4 * scale, Unit.Millimetre);
+                             .PaddingBottom(2 * scale, Unit.Millimetre);
 
         if (repeating.ShowBorderBottom)
         {
             inner = inner.BorderBottom(1.5f).BorderColor(borderColor);
         }
 
-        inner.PaddingBottom((float)schema.Layout.HeaderPaddingBottom * scale, Unit.Millimetre)
+        inner.PaddingBottom(4 * scale, Unit.Millimetre)
              .Row(row =>
              {
                  if (repeating.ShowLogo)
