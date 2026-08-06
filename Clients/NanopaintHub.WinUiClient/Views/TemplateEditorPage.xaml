@@ -850,7 +850,7 @@
                                                                     <ComboBoxItem Content="SdsSection9" />
                                                                     <ComboBoxItem Content="SdsSectionText" />
                                                                 </ComboBox>
-                                                                <ComboBox Header="Layout" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" Width="150" SelectionChanged="AutoTriggerPreview_Changed" >
+                                                                <ComboBox Header="Layout da Secção" SelectedValue="{x:Bind IsHalfWidth, Mode=TwoWay}" SelectedValuePath="Tag" Width="150" SelectionChanged="AutoTriggerPreview_Changed" >
                                                                     <ComboBoxItem Content="1 Coluna">
                                                                         <ComboBoxItem.Tag>
                                                                             <x:Boolean>False</x:Boolean>
@@ -859,6 +859,18 @@
                                                                    <ComboBoxItem Content="2 Colunas">
                                                                         <ComboBoxItem.Tag>
                                                                             <x:Boolean>True</x:Boolean>
+                                                                        </ComboBoxItem.Tag>
+                                                                    </ComboBoxItem>
+                                                                </ComboBox>
+                                                                <ComboBox Header="Disposição Conteúdo" SelectedValue="{x:Bind ColumnCount, Mode=TwoWay}" SelectedValuePath="Tag" Width="160" SelectionChanged="AutoTriggerPreview_Changed">
+                                                                    <ComboBoxItem Content="1 Coluna Interna">
+                                                                        <ComboBoxItem.Tag>
+                                                                            <x:Int32>1</x:Int32>
+                                                                        </ComboBoxItem.Tag>
+                                                                    </ComboBoxItem>
+                                                                    <ComboBoxItem Content="2 Colunas Internas">
+                                                                        <ComboBoxItem.Tag>
+                                                                            <x:Int32>2</x:Int32>
                                                                         </ComboBoxItem.Tag>
                                                                     </ComboBoxItem>
                                                                 </ComboBox>

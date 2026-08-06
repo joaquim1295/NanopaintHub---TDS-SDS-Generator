@@ -304,4 +304,7 @@ public partial class TemplateSection : ObservableObject
     [ObservableProperty]
     [property: System.Text.Json.Serialization.JsonIgnore]
     private bool _isSdsContext = false;
+
+    [ObservableProperty]
+    private int _columnCount = 1;
 }

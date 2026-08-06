@@ -101,7 +101,8 @@ public static class TemplateHtmlParser
                 FontSize = sec.FontSize,
                 PageBreakBefore = sec.PageBreakBefore,
                 MarginBottom = sec.MarginBottom,
-                MinHeight = sec.MinHeight
+                MinHeight = sec.MinHeight,
+                ColumnCount = sec.ColumnCount > 0 ? sec.ColumnCount : 1
             });
         }
 
@@ -186,7 +187,8 @@ public static class TemplateHtmlParser
                 FontSize = sec.FontSize,
                 PageBreakBefore = sec.PageBreakBefore,
                 MarginBottom = sec.MarginBottom,
-                MinHeight = sec.MinHeight
+                MinHeight = sec.MinHeight,
+                ColumnCount = sec.ColumnCount > 0 ? sec.ColumnCount : 1
             });
         }
 

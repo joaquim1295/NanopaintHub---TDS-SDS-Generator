@@ -422,13 +422,51 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         if (sec.Type == "BulletPoints")
         {
             var data = sec.DataSource == "Features" ? features : new List<string>();
-            foreach (var f in data)
+            if (sec.ColumnCount == 2 && !sec.IsHalfWidth && data.Count > 1)
             {
+                int half = (int)Math.Ceiling(data.Count / 2.0);
+                var leftData = data.Take(half).ToList();
+                var rightData = data.Skip(half).ToList();
+
                 inner.Item().Row(fr =>
                 {
-                    fr.ConstantItem(15).Text("✓").FontColor(schema.Theme.PrimaryColor).Bold();
-                    fr.RelativeItem().Text(f).FontSize(baseFontSize);
+                    fr.RelativeItem().Column(colLeft =>
+                    {
+                        foreach (var item in leftData)
+                        {
+                            colLeft.Item().Row(r =>
+                            {
+                                r.ConstantItem(15).Text("✓").FontColor(schema.Theme.PrimaryColor).Bold();
+                                r.RelativeItem().Text(item).FontSize(baseFontSize);
+                            });
+                        }
+                    });
+
+                    fr.ConstantItem(10);
+
+                    fr.RelativeItem().Column(colRight =>
+                    {
+                        foreach (var item in rightData)
+                        {
+                            colRight.Item().Row(r =>
+                            {
+                                r.ConstantItem(15).Text("✓").FontColor(schema.Theme.PrimaryColor).Bold();
+                                r.RelativeItem().Text(item).FontSize(baseFontSize);
+                            });
+                        }
+                    });
                 });
+            }
+            else
+            {
+                foreach (var f in data)
+                {
+                    inner.Item().Row(fr =>
+                    {
+                        fr.ConstantItem(15).Text("✓").FontColor(schema.Theme.PrimaryColor).Bold();
+                        fr.RelativeItem().Text(f).FontSize(baseFontSize);
+                    });
+                }
             }
         }
         else if (sec.Type == "Table")
@@ -451,7 +489,24 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                     { "Hysteresis", $"{mergedSpecs.HysteresisPercent} %" }
                 };
             }
-            DrawTable(inner, data, schema.Theme.PrimaryColor, baseFontSize);
+
+            if (sec.ColumnCount == 2 && !sec.IsHalfWidth && data.Count > 1)
+            {
+                int half = (int)Math.Ceiling(data.Count / 2.0);
+                var leftData = data.Take(half).ToDictionary(k => k.Key, v => v.Value);
+                var rightData = data.Skip(half).ToDictionary(k => k.Key, v => v.Value);
+
+                inner.Item().Row(tableRow =>
+                {
+                    tableRow.RelativeItem().Column(colLeft => DrawTable(colLeft, leftData, schema.Theme.PrimaryColor, baseFontSize));
+                    tableRow.ConstantItem(10);
+                    tableRow.RelativeItem().Column(colRight => DrawTable(colRight, rightData, schema.Theme.PrimaryColor, baseFontSize));
+                });
+            }
+            else
+            {
+                DrawTable(inner, data, schema.Theme.PrimaryColor, baseFontSize);
+            }
         }
         else if (sec.Type == "Charts")
         {

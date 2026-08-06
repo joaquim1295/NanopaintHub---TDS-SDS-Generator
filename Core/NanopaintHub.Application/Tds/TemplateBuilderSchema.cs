@@ -128,4 +128,5 @@ public class TemplateSectionSchema
     public double MarginBottom { get; set; } = -1;
     public double MinHeight { get; set; } = 0;
     public bool IsDataBound { get; set; } = false;
+    public int ColumnCount { get; set; } = 1;
 }

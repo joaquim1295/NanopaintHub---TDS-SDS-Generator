@@ -303,7 +303,8 @@ public static class AdvancedDocumentRenderer
         }
         else if (sec.Type == "BulletPoints")
         {
-            sb.AppendLine("            <div class=\"features-grid\">");
+            var colStyle = (sec.ColumnCount == 2 && !sec.IsHalfWidth) ? " style=\"column-count: 2; column-gap: 16px;\"" : "";
+            sb.AppendLine($"            <div class=\"features-grid\"{colStyle}>");
             if (!string.IsNullOrWhiteSpace(sec.DataSource))
             {
                 sb.AppendLine($"              {{{{#each {sec.DataSource}}}}}");
@@ -314,16 +315,19 @@ public static class AdvancedDocumentRenderer
         }
         else if (sec.Type == "Table")
         {
-            sb.AppendLine("            <table class=\"data-table\">");
-            sb.AppendLine("              <tbody>");
+            var tableWrapStyle = (sec.ColumnCount == 2 && !sec.IsHalfWidth) ? " style=\"columns: 2; column-gap: 16px;\"" : "";
+            sb.AppendLine($"            <div class=\"table-wrapper\"{tableWrapStyle}>");
+            sb.AppendLine("              <table class=\"data-table\" style=\"break-inside: avoid;\">");
+            sb.AppendLine("                <tbody>");
             if (!string.IsNullOrWhiteSpace(sec.DataSource))
             {
-                sb.AppendLine($"                <!-- {{{{#each {sec.DataSource}}}}} -->");
-                sb.AppendLine("                <tr><th>{{@key}}</th><td>{{this}}</td></tr>");
-                sb.AppendLine("                <!-- {{/each}} -->");
+                sb.AppendLine($"                  <!-- {{{{#each {sec.DataSource}}}}} -->");
+                sb.AppendLine("                  <tr><th>{{@key}}</th><td>{{this}}</td></tr>");
+                sb.AppendLine("                  <!-- {{/each}} -->");
             }
-            sb.AppendLine("              </tbody>");
-            sb.AppendLine("            </table>");
+            sb.AppendLine("                </tbody>");
+            sb.AppendLine("              </table>");
+            sb.AppendLine("            </div>");
         }
         else if (sec.Type == "Charts")
         {

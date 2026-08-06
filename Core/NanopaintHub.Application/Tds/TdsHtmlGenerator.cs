@@ -330,7 +330,8 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         }
         else if (sec.Type == "BulletPoints")
         {
-            sb.AppendLine("          <div class=\"features-grid\">");
+            var colStyle = (sec.ColumnCount == 2 && !sec.IsHalfWidth) ? " style=\"column-count: 2; column-gap: 16px;\"" : "";
+            sb.AppendLine($"          <div class=\"features-grid\"{colStyle}>");
             sb.AppendLine($"            {{{{#each {sec.DataSource}}}}}");
             sb.AppendLine("            <div class=\"feature-item\"><span class=\"feature-check\">✓</span><span>{{this}}</span></div>");
             sb.AppendLine("            {{/each}}");
@@ -338,13 +339,16 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         }
         else if (sec.Type == "Table")
         {
-            sb.AppendLine("          <table class=\"data-table\">");
-            sb.AppendLine("            <tbody>");
-            sb.AppendLine($"              <!-- {{{{#each {sec.DataSource}}}}} -->");
-            sb.AppendLine("              <tr><th>{{@key}}</th><td>{{this}}</td></tr>");
-            sb.AppendLine("              <!-- {{/each}} -->");
-            sb.AppendLine("            </tbody>");
-            sb.AppendLine("          </table>");
+            var tableWrapStyle = (sec.ColumnCount == 2 && !sec.IsHalfWidth) ? " style=\"columns: 2; column-gap: 16px;\"" : "";
+            sb.AppendLine($"          <div class=\"table-wrapper\"{tableWrapStyle}>");
+            sb.AppendLine("            <table class=\"data-table\" style=\"break-inside: avoid;\">");
+            sb.AppendLine("              <tbody>");
+            sb.AppendLine($"                <!-- {{{{#each {sec.DataSource}}}}} -->");
+            sb.AppendLine("                <tr><th>{{@key}}</th><td>{{this}}</td></tr>");
+            sb.AppendLine("                <!-- {{/each}} -->");
+            sb.AppendLine("              </tbody>");
+            sb.AppendLine("            </table>");
+            sb.AppendLine("          </div>");
         }
         else if (sec.Type == "Charts")
         {
