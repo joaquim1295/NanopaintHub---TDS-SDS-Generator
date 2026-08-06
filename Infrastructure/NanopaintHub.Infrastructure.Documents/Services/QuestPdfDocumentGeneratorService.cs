@@ -172,8 +172,22 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
                 var productDescText = product.Description;
 
-                col.Item().PaddingTop(8 * scale).Text(productDescText)
-                    .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
+                if (schema.Header.ShowProductImage && !string.IsNullOrWhiteSpace(product.ProductImagePath) && File.Exists(product.ProductImagePath))
+                {
+                    var imgMaxHeight = schema.Header.ProductImageMaxHeight > 0 ? schema.Header.ProductImageMaxHeight : 50;
+                    col.Item().PaddingTop(8 * scale).Row(descRow =>
+                    {
+                        descRow.RelativeItem().Text(productDescText)
+                            .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
+                        descRow.ConstantItem(12);
+                        descRow.ConstantItem(120 * scale).MaxHeight((float)imgMaxHeight * scale).AlignRight().AlignTop().Image(product.ProductImagePath).FitArea();
+                    });
+                }
+                else
+                {
+                    col.Item().PaddingTop(8 * scale).Text(productDescText)
+                        .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
+                }
             });
     }
 

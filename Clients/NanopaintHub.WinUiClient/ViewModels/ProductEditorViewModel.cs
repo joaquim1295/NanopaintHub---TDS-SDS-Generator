@@ -52,6 +52,12 @@ public partial class ProductEditorViewModel : ObservableObject
     private TdsSensorSpecs _sensorSpecs = new();
 
     [ObservableProperty]
+    private string _productImagePath = string.Empty;
+
+    [ObservableProperty]
+    private bool _hasProductImage = false;
+
+    [ObservableProperty]
     private string _compositionsValidationMessage = string.Empty;
 
     [ObservableProperty]
@@ -217,6 +223,9 @@ public partial class ProductEditorViewModel : ObservableObject
             {
                 foreach (var kvp in SensorSpecs.ExtraSpecs) CustomSensorSpecs.Add(new KeyValuePairItem(kvp.Key, kvp.Value));
             }
+
+            ProductImagePath = Product.ProductImagePath ?? string.Empty;
+            HasProductImage = !string.IsNullOrWhiteSpace(ProductImagePath) && File.Exists(ProductImagePath);
         }
         catch (Exception ex)
         {
@@ -232,6 +241,8 @@ public partial class ProductEditorViewModel : ObservableObject
     private void SaveCollectionsToProduct()
     {
         if (Product == null) return;
+
+        Product.ProductImagePath = ProductImagePath ?? string.Empty;
 
         Product.FeaturesJson = JsonSerializer.Serialize(Features.Select(f => f.Value).Where(f => !string.IsNullOrWhiteSpace(f)).ToList());
         
@@ -491,6 +502,59 @@ public partial class ProductEditorViewModel : ObservableObject
     private void Cancel()
     {
         _navigationService.GoBack();
+    }
+
+    [RelayCommand]
+    private async Task SelectProductImageAsync()
+    {
+        if (Product == null) return;
+
+        var window = (Microsoft.UI.Xaml.Application.Current as App)?.MainWindow;
+        if (window == null) return;
+
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+
+        picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+        picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+        picker.FileTypeFilter.Add(".png");
+        picker.FileTypeFilter.Add(".jpg");
+        picker.FileTypeFilter.Add(".jpeg");
+        picker.FileTypeFilter.Add(".webp");
+
+        var file = await picker.PickSingleFileAsync();
+        if (file != null)
+        {
+            try
+            {
+                var assetsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NanopaintHub", "Assets", "Products");
+                Directory.CreateDirectory(assetsDir);
+
+                var ext = Path.GetExtension(file.Path);
+                var destPath = Path.Combine(assetsDir, $"{Product.Id}{ext}");
+
+                File.Copy(file.Path, destPath, overwrite: true);
+
+                ProductImagePath = destPath;
+                Product.ProductImagePath = destPath;
+                HasProductImage = true;
+
+                TriggerPreviewUpdate();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error copying product image: {ex.Message}");
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void RemoveProductImage()
+    {
+        ProductImagePath = string.Empty;
+        if (Product != null) Product.ProductImagePath = string.Empty;
+        HasProductImage = false;
+        TriggerPreviewUpdate();
     }
 
     [RelayCommand]

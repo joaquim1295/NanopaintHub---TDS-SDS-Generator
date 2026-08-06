@@ -244,6 +244,20 @@
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
+
+                                <settings:SettingsExpander Header="Imagem do Produto no Cabeçalho" Description="Opções de exibição da foto do produto no TDS" IsExpanded="True">
+                                    <settings:SettingsExpander.HeaderIcon>
+                                        <FontIcon Glyph="&#xEB9F;" />
+                                    </settings:SettingsExpander.HeaderIcon>
+                                    <settings:SettingsExpander.Items>
+                                        <settings:SettingsCard Header="Mostrar Imagem do Produto">
+                                            <ToggleSwitch IsOn="{x:Bind ViewModel.BuilderModel.Header.ShowProductImage, Mode=TwoWay}" />
+                                        </settings:SettingsCard>
+                                        <settings:SettingsCard Header="Altura Máxima da Imagem (px)">
+                                            <NumberBox Value="{x:Bind ViewModel.BuilderModel.Header.ProductImageMaxHeight, Mode=TwoWay}" Minimum="20" Maximum="150" SpinButtonPlacementMode="Inline" SmallChange="5" Width="140" />
+                                        </settings:SettingsCard>
+                                    </settings:SettingsExpander.Items>
+                                </settings:SettingsExpander>
                                 
                                 <settings:SettingsExpander Header="Estilo do Nome do Produto" Description="Fonte e cor para o Nome principal">
                                     <settings:SettingsExpander.HeaderIcon>

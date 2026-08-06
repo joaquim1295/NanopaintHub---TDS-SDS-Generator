@@ -13,4 +13,5 @@ public sealed record SaveProductRequest(
     string FunctionalPropertiesJson,
     string TdsSensorSpecsJson,
     DateTime RevisionDate,
-    int DocumentVersion);
+    int DocumentVersion,
+    string? ProductImagePath = null);

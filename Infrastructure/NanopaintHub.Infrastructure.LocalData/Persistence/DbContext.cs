@@ -152,5 +152,9 @@ public class NanopaintHubDbContext : DbContext
         modelBuilder.Entity<Product>()
             .Property(p => p.HazardProfileHash)
             .HasDefaultValue(string.Empty);
+
+        modelBuilder.Entity<Product>()
+            .Property(p => p.ProductImagePath)
+            .HasDefaultValue(string.Empty);
     }
 }

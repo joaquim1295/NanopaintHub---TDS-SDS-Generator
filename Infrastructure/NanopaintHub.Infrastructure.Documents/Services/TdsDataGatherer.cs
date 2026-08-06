@@ -44,6 +44,7 @@ public class TdsDataGatherer
         var batchNumber = _tdsMerge.ResolveBatchNumber(testBatch);
 
         var logoBase64 = ReadLogoBase64();
+        var productImageBase64 = ReadImageBase64(product.ProductImagePath);
         var templateData = TdsTemplateViewModelBuilder.Build(
             product.Name,
             product.Code,
@@ -59,7 +60,8 @@ public class TdsDataGatherer
             mergedSpecs,
             chartSvgs,
             batchNumber,
-            logoBase64);
+            logoBase64,
+            productImageBase64);
 
         TemplateBuilderSchema? schema = null;
         if (!string.IsNullOrWhiteSpace(template.BuilderJson))
@@ -98,5 +100,25 @@ public class TdsDataGatherer
         if (!File.Exists(logoPath)) return null;
         var bytes = File.ReadAllBytes(logoPath);
         return $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
+    }
+
+    private static string? ReadImageBase64(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
+        try
+        {
+            var bytes = File.ReadAllBytes(path);
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            var mime = ext switch
+            {
+                ".png" => "image/png",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".webp" => "image/webp",
+                ".svg" => "image/svg+xml",
+                _ => "image/png"
+            };
+            return $"data:{mime};base64,{Convert.ToBase64String(bytes)}";
+        }
+        catch { return null; }
     }
 }

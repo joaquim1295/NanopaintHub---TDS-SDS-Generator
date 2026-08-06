@@ -170,6 +170,18 @@
                                                 </Button.ContentTransitions>
                                             </Button>
                                         </settings:SettingsCard>
+
+                                        <settings:SettingsCard Header="Imagem do Produto" Description="Foto ou renderização exibida no cabeçalho do TDS">
+                                            <settings:SettingsCard.HeaderIcon>
+                                                <FontIcon Glyph="&#xEB9F;" />
+                                            </settings:SettingsCard.HeaderIcon>
+                                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                <Button Content="Selecionar Imagem..." Command="{x:Bind ViewModel.SelectProductImageCommand}" Style="{ThemeResource DefaultButtonStyle}" />
+                                                <Button Content="Remover" Command="{x:Bind ViewModel.RemoveProductImageCommand}" 
+                                                        Visibility="{x:Bind ViewModel.HasProductImage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                            </StackPanel>
+                                        </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
 
@@ -422,12 +434,25 @@
                     </Grid.RowDefinitions>
                     
                     <!-- Overlay Header -->
-                    <Grid Grid.Row="0" Padding="16" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                        <TextBlock Text="Pré-visualização do Documento" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
+                    <Grid Grid.Row="0" Padding="16,10" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Pré-visualização do Documento" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
+
+                        <ToggleButton Grid.Column="1" x:Name="TogglePreviewControlsButton" IsChecked="False" Padding="8,4" Background="Transparent" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" ToolTipService.ToolTip="Opções de Tipo e Template">
+                            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xE713;" FontSize="12" />
+                                <TextBlock Text="Opções" Style="{ThemeResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </ToggleButton>
                     </Grid>
                     
-                    <!-- Controles de Preview -->
-                    <Grid Grid.Row="1" Padding="16" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                    <!-- Controles de Preview (Colapsável) -->
+                    <Grid Grid.Row="1" Padding="16" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1"
+                          Visibility="{x:Bind TogglePreviewControlsButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />

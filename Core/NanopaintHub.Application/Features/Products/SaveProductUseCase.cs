@@ -81,7 +81,8 @@ public sealed class SaveProductUseCase
                 FunctionalPropertiesJson = request.FunctionalPropertiesJson.Trim(),
                 TdsSensorSpecsJson = request.TdsSensorSpecsJson.Trim(),
                 RevisionDate = request.RevisionDate.Date,
-                DocumentVersion = request.DocumentVersion
+                DocumentVersion = request.DocumentVersion,
+                ProductImagePath = request.ProductImagePath ?? string.Empty
             };
             await _products.AddAsync(product);
             await _unitOfWork.CommitAsync();
@@ -111,6 +112,7 @@ public sealed class SaveProductUseCase
         existing.TdsSensorSpecsJson = request.TdsSensorSpecsJson.Trim();
         existing.RevisionDate = request.RevisionDate.Date;
         existing.DocumentVersion = request.DocumentVersion;
+        if (request.ProductImagePath != null) existing.ProductImagePath = request.ProductImagePath;
 
         await _products.UpdateAsync(existing);
         await _unitOfWork.CommitAsync();

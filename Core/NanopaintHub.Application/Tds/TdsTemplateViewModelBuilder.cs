@@ -18,7 +18,8 @@ public static class TdsTemplateViewModelBuilder
         TdsSensorSpecs specs,
         IReadOnlyDictionary<string, string> chartSvgs,
         string? batchNumber,
-        string? logoBase64 = null)
+        string? logoBase64 = null,
+        string? productImageBase64 = null)
     {
         var unit = string.Equals(specs.ForceUnit, "Pa", StringComparison.OrdinalIgnoreCase) ? "Pa" : "N";
         var tempMinF = specs.OperatingTempMinC.HasValue
@@ -81,7 +82,7 @@ public static class TdsTemplateViewModelBuilder
             Sensor = sensor,
             Tds = sensor,
             Placeholders = specs.PlaceholderValues,
-            Assets = MergeAssets(specs.TemplateAssets, logoBase64),
+            Assets = MergeAssets(specs.TemplateAssets, logoBase64, productImageBase64),
             ExtraSpecs = specs.ExtraSpecs,
             Charts = new
             {
@@ -98,7 +99,8 @@ public static class TdsTemplateViewModelBuilder
 
     private static Dictionary<string, object> MergeAssets(
         IReadOnlyDictionary<string, string>? templateAssets,
-        string? logoBase64)
+        string? logoBase64,
+        string? productImageBase64)
     {
         var assets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
@@ -113,6 +115,11 @@ public static class TdsTemplateViewModelBuilder
         if (!string.IsNullOrWhiteSpace(logoBase64) && !assets.ContainsKey("Logo"))
         {
             assets["Logo"] = logoBase64;
+        }
+
+        if (!string.IsNullOrWhiteSpace(productImageBase64) && !assets.ContainsKey("ProductImage"))
+        {
+            assets["ProductImage"] = productImageBase64;
         }
 
         return assets;

@@ -43,7 +43,12 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         
         sb.AppendLine($"      <h1 class=\"product-title\">{{{{ProductType}}}}</h1>");
         sb.AppendLine($"      <p class=\"product-subtitle\">{{{{Name}}}} · {{{{Code}}}}</p>");
-        sb.AppendLine($"      <p class=\"product-description\">{{{{Description}}}}</p>");
+        sb.AppendLine("      <div class=\"product-description-row\" style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:16px;\">");
+        sb.AppendLine("        <p class=\"product-description\" style=\"flex:1;\">{{Description}}</p>");
+        sb.AppendLine("        {{#if Assets.ProductImage}}");
+        sb.AppendLine($"        <img class=\"product-header-image\" src=\"{{Assets.ProductImage}}\" alt=\"Product Image\" style=\"max-height:{schema.Header.ProductImageMaxHeight}px; max-width:140px; object-fit:contain; border-radius:4px; flex-shrink:0;\" />");
+        sb.AppendLine("        {{/if}}");
+        sb.AppendLine("      </div>");
         sb.AppendLine("    </header>");
 
         // Main Content in Table

@@ -150,6 +150,12 @@ public partial class TemplateHeader : ObservableObject
     private string _descriptionColor = "#b7d7f6";
 
     [ObservableProperty]
+    private bool _showProductImage = true;
+
+    [ObservableProperty]
+    private int _productImageMaxHeight = 50;
+
+    [ObservableProperty]
     private TemplateRepeatingHeader _repeatingHeader = new();
 }
 
