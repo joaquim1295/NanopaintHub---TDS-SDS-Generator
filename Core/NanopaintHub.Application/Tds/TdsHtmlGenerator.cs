@@ -178,10 +178,10 @@ public sealed class TdsHtmlGenerator : ITdsHtmlGenerator
         sb.AppendLine($"  --margin-bottom: {schema.Layout.BottomMargin.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --margin-left: {schema.Layout.LeftMargin.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --margin-right: {schema.Layout.RightMargin.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
-        sb.AppendLine($"  --header-padding-top: {schema.Layout.HeaderPaddingTop.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
-        sb.AppendLine($"  --header-padding-bottom: {schema.Layout.HeaderPaddingBottom.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
-        sb.AppendLine($"  --header-padding-left: {schema.Layout.HeaderPaddingLeft.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
-        sb.AppendLine($"  --header-padding-right: {schema.Layout.HeaderPaddingRight.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
+        sb.AppendLine($"  --header-padding-top: {schema.Layout.TopMargin.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
+        sb.AppendLine("  --header-padding-bottom: 10mm;");
+        sb.AppendLine($"  --header-padding-left: {schema.Layout.LeftMargin.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
+        sb.AppendLine($"  --header-padding-right: {schema.Layout.RightMargin.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --content-padding-top: {schema.Layout.ContentPaddingTop.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --batch-note-padding-bottom: {schema.Layout.BatchNotePaddingBottom.ToString(System.Globalization.CultureInfo.InvariantCulture)}mm;");
         sb.AppendLine($"  --footer-padding-top: {schema.Layout.FooterPaddingTop.ToString(System.Globalization.CultureInfo.InvariantCulture)}px;");

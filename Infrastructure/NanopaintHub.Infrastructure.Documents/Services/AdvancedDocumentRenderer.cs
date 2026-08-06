@@ -196,7 +196,7 @@ public static class AdvancedDocumentRenderer
         sb.AppendLine(".footer-col2 { text-align: right; }");
         sb.AppendLine(".footer-legal { margin: 0; color: var(--text-muted); font-size: 8pt; line-height: 1.35; text-align: justify; }");
 
-        sb.AppendLine(".header-banner { background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; padding: 12mm var(--margin-right) 12mm var(--margin-left); margin-bottom: 10mm; }");
+        sb.AppendLine(".header-banner { background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; padding: var(--margin-top) var(--margin-right) 10mm var(--margin-left); margin-bottom: 10mm; }");
         sb.AppendLine(".header-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.28); padding-bottom: 8px; margin-bottom: 10px; }");
         sb.AppendLine(".logo-wrap { min-height: 30px; display: flex; align-items: center; background: transparent; }");
         sb.AppendLine(".logo-wrap img.logo-image { max-height: 34px; width: auto; object-fit: contain; display: block; }");

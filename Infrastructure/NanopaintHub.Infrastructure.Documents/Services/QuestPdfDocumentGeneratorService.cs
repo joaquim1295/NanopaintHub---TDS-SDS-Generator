@@ -123,10 +123,10 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
         var bgColor = !string.IsNullOrWhiteSpace(schema.Header.HeaderBackgroundColor) ? schema.Header.HeaderBackgroundColor : primary;
 
         container.Background(bgColor) // Changed to support HeaderBackgroundColor
-            .PaddingLeft(SafeMargin(schema.Layout.HeaderPaddingLeft), Unit.Millimetre)
-            .PaddingRight(SafeMargin(schema.Layout.HeaderPaddingRight), Unit.Millimetre)
-            .PaddingTop((float)schema.Layout.HeaderPaddingTop * scale, Unit.Millimetre)
-            .PaddingBottom((float)schema.Layout.HeaderPaddingBottom * scale, Unit.Millimetre)
+            .PaddingLeft(SafeMargin(schema.Layout.LeftMargin), Unit.Millimetre)
+            .PaddingRight(SafeMargin(schema.Layout.RightMargin), Unit.Millimetre)
+            .PaddingTop(SafeMargin(schema.Layout.TopMargin) * scale, Unit.Millimetre)
+            .PaddingBottom(10 * scale, Unit.Millimetre)
             .Column(col =>
             {
                 col.Item().Row(row =>
