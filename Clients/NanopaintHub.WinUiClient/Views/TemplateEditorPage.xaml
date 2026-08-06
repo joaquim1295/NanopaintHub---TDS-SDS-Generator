@@ -204,7 +204,7 @@
                             <settings:Segmented x:Name="HeaderSubFilter" SelectionChanged="HeaderFilter_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,16" SelectedIndex="0">
                                 <settings:SegmentedItem Content="Todas" />
                                 <settings:SegmentedItem Content="Textos" />
-                                <settings:SegmentedItem Content="Imagens &amp; Logótipo" />
+                                <settings:SegmentedItem Content="Imagens" />
                                 <settings:SegmentedItem Content="Layout" />
                             </settings:Segmented>
 
