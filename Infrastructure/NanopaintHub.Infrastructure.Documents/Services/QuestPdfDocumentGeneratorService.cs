@@ -180,7 +180,25 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
                         descRow.RelativeItem().Text(productDescText)
                             .FontFamily(schema.Header.SubtitleFontFamily).FontSize(((float)schema.Theme.BaseFontSize + 1f) * scale).FontColor(schema.Header.DescriptionColor);
                         descRow.ConstantItem(12);
-                        descRow.ConstantItem(120 * scale).MaxHeight((float)imgMaxHeight * scale).AlignRight().AlignTop().Image(product.ProductImagePath).FitArea();
+
+                        var imgContainer = descRow.ConstantItem(120 * scale).MaxHeight((float)imgMaxHeight * scale);
+                        if (schema.Header.ProductImageMarginTop != 0)
+                        {
+                            imgContainer = imgContainer.PaddingTop((float)schema.Header.ProductImageMarginTop * scale);
+                        }
+
+                        if (string.Equals(schema.Header.ProductImageAlignment, "Center", StringComparison.OrdinalIgnoreCase))
+                        {
+                            imgContainer.AlignRight().AlignMiddle().Image(product.ProductImagePath).FitArea();
+                        }
+                        else if (string.Equals(schema.Header.ProductImageAlignment, "Bottom", StringComparison.OrdinalIgnoreCase))
+                        {
+                            imgContainer.AlignRight().AlignBottom().Image(product.ProductImagePath).FitArea();
+                        }
+                        else
+                        {
+                            imgContainer.AlignRight().AlignTop().Image(product.ProductImagePath).FitArea();
+                        }
                     });
                 }
                 else

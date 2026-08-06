@@ -69,6 +69,8 @@ public class TemplateHeaderSchema
     public string DescriptionColor { get; set; } = "#b7d7f6";
     public bool ShowProductImage { get; set; } = true;
     public int ProductImageMaxHeight { get; set; } = 50;
+    public string ProductImageAlignment { get; set; } = "Top";
+    public int ProductImageMarginTop { get; set; } = 0;
     public TemplateRepeatingHeaderSchema RepeatingHeader { get; set; } = new();
 }
 

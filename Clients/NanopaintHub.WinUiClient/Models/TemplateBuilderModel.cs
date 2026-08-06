@@ -156,6 +156,12 @@ public partial class TemplateHeader : ObservableObject
     private int _productImageMaxHeight = 50;
 
     [ObservableProperty]
+    private string _productImageAlignment = "Top";
+
+    [ObservableProperty]
+    private int _productImageMarginTop = 0;
+
+    [ObservableProperty]
     private TemplateRepeatingHeader _repeatingHeader = new();
 }
 
