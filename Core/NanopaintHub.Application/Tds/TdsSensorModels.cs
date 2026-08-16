@@ -71,6 +71,15 @@ public sealed class TdsChartData
 
     public TdsHysteresisChart? Hysteresis { get; set; }
 
+    /// <summary>Caminho de imagem pré-gerada opcional para o gráfico de Linearidade.</summary>
+    public string? LinearityImagePath { get; set; }
+
+    /// <summary>Caminho de imagem pré-gerada opcional para o gráfico de Resistência vs Força.</summary>
+    public string? ResistanceImagePath { get; set; }
+
+    /// <summary>Caminho de imagem pré-gerada opcional para o gráfico de Histerese.</summary>
+    public string? HysteresisImagePath { get; set; }
+
     /// <summary>Coleção para curvas adicionais fora das 3 curvas padrão.</summary>
     public Dictionary<string, List<TdsChartPoint>> ExtraSeries { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }

@@ -417,6 +417,38 @@
                                         </settings:SettingsCard>
                                     </settings:SettingsExpander.Items>
                                 </settings:SettingsExpander>
+
+                                <settings:SettingsExpander Header="Gráficos de Desempenho (Performance Charts)" Description="Importar dados de laboratório (.csv/.xls) ou imagens para os gráficos do TDS" IsExpanded="True">
+                                    <settings:SettingsExpander.HeaderIcon>
+                                        <FontIcon Glyph="&#xE9D2;" />
+                                    </settings:SettingsExpander.HeaderIcon>
+                                    
+                                    <settings:SettingsExpander.Items>
+                                        <settings:SettingsCard Header="Gráfico 1: Linearidade (Força vs Saída)" Description="{x:Bind ViewModel.LinearityChartStatus, Mode=OneWay}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Button Content="Importar CSV/Dados" Click="ImportLinearityCsv_Click" Style="{ThemeResource DefaultButtonStyle}" />
+                                                <Button Content="Importar Imagem" Click="ImportLinearityImage_Click" />
+                                                <Button Content="Limpar" Click="ClearLinearity_Click" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                            </StackPanel>
+                                        </settings:SettingsCard>
+
+                                        <settings:SettingsCard Header="Gráfico 2: Resistência vs Força" Description="{x:Bind ViewModel.ResistanceChartStatus, Mode=OneWay}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Button Content="Importar CSV/Dados" Click="ImportResistanceCsv_Click" Style="{ThemeResource DefaultButtonStyle}" />
+                                                <Button Content="Importar Imagem" Click="ImportResistanceImage_Click" />
+                                                <Button Content="Limpar" Click="ClearResistance_Click" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                            </StackPanel>
+                                        </settings:SettingsCard>
+
+                                        <settings:SettingsCard Header="Gráfico 3: Histerese (Carga e Descarga)" Description="{x:Bind ViewModel.HysteresisChartStatus, Mode=OneWay}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Button Content="Importar CSV/Dados" Click="ImportHysteresisCsv_Click" Style="{ThemeResource DefaultButtonStyle}" />
+                                                <Button Content="Importar Imagem" Click="ImportHysteresisImage_Click" />
+                                                <Button Content="Limpar" Click="ClearHysteresis_Click" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                            </StackPanel>
+                                        </settings:SettingsCard>
+                                    </settings:SettingsExpander.Items>
+                                </settings:SettingsExpander>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

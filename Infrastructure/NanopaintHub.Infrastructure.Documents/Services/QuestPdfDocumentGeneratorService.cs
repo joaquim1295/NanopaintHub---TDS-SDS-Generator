@@ -52,11 +52,15 @@ public sealed class QuestPdfDocumentGeneratorService : IDocumentGeneratorService
 
         var mergedSpecs = _tdsMerge.Merge(product, testBatch);
         var imageFallback = testBatch?.CurveGraphPath;
+        var linearityImg = !string.IsNullOrWhiteSpace(mergedSpecs.Charts?.LinearityImagePath) ? mergedSpecs.Charts.LinearityImagePath : imageFallback;
+        var resistanceImg = !string.IsNullOrWhiteSpace(mergedSpecs.Charts?.ResistanceImagePath) ? mergedSpecs.Charts.ResistanceImagePath : imageFallback;
+        var hysteresisImg = !string.IsNullOrWhiteSpace(mergedSpecs.Charts?.HysteresisImagePath) ? mergedSpecs.Charts.HysteresisImagePath : imageFallback;
+
         var chartSvgs = _chartRenderer.RenderAll(
             mergedSpecs,
-            linearityImagePath: imageFallback,
-            resistanceImagePath: imageFallback,
-            hysteresisImagePath: imageFallback);
+            linearityImagePath: linearityImg,
+            resistanceImagePath: resistanceImg,
+            hysteresisImagePath: hysteresisImg);
         var batchNumber = _tdsMerge.ResolveBatchNumber(testBatch);
 
         TemplateBuilderSchema schema;

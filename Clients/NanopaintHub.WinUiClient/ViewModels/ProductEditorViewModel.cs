@@ -236,6 +236,9 @@ public partial class ProductEditorViewModel : ObservableObject
         OnPropertyChanged(nameof(HasFeatures));
         OnPropertyChanged(nameof(HasLiquidProperties));
         OnPropertyChanged(nameof(HasMechanicalProperties));
+        OnPropertyChanged(nameof(LinearityChartStatus));
+        OnPropertyChanged(nameof(ResistanceChartStatus));
+        OnPropertyChanged(nameof(HysteresisChartStatus));
     }
 
     private void SaveCollectionsToProduct()
@@ -356,6 +359,141 @@ public partial class ProductEditorViewModel : ObservableObject
             TriggerPreviewUpdate();
         }
     }
+
+    #region Performance Charts Support
+
+    public string LinearityChartStatus
+    {
+        get
+        {
+            if (SensorSpecs?.Charts == null) return "Sem dados";
+            if (!string.IsNullOrWhiteSpace(SensorSpecs.Charts.LinearityImagePath)) return $"Imagem ({Path.GetFileName(SensorSpecs.Charts.LinearityImagePath)})";
+            if (SensorSpecs.Charts.Linearity.Count > 0) return $"{SensorSpecs.Charts.Linearity.Count} pontos (CSV)";
+            return "Sem dados";
+        }
+    }
+
+    public string ResistanceChartStatus
+    {
+        get
+        {
+            if (SensorSpecs?.Charts == null) return "Sem dados";
+            if (!string.IsNullOrWhiteSpace(SensorSpecs.Charts.ResistanceImagePath)) return $"Imagem ({Path.GetFileName(SensorSpecs.Charts.ResistanceImagePath)})";
+            if (SensorSpecs.Charts.ResistanceVsForce.Count > 0) return $"{SensorSpecs.Charts.ResistanceVsForce.Count} pontos (CSV)";
+            return "Sem dados";
+        }
+    }
+
+    public string HysteresisChartStatus
+    {
+        get
+        {
+            if (SensorSpecs?.Charts?.Hysteresis == null) return "Sem dados";
+            if (!string.IsNullOrWhiteSpace(SensorSpecs.Charts.HysteresisImagePath)) return $"Imagem ({Path.GetFileName(SensorSpecs.Charts.HysteresisImagePath)})";
+            var hyst = SensorSpecs.Charts.Hysteresis;
+            if (hyst.Loading.Count > 0 || hyst.Unloading.Count > 0)
+            {
+                var pct = hyst.Percent.HasValue ? $", {hyst.Percent.Value:G3}% Histerese" : "";
+                return $"{hyst.Loading.Count} pt carga / {hyst.Unloading.Count} pt descarga{pct} (CSV)";
+            }
+            return "Sem dados";
+        }
+    }
+
+    public void ImportLinearityFromContent(string content)
+    {
+        if (SensorSpecs == null) SensorSpecs = new TdsSensorSpecs();
+        if (SensorSpecs.Charts == null) SensorSpecs.Charts = new TdsChartData();
+        SensorSpecs.Charts.LinearityImagePath = null;
+        SensorSpecs.Charts.Linearity = CsvChartDataParser.ParseXYPoints(content);
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(LinearityChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    public void ImportLinearityImagePath(string path)
+    {
+        if (SensorSpecs == null) SensorSpecs = new TdsSensorSpecs();
+        if (SensorSpecs.Charts == null) SensorSpecs.Charts = new TdsChartData();
+        SensorSpecs.Charts.LinearityImagePath = path;
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(LinearityChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    public void ClearLinearityChart()
+    {
+        if (SensorSpecs?.Charts == null) return;
+        SensorSpecs.Charts.LinearityImagePath = null;
+        SensorSpecs.Charts.Linearity.Clear();
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(LinearityChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    public void ImportResistanceFromContent(string content)
+    {
+        if (SensorSpecs == null) SensorSpecs = new TdsSensorSpecs();
+        if (SensorSpecs.Charts == null) SensorSpecs.Charts = new TdsChartData();
+        SensorSpecs.Charts.ResistanceImagePath = null;
+        SensorSpecs.Charts.ResistanceVsForce = CsvChartDataParser.ParseXYPoints(content);
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(ResistanceChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    public void ImportResistanceImagePath(string path)
+    {
+        if (SensorSpecs == null) SensorSpecs = new TdsSensorSpecs();
+        if (SensorSpecs.Charts == null) SensorSpecs.Charts = new TdsChartData();
+        SensorSpecs.Charts.ResistanceImagePath = path;
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(ResistanceChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    public void ClearResistanceChart()
+    {
+        if (SensorSpecs?.Charts == null) return;
+        SensorSpecs.Charts.ResistanceImagePath = null;
+        SensorSpecs.Charts.ResistanceVsForce.Clear();
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(ResistanceChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    public void ImportHysteresisFromContent(string content)
+    {
+        if (SensorSpecs == null) SensorSpecs = new TdsSensorSpecs();
+        if (SensorSpecs.Charts == null) SensorSpecs.Charts = new TdsChartData();
+        SensorSpecs.Charts.HysteresisImagePath = null;
+        SensorSpecs.Charts.Hysteresis = CsvChartDataParser.ParseHysteresisChart(content);
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(HysteresisChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    public void ImportHysteresisImagePath(string path)
+    {
+        if (SensorSpecs == null) SensorSpecs = new TdsSensorSpecs();
+        if (SensorSpecs.Charts == null) SensorSpecs.Charts = new TdsChartData();
+        SensorSpecs.Charts.HysteresisImagePath = path;
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(HysteresisChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    public void ClearHysteresisChart()
+    {
+        if (SensorSpecs?.Charts == null) return;
+        SensorSpecs.Charts.HysteresisImagePath = null;
+        SensorSpecs.Charts.Hysteresis = null;
+        SaveCollectionsToProduct();
+        OnPropertyChanged(nameof(HysteresisChartStatus));
+        TriggerPreviewUpdate();
+    }
+
+    #endregion
 
     [RelayCommand]
     private async Task SearchSubstancesAsync(string query)

@@ -408,4 +408,114 @@ public sealed partial class ProductEditorPage : Page
             }
         }
     }
+
+    #region Performance Charts File Pickers
+
+    private async System.Threading.Tasks.Task<string?> PickCsvOrDataFileAsync()
+    {
+        var window = ((App)App.Current).MainWindow;
+        if (window == null) return null;
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+        picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+        picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+        picker.FileTypeFilter.Add(".csv");
+        picker.FileTypeFilter.Add(".tsv");
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add(".xls");
+        picker.FileTypeFilter.Add(".xlsx");
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return null;
+        return await System.IO.File.ReadAllTextAsync(file.Path);
+    }
+
+    private async System.Threading.Tasks.Task<string?> PickImageFileAsync()
+    {
+        var window = ((App)App.Current).MainWindow;
+        if (window == null) return null;
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+        picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+        picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+        picker.FileTypeFilter.Add(".png");
+        picker.FileTypeFilter.Add(".jpg");
+        picker.FileTypeFilter.Add(".jpeg");
+        picker.FileTypeFilter.Add(".webp");
+        picker.FileTypeFilter.Add(".gif");
+
+        var file = await picker.PickSingleFileAsync();
+        return file?.Path;
+    }
+
+    private async void ImportLinearityCsv_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var content = await PickCsvOrDataFileAsync();
+        if (!string.IsNullOrWhiteSpace(content))
+        {
+            ViewModel.ImportLinearityFromContent(content);
+        }
+    }
+
+    private async void ImportLinearityImage_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var path = await PickImageFileAsync();
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            ViewModel.ImportLinearityImagePath(path);
+        }
+    }
+
+    private void ClearLinearity_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        ViewModel.ClearLinearityChart();
+    }
+
+    private async void ImportResistanceCsv_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var content = await PickCsvOrDataFileAsync();
+        if (!string.IsNullOrWhiteSpace(content))
+        {
+            ViewModel.ImportResistanceFromContent(content);
+        }
+    }
+
+    private async void ImportResistanceImage_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var path = await PickImageFileAsync();
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            ViewModel.ImportResistanceImagePath(path);
+        }
+    }
+
+    private void ClearResistance_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        ViewModel.ClearResistanceChart();
+    }
+
+    private async void ImportHysteresisCsv_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var content = await PickCsvOrDataFileAsync();
+        if (!string.IsNullOrWhiteSpace(content))
+        {
+            ViewModel.ImportHysteresisFromContent(content);
+        }
+    }
+
+    private async void ImportHysteresisImage_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var path = await PickImageFileAsync();
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            ViewModel.ImportHysteresisImagePath(path);
+        }
+    }
+
+    private void ClearHysteresis_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        ViewModel.ClearHysteresisChart();
+    }
+
+    #endregion
 }
