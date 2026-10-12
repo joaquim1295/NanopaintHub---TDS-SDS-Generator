@@ -2,6 +2,7 @@
   <PropertyGroup>
     <DefaultLanguage>en-US</DefaultLanguage>
     <ResourceLanguage>en-US</ResourceLanguage>
+    <SatelliteResourceLanguages>en-US;pt-PT</SatelliteResourceLanguages>
     <EnableDefaultPriItems>false</EnableDefaultPriItems>
 
 
@@ -18,6 +19,7 @@
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <!-- Debug unpackaged: WebView2 Evergreen (winget) não liga bem em MSIX empacotado via dotnet run. -->
     <WindowsPackageType Condition="'$(Configuration)' == 'Debug'">None</WindowsPackageType>
     <EnableWinAppRunSupport Condition="'$(Configuration)' == 'Debug'">false</EnableWinAppRunSupport>
@@ -59,6 +61,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Nanopaint_logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\nanopaint.initial.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="appsettings.json">
@@ -125,8 +130,7 @@
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <PublishTrimmed>False</PublishTrimmed>
   </PropertyGroup>
 
 </Project>

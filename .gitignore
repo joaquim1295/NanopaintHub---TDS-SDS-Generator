@@ -27,10 +27,15 @@ Desktop.ini
 nanopaint.db
 nanopaint.db-*
 
-## WinUI / MSIX
+## WinUI / MSIX / Publish
 AppPackages/
 BundleArtifacts/
+Publish/
 *.appx
 *.appxbundle
 *.msix
 *.msixbundle
+*.7z
+*.zip
+NANOPAINTHUB/
+ENTREGA_FINAL_NANOPAINTHUB/

@@ -1,0 +1,78 @@
+name: CI/CD - Build & Release NanopaintHub
+
+on:
+  push:
+    branches: [ main, master, "feature/**" ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Criar GitHub Release oficial?'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build, Test & Package Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Restore Dependencies
+        run: dotnet restore NanopaintHub.sln
+
+      - name: Run Unit Tests
+        run: dotnet test Tests/NanopaintHub.UnitTests/NanopaintHub.UnitTests.csproj -c Release --no-restore --verbosity normal
+
+      - name: Publish WinUI Client (win-x64 Standalone + Windows App SDK Runtime)
+        run: |
+          dotnet publish Clients/NanopaintHub.WinUiClient/NanopaintHub.WinUIClient.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:WindowsPackageType=None `
+            -p:WindowsAppSDKSelfContained=true `
+            -p:Platform=x64 `
+            -o Publish/NanopaintHub-win-x64
+
+      - name: Compile Inno Setup Installer
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer/NanopaintHub_Setup.iss
+
+      - name: Upload Installer as Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NanopaintHub-Setup-Installer
+          path: Publish/Installer/NanopaintHub_Setup_v1.0.exe
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release == true)
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Publish/Installer/NanopaintHub_Setup_v1.0.exe
+          name: NanopaintHub ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false

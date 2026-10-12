@@ -72,6 +72,26 @@ public partial class App : Application
             "NanopaintHub");
         Directory.CreateDirectory(dataDir);
         var dbPath = Path.Combine(dataDir, "nanopaint.db");
+
+        // Seed initial database if user DB doesn't exist or is unseeded (<10KB)
+        var initialDbPath = Path.Combine(AppContext.BaseDirectory, "Assets", "nanopaint.initial.db");
+        if (!File.Exists(initialDbPath))
+        {
+            initialDbPath = Path.Combine(AppContext.BaseDirectory, "nanopaint.initial.db");
+        }
+
+        if ((!File.Exists(dbPath) || new FileInfo(dbPath).Length < 10000) && File.Exists(initialDbPath))
+        {
+            try
+            {
+                File.Copy(initialDbPath, dbPath, overwrite: true);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to copy initial database: {ex.Message}");
+            }
+        }
+
         var connectionString = $"Data Source={dbPath}";
 
         //#if DEBUG
